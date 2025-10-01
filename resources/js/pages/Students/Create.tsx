@@ -1,0 +1,81 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { OctagonAlert } from 'lucide-react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Create New Student',
+        href: '/students/create',
+    },
+];
+
+export default function Index() {
+    function route(name: string): string {
+        // Simple implementation for demonstration purposes
+        // In a real app, you might use a route helper or config
+        if (name === 'students.store') {
+            return '/students';
+        }
+        return '/';
+    }
+
+    const { data, setData, post, processing, errors } = useForm({
+        name: '',
+        email: '',
+        username: '',
+        password: '',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('students.store'));
+    };
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Create New Student" />
+            <div className='w-8/12 p-4'>
+                <form onSubmit={handleSubmit} className='space-y-4'>
+                    {/* Display validation errors */}
+                    {Object.keys(errors).length > 0 && (
+                        <Alert>
+                            <OctagonAlert />
+                            <AlertTitle>Errors</AlertTitle>
+                            <AlertDescription>
+                                {Object.values(errors).map((error, index) => (
+                                    <div key={index}>{error}</div>
+                                ))}
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+
+                    <div className='gap-2'>
+                        <Label htmlFor="student-name">Name</Label>
+                        <Input type='text' placeholder="Enter student name" value={data.name} onChange={e => setData('name', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-email">Email</Label>
+                        <Input type='email' placeholder="Enter student email" value={data.email} onChange={e => setData('email', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-username">Username</Label>
+                        <Input type='text' placeholder="Enter student username" value={data.username} onChange={e => setData('username', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-password">Password</Label>
+                        <Input type='password' placeholder="Enter student password" value={data.password} onChange={e => setData('password', e.target.value)} />
+                    </div>
+                    <Button type="submit">Create Student</Button>
+                </form>
+            </div>
+        </AppLayout>
+    );
+}
+
+
