@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, BookUser, ContactRound, ShieldBan } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -35,8 +35,14 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Admins',
         href: '/admins',
+        icon: NotepadText,
+    },
+    {
+        title: 'Courses',
+        href: '/courses',
         icon: ShieldBan,
     },
+    
 ];
 
 const footerNavItems: NavItem[] = [
