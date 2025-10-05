@@ -45,8 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses/{course}/units/{unit}/edit', [UnitController::class, 'edit'])->name('units.edit');
     Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
-
-    Route::get('/exams', [ExamController::class, 'index'])->name('courses.units.exams.index');
+    
     Route::get('/courses/{course}/units/{unit}/exams', [ExamController::class, 'index'])->name('courses.units.exams.index');
     Route::get('/courses/{course}/units/{unit}/exams/create', [ExamController::class, 'create'])->name('courses.units.exams.create');
     Route::post('/courses/{course}/units/{unit}/exams', [ExamController::class, 'store'])->name('courses.units.exams.store');
