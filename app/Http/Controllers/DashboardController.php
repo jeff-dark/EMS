@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Course;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
