@@ -46,24 +46,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
 
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/exams', [ExamController::class, 'index'])->name('courses.units.exams.index');
+    Route::get('/courses/{course}/units/{unit}/exams', [ExamController::class, 'index'])->name('courses.units.exams.index');
+    Route::get('/courses/{course}/units/{unit}/exams/create', [ExamController::class, 'create'])->name('courses.units.exams.create');
+    Route::post('/courses/{course}/units/{unit}/exams', [ExamController::class, 'store'])->name('courses.units.exams.store');
+    Route::get('/courses/{course}/units/{unit}/exams/{exam}/edit', [ExamController::class, 'edit'])->name('courses.units.exams.edit');
+    Route::put('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'update'])->name('courses.units.exams.update');
+    Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
 
-        // 1. COURSE ROUTES
-        // Handles /courses, /courses/create, /courses/{course}/edit, etc.
-        Route::resource('courses', CourseController::class);
-
-        // 2. UNIT ROUTES (Nested under Courses)
-        // Handles /courses/{course}/units, /courses/{course}/units/create, etc.
-        // The shallow() method keeps the edit/update/destroy routes simpler (/units/{unit}/edit)
-        Route::resource('courses.units', UnitController::class)->shallow()->except(['show']);
-
-        // 3. EXAM ROUTES (Deeply Nested under Units/Courses)
-        // Handles /courses/{course}/units/{unit}/exams, /courses/{course}/units/{unit}/exams/create, etc.
-        // We use a deep resource route here.
-        Route::resource('courses.units.exams', ExamController::class)->shallow()->except(['show']);
-
-        // ... other application routes (dashboard, students, teachers, etc.)
-    });
 });
 
 require __DIR__ . '/settings.php';
