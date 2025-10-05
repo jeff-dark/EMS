@@ -15,6 +15,7 @@ class DashboardController extends Controller
             'admins' => User::whereHas('role', fn($q) => $q->where('name', 'admin'))->count(),
             'teachers' => User::whereHas('role', fn($q) => $q->where('name', 'teacher'))->count(),
             'students' => User::whereHas('role', fn($q) => $q->where('name', 'student'))->count(),
+            'courses' => Course::count(),
         ];
 
         // Get all users with their role name

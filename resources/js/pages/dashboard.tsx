@@ -61,6 +61,14 @@ export default function Dashboard() {
                             <span className="text-3xl font-bold">{counts.students}</span>
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Courses</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <span className="text-3xl font-bold">{counts.Courses}</span>
+                        </CardContent>
+                    </Card>
                 </div>
                 {/* Users table */}
                 <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
