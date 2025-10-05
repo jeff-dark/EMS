@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\Unit; // We need this to fetch the unit IDs
+use App\Models\Unit;
 
 class ExamSeeder extends Seeder
 {
@@ -20,7 +20,7 @@ class ExamSeeder extends Seeder
         $units = Unit::all();
         $examsData = [];
 
-        // 3. Define a standard set of exams for each unit
+        // 3. Define a standard set of AT LEAST FIVE exams for each unit
         $examTemplates = [
             [
                 'title' => 'Unit Readiness Quiz',
@@ -29,10 +29,28 @@ class ExamSeeder extends Seeder
                 'is_published' => true,
             ],
             [
+                'title' => 'Topic 1 Review Test',
+                'duration_minutes' => 10,
+                'passing_score' => 50.00,
+                'is_published' => true,
+            ],
+            [
                 'title' => 'Mid-Unit Assessment',
                 'duration_minutes' => 30,
                 'passing_score' => 75.00,
-                'is_published' => false, // Start as draft
+                'is_published' => false,
+            ],
+            [
+                'title' => 'Final Practice Exam',
+                'duration_minutes' => 45,
+                'passing_score' => 80.00,
+                'is_published' => false,
+            ],
+            [
+                'title' => 'End-of-Unit Comprehensive Exam',
+                'duration_minutes' => 60,
+                'passing_score' => 70.00,
+                'is_published' => false, 
             ],
         ];
 
