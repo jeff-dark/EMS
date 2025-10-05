@@ -50,6 +50,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('courses.units.exams.index');
     Route::get('/courses/{course}/units/{unit}/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('courses.units.exams.create');
     Route::post('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('courses.units.exams.store');
+    // Additional routes for editing, updating, and deleting exams can be added here
+    Route::get('/courses/{course}/units/{unit}/exams/{exam}/edit', [App\Http\Controllers\ExamController::class, 'edit'])->name('courses.units.exams.edit');
+    Route::put('/courses/{course}/units/{unit}/exams/{exam}', [App\Http\Controllers\ExamController::class, 'update'])->name('courses.units.exams.update');
+    Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [App\Http\Controllers\ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
     
 });
 
