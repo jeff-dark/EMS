@@ -24,7 +24,7 @@ interface PageProps {
         admins: number;
         teachers: number;
         students: number;
-        Courses: number;
+        courses: number;
     };
     users: User[];
 }
@@ -67,7 +67,7 @@ export default function Dashboard() {
                             <CardTitle>Courses</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <span className="text-3xl font-bold">{counts.Courses}</span>
+                            <span className="text-3xl font-bold">{counts.courses}</span>
                         </CardContent>
                     </Card>
                 </div>
