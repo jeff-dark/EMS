@@ -17,7 +17,7 @@ class ExamController extends Controller
         $exams = $unit->exams()->get();
 
         // Render the Index view, passing the course, unit, and exams
-        return Inertia::render('Exams/Index', [
+        return Inertia::render('Courses/Units/Exams/Index', [
             'course' => $course,
             'unit' => $unit,
             'exams' => $exams,
@@ -30,7 +30,7 @@ class ExamController extends Controller
     public function create(Course $course, Unit $unit)
     {
         // Render the Create view, passing the parent course and unit data
-        return Inertia::render('Exams/Create', compact('course', 'unit'));
+        return Inertia::render('Courses/Units/Exams/Create', compact('course', 'unit'));
     }
 
     /**
@@ -65,7 +65,7 @@ class ExamController extends Controller
     public function edit(Course $course, Unit $unit, Exam $exam)
     {
         // Render the Edit view, passing the context objects
-        return Inertia::render('Exams/Edit', compact('course', 'unit', 'exam'));
+        return Inertia::render('Courses/Units/Exams/Edit', compact('course', 'unit', 'exam'));
     }
 
     /**

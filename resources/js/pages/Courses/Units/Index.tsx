@@ -85,17 +85,21 @@ export default function Index() {
                         </TableHeader>
                         <TableBody>
                             {units.map(unit => (
-                                <TableRow key={unit.id}>
+                                <TableRow
+                                    key={unit.id}
+                                    className="cursor-pointer hover:bg-gray-100 transition"
+                                    onClick={() => window.location.href = `/courses/${course.id}/units/${unit.id}/exams`}
+                                >
                                     <TableCell>{unit.order}</TableCell>
                                     <TableCell>{unit.title}</TableCell>
                                     <TableCell>{unit.summary}</TableCell>
-                                    <TableCell>
+                                    <TableCell onClick={e => e.stopPropagation()}>
                                         <Link href={route("units.edit", unit.id)}>
                                             <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
                                         </Link>
                                         <Button
                                             disabled={processing}
-                                            onClick={() => handleDelete(unit.id, unit.title)}
+                                            onClick={e => { e.stopPropagation(); handleDelete(unit.id, unit.title); }}
                                             className="bg-red-500 hover:bg-red-700"
                                         >
                                             Delete
