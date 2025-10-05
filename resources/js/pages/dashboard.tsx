@@ -24,6 +24,7 @@ interface PageProps {
         admins: number;
         teachers: number;
         students: number;
+        Courses: number;
     };
     users: User[];
 }
