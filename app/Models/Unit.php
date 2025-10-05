@@ -18,4 +18,10 @@ class Unit extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
+    public function exams()
+{
+    // A Unit has many Exams
+    return $this->hasMany(Exam::class);
+}
 }

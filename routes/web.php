@@ -1,15 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, StudentsController, TeacherController, UnitController};
 use FFI\CData;
 use Inertia\Inertia;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UnitController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\StudentsController;
-use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -51,6 +45,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses/{course}/units/{unit}/edit', [UnitController::class, 'edit'])->name('units.edit');
     Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
+
+    // Nested routes for Exams under Courses and Units
+    Route::get('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('courses.units.exams.index');
+    Route::get('/courses/{course}/units/{unit}/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('courses.units.exams.create');
+    Route::post('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('courses.units.exams.store');
+    
 });
 
 require __DIR__.'/settings.php';
