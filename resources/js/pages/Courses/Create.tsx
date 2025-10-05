@@ -58,7 +58,7 @@ export default function Index() {
                         <Input type='text' placeholder="Enter course name" value={data.name} onChange={e => setData('name', e.target.value)} />
                     </div>
                     <div className='gap-2'>
-                        <Label htmlFor="course-description">Email</Label>
+                        <Label htmlFor="course-description">Description</Label>
                         <Input type='description' placeholder="Enter course description" value={data.description} onChange={e => setData('description', e.target.value)} />
                     </div>
                     <Button type="submit">Create course</Button>
