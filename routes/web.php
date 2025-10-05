@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, StudentsController, TeacherController, UnitController};
+use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, ExamController, StudentsController, TeacherController, UnitController};
 use FFI\CData;
 use Inertia\Inertia;
 
@@ -46,16 +46,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
 
-    // Nested routes for Exams under Courses and Units
-    Route::get('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('courses.units.exams.index');
-    Route::get('/courses/{course}/units/{unit}/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('courses.units.exams.create');
-    Route::post('/courses/{course}/units/{unit}/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('courses.units.exams.store');
-    // Additional routes for editing, updating, and deleting exams can be added here
-    Route::get('/courses/{course}/units/{unit}/exams/{exam}/edit', [App\Http\Controllers\ExamController::class, 'edit'])->name('courses.units.exams.edit');
-    Route::put('/courses/{course}/units/{unit}/exams/{exam}', [App\Http\Controllers\ExamController::class, 'update'])->name('courses.units.exams.update');
-    Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [App\Http\Controllers\ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
-    
+    Route::middleware(['auth', 'verified'])->group(function () {
+
+        // 1. COURSE ROUTES
+        // Handles /courses, /courses/create, /courses/{course}/edit, etc.
+        Route::resource('courses', CourseController::class);
+
+        // 2. UNIT ROUTES (Nested under Courses)
+        // Handles /courses/{course}/units, /courses/{course}/units/create, etc.
+        // The shallow() method keeps the edit/update/destroy routes simpler (/units/{unit}/edit)
+        Route::resource('courses.units', UnitController::class)->shallow()->except(['show']);
+
+        // 3. EXAM ROUTES (Deeply Nested under Units/Courses)
+        // Handles /courses/{course}/units/{unit}/exams, /courses/{course}/units/{unit}/exams/create, etc.
+        // We use a deep resource route here.
+        Route::resource('courses.units.exams', ExamController::class)->shallow()->except(['show']);
+
+        // ... other application routes (dashboard, students, teachers, etc.)
+    });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
