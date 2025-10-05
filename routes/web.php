@@ -1,14 +1,15 @@
 <?php
 
+use FFI\CData;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\DashboardController;
-use FFI\CData;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -39,11 +40,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
-    Route::get('/courses/create', action: [CourseController::class, 'create'])->name('courses.create');
+    Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('courses.edit');
     Route::put('/courses/{course}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
 
+    Route::get('/courses/{course}/units', [UnitController::class, 'index'])->name('units.index');
+    Route::get('/courses/{course}/units/create', [UnitController::class, 'create'])->name('units.create');
+    Route::post('/courses/{course}/units', [UnitController::class, 'store'])->name('units.store');
+    Route::get('/courses/{course}/units/{unit}/edit', [UnitController::class, 'edit'])->name('units.edit');
+    Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
+    Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
 });
 
 require __DIR__.'/settings.php';

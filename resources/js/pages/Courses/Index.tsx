@@ -54,6 +54,7 @@ export default function Index() {
             'courses.create': () => '/courses/create',
             'courses.edit': (id?: number) => `/courses/${id}/edit`,
             'courses.destroy': (id?: number) => `/courses/${id}`,
+            'units.index': (id?: number) => `/courses/${id}/units`, // <-- Add this line
             // Add more routes as needed
         };
         return routes[name] ? routes[name](param) : '/';
@@ -81,7 +82,11 @@ export default function Index() {
             {courses.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-4">
                     {courses.map((course) => (
-                        <Card key={course.id}>
+                        <Card
+                            key={course.id}
+                            className="cursor-pointer hover:shadow-lg transition"
+                            onClick={() => window.location.href = route('units.index', course.id)}
+                        >
                             <CardHeader>
                                 <CardTitle>{course.name}</CardTitle>
                                 <CardDescription>{course.description}</CardDescription>
@@ -89,9 +94,17 @@ export default function Index() {
                             <CardContent>
                                 <div className="text-sm text-muted-foreground">Course ID: {course.id}</div>
                             </CardContent>
-                            <CardFooter className="justify-end flex">
-                                <Link href={route('courses.edit', course.id)}><Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button></Link>
-                                <Button disabled={processing} onClick={() => handleDelete(course.id, course.name)} className="bg-red-500 hover:bg-red-700">Delete</Button>
+                            <CardFooter className="justify-end flex space-x-2">
+                                <Link href={route('courses.edit', course.id)}>
+                                    <Button className="bg-slate-500 hover:bg-slate-700">Edit</Button>
+                                </Link>
+                                <Button
+                                    disabled={processing}
+                                    onClick={e => { e.stopPropagation(); handleDelete(course.id, course.name); }}
+                                    className="bg-red-500 hover:bg-red-700"
+                                >
+                                    Delete
+                                </Button>
                             </CardFooter>
                         </Card>
                     ))}

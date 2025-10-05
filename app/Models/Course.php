@@ -30,10 +30,10 @@ class Course extends Model
             // No custom casting needed yet, but we include the method for consistency.
         ];
     }
-    
-    // In the future, you can add relationships here, like:
-    // public function units()
-    // {
-    //     return $this->hasMany(Unit::class);
-    // }
+
+    public function units()
+    {
+        // A Course has many Units
+        return $this->hasMany(Unit::class)->orderBy('order');
+    }
 }
