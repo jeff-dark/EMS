@@ -20,8 +20,12 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        // Admins and Teachers can view any user.
-        // Students can only view themselves (if $user->id === $model->id)
+        // If the target user is an admin, only admins (or the user themselves) may view.
+        if ($model->role && $model->role->name === 'admin') {
+            return $user->hasRole('admin') || $user->id === $model->id;
+        }
+
+        // For non-admin targets: Admins and Teachers can view; Students can view themselves.
         return $user->hasRole('admin') || $user->hasRole('teacher') || $user->id === $model->id;
     }
 
@@ -60,5 +64,14 @@ class UserPolicy
     {
         // Only Admins can delete users, and they cannot delete themselves.
         return $user->hasRole('admin') && $user->id !== $model->id;
+    }
+
+    /**
+     * Determine whether the user can view the admin list / admin resources.
+     * Only admins may view admin accounts.
+     */
+    public function viewAdmin(User $user): bool
+    {
+        return $user->hasRole('admin');
     }
 }

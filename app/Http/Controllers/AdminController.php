@@ -17,6 +17,7 @@ class AdminController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAdmin', User::class);
         $admins = User::whereHas('role', function ($query) {
             $query->where('name', 'admin');
         })->get();
