@@ -31,6 +31,14 @@ class Exam extends Model
     }
 
     /**
+     * Questions that belong to this exam.
+     */
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    /**
      * The attributes that should be cast to native types.
      *
      * @var array

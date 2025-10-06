@@ -53,6 +53,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'update'])->name('courses.units.exams.update');
     Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
 
+    // Question management (teachers/admins)
+    Route::get('/exams/{exam}/questions', [App\Http\Controllers\QuestionController::class, 'index'])->name('exams.questions.index');
+    Route::get('/exams/{exam}/questions/create', [App\Http\Controllers\QuestionController::class, 'create'])->name('exams.questions.create');
+    Route::post('/exams/{exam}/questions', [App\Http\Controllers\QuestionController::class, 'store'])->name('exams.questions.store');
+    Route::get('/exams/{exam}/questions/{question}/edit', [App\Http\Controllers\QuestionController::class, 'edit'])->name('exams.questions.edit');
+    Route::put('/exams/{exam}/questions/{question}', [App\Http\Controllers\QuestionController::class, 'update'])->name('exams.questions.update');
+    Route::delete('/exams/{exam}/questions/{question}', [App\Http\Controllers\QuestionController::class, 'destroy'])->name('exams.questions.destroy');
+
+    // Student exam flow
+    Route::get('/exams/{exam}/start', [App\Http\Controllers\StudentExamController::class, 'start'])->name('student.exams.start');
+    Route::post('/sessions/{session}/answer', [App\Http\Controllers\StudentExamController::class, 'answer'])->name('student.sessions.answer');
+    Route::post('/sessions/{session}/submit', [App\Http\Controllers\StudentExamController::class, 'submit'])->name('student.sessions.submit');
+
+    // Grading routes (teachers)
+    Route::get('/grading/exams/submitted', [App\Http\Controllers\GradingController::class, 'index'])->name('grading.index');
+    Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->name('grading.session');
+    Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
+
 });
 
 require __DIR__ . '/settings.php';
