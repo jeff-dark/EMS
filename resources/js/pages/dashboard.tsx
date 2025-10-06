@@ -1,3 +1,5 @@
+"use client";
+
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
