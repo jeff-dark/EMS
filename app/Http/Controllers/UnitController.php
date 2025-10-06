@@ -9,9 +9,16 @@ use Inertia\Inertia;
 
 class UnitController extends Controller
 {
+    public function __construct()
+    {
+        // Enforce the UnitPolicy for all resource methods
+        // The second parameter 'unit' matches the variable name in your route/method signatures
+        $this->authorizeResource(Unit::class, 'unit');
+    }
+
     public function index(Course $course)
     {
-        $units = $course->units()->get();
+        $units = $course->units()->orderBy('order')->get(); 
         return Inertia::render('Courses/Units/Index', compact('course', 'units'));
     }
 

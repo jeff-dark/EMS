@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Inertia\Inertia;
-use App\Models\Course;
 use Illuminate\Http\Request;
+use App\Models\{Course, User};
+use Inertia\Inertia;
 
 class CourseController extends Controller
 {
-        public function index()
+    public function __construct()
+    {
+        // Enforce the CoursePolicy for all resource methods
+        $this->authorizeResource(Course::class, 'course');
+    }
+
+
+
+    public function index()
     {
         $courses = Course::all();
         return Inertia::render('Courses/Index', compact('courses'));

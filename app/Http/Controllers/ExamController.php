@@ -8,6 +8,13 @@ use Inertia\Inertia;
 
 class ExamController extends Controller
 {
+    public function __construct()
+    {
+        // Enforce the ExamPolicy for all resource methods
+        $this->authorizeResource(Exam::class, 'exam');
+    }
+
+
     /**
      * Display a listing of exams for a specific unit.
      */

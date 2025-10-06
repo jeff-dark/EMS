@@ -53,4 +53,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function hasRole(string $roleName): bool
+    {
+        // Check if the role relationship is loaded and the name matches
+        return $this->role && $this->role->name === $roleName;
+    }
 }
