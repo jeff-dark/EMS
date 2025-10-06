@@ -71,6 +71,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->name('grading.session');
     Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
 
+    // Top-level exams listing (all exams across units/courses)
+    Route::get('/exams', [ExamController::class, 'allExamsIndex'])->name('exams.index');
+
 });
 
 require __DIR__ . '/settings.php';

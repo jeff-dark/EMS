@@ -22,6 +22,11 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Exams',
+        href: '/exams',
+        icon: BookOpen,
+    },
         {
         title: 'Students',
         href: '/students',
@@ -47,13 +52,13 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        title: 'Documentation',
+        href: 'https://example.com/docs',
         icon: Folder,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        title: 'Repository',
+        href: 'https://github.com',
         icon: BookOpen,
     },
 ];

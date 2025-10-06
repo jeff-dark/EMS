@@ -14,6 +14,19 @@ class ExamController extends Controller
         $this->authorizeResource(Exam::class, 'exam');
     }
 
+    /**
+     * Display a listing of all exams across all units and courses.
+     */
+    public function allExamsIndex()
+    {
+        // Load exams with their unit and course for context
+        $exams = Exam::with(['unit', 'unit.course'])->get();
+
+        return Inertia::render('Exams/Index', [
+            'exams' => $exams,
+        ]);
+    }
+
 
     /**
      * Display a listing of exams for a specific unit.
