@@ -1,5 +1,4 @@
 import { Head, useForm, Link, router } from '@inertiajs/react';
-import { PageProps } from '@/types'; // Adjust path if needed
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +33,18 @@ interface ExamsEditProps {
 }
 
 export default function Edit({ auth, course, unit, exam }: ExamsEditProps) {
+    // Fallback for missing props
+    if (!course || !unit || !exam) {
+        return (
+            <AppLayout>
+                <Head title="Exam Not Found" />
+                <div className="w-8/12 p-4 text-center text-red-500">
+                    Error: Required exam data not found. Please check your route/controller.
+                </div>
+            </AppLayout>
+        );
+    }
+
     const { data, setData, put, processing, errors } = useForm({
         title: exam.title,
         duration_minutes: exam.duration_minutes,
@@ -47,12 +58,12 @@ export default function Edit({ auth, course, unit, exam }: ExamsEditProps) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Edit Exam', href: `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit` }]}>
+        <AppLayout breadcrumbs={[{ title: 'Edit Exam', href: `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit` }]}> 
             <Head title={`Edit Exam: ${exam.title}`} />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display validation errors */}
-                    {Object.keys(errors).length > 0 && (
+                    {errors && Object.keys(errors).length > 0 && (
                         <Alert>
                             <OctagonAlert />
                             <AlertTitle>Errors</AlertTitle>
