@@ -21,7 +21,6 @@ class ExamController extends Controller
             'course' => $course,
             'unit' => $unit,
             'exams' => $exams,
-            'auth' => request()->user(),
         ]);
     }
 
@@ -56,7 +55,7 @@ class ExamController extends Controller
         ]);
 
         // Redirect back to the list of exams for this specific unit
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return redirect()->route('Courses.Units.Exams.Index', [$course, $unit])
             ->with('message', 'Exam "' . $request->title . '" created successfully.');
     }
 
@@ -89,7 +88,7 @@ class ExamController extends Controller
             'is_published' => $request->is_published ?? false,
         ]);
 
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return redirect()->route('Courses.Units.Exams.Index', [$course, $unit])
             ->with('message', 'Exam updated successfully.');
     }
 
@@ -100,7 +99,7 @@ class ExamController extends Controller
     {
         $exam->delete();
 
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return redirect()->route('Courses.Units.Exams.Index', [$course, $unit])
             ->with('message', 'Exam deleted successfully.');
     }
 }

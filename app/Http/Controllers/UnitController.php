@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unit;
-use Inertia\Inertia;
-use App\Models\Course;
-use Carbon\Traits\Units;
 use Illuminate\Http\Request;
+use App\Models\{Course, Unit};
+use Carbon\Traits\Units;
+use Inertia\Inertia;
 
 class UnitController extends Controller
 {
@@ -36,7 +35,7 @@ class UnitController extends Controller
             'order' => $request->order,
         ]);
 
-    return redirect()->route('units.index', $course)->with('message', 'Unit created successfully.');
+    return redirect()->route('Units.Index', $course)->with('message', 'Unit created successfully.');
     }
 
     public function edit(Course $course, Unit $unit)
@@ -58,12 +57,12 @@ class UnitController extends Controller
             'order' => $request->order,
         ]);
 
-    return redirect()->route('units.index', $course)->with('message', 'Unit updated successfully.');
+    return redirect()->route('Units.Index', $course)->with('message', 'Unit updated successfully.');
     }
 
     public function destroy(Course $course, Unit $unit)
     {
         $unit->delete();
-    return redirect()->route('units.index', $course)->with('message', 'Unit deleted successfully.');
+    return redirect()->route('Units.Index', $course)->with('message', 'Unit deleted successfully.');
     }
 }
