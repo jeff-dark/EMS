@@ -29,6 +29,10 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<SharedData>().props;
+    const user = auth.user as any;
+    const isStudent =
+        (user && user.role && user.role.name === 'student') ||
+        (user && user.roles && Array.isArray(user.roles) && user.roles.some((r: any) => r.name === 'student'));
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -118,11 +122,18 @@ export default function Profile({
 
                                 <div className="flex items-center gap-4">
                                     <Button
-                                        disabled={processing}
+                                        disabled={processing || isStudent}
+                                        title={isStudent ? 'Students are not allowed to update profile information' : undefined}
                                         data-test="update-profile-button"
                                     >
                                         Save
                                     </Button>
+
+                                    {isStudent && (
+                                        <p className="text-sm text-muted-foreground">
+                                            Students are not allowed to update profile information. If you need changes, please contact an admin or your teacher.
+                                        </p>
+                                    )}
 
                                     <Transition
                                         show={recentlySuccessful}

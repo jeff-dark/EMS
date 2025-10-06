@@ -29,6 +29,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // Prevent students from updating their profile even if inputs are visible.
+        // We check the user's role server-side to enforce the rule.
+        $user = $request->user();
+        if (method_exists($user, 'hasRole') && $user->hasRole('student')) {
+            abort(403, 'Students are not allowed to update profile information.');
+        }
+
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
