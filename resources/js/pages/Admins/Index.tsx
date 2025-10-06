@@ -85,7 +85,6 @@ export default function Index() {
                         <TableCaption>A list of your recent admins.</TableCaption>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Username</TableHead>
@@ -95,7 +94,6 @@ export default function Index() {
                         <TableBody>
                             {admins.map((admin) => (
                                 <TableRow key={admin.id}>
-                                    <TableCell className="font-medium">{admin.id}</TableCell>
                                     <TableCell>{admin.name}</TableCell>
                                     <TableCell>{admin.email}</TableCell>
                                     <TableCell>{admin.username}</TableCell>

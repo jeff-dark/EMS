@@ -85,7 +85,6 @@ export default function Index() {
                         <TableCaption>A list of your recent teachers.</TableCaption>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Username</TableHead>
@@ -95,7 +94,6 @@ export default function Index() {
                         <TableBody>
                             {teachers.map((teacher) => (
                                 <TableRow key={teacher.id}>
-                                    <TableCell className="font-medium">{teacher.id}</TableCell>
                                     <TableCell>{teacher.name}</TableCell>
                                     <TableCell>{teacher.email}</TableCell>
                                     <TableCell>{teacher.username}</TableCell>
