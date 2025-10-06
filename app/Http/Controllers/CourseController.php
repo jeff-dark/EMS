@@ -10,6 +10,7 @@ class CourseController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('auth');
         // Enforce the CoursePolicy for all resource methods
         $this->authorizeResource(Course::class, 'course');
     }
