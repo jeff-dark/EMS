@@ -19,30 +19,23 @@ class DashboardController extends Controller
             'courses' => Course::count(),
         ];
 
-        // Get all users with their role name
-        $users = User::with('role:id,name')
-            ->get(['id', 'name', 'email', 'role_id'])
-            ->map(fn($u) => [
-                'id' => $u->id,
-                'name' => $u->name,
-                'email' => $u->email,
-                'role' => $u->role?->name ?? '',
-            ]);
-
+        // Apply optional role filter and return users as simple arrays
         $filterRole = $request->get('role');
 
-        $users = User::query()
-            // Eager load the role relationship to display the role name
-            ->with('role')
+        $usersQuery = User::query()->with('role');
 
-            // Apply the filter if a specific role is requested
-            ->when($filterRole && $filterRole !== 'all', function ($query) use ($filterRole) {
-                $query->whereHas('role', function ($q) use ($filterRole) {
-                    // Filter by role name (e.g., 'admin', 'teacher', 'student')
-                    $q->where('name', $filterRole);
-                });
-            })
-            ->get();
+        $usersQuery->when($filterRole && $filterRole !== 'all', function ($query) use ($filterRole) {
+            $query->whereHas('role', function ($q) use ($filterRole) {
+                $q->where('name', $filterRole);
+            });
+        });
+
+        $users = $usersQuery->get()->map(fn($u) => [
+            'id' => $u->id,
+            'name' => $u->name,
+            'email' => $u->email,
+            'role' => $u->role?->name ?? '',
+        ])->values();
 
         // Pass the current filter back to the frontend to highlight the active button
         $currentFilter = $filterRole ?: 'all';
@@ -50,6 +43,7 @@ class DashboardController extends Controller
         return Inertia::render('dashboard', [
             'counts' => $counts,
             'users' => $users,
+            'currentFilter' => $currentFilter,
         ]);
     }
 }
