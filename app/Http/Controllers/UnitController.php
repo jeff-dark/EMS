@@ -35,7 +35,7 @@ class UnitController extends Controller
             'order' => $request->order,
         ]);
 
-    return redirect()->route('Units.Index', $course)->with('message', 'Unit created successfully.');
+    return redirect()->route('units.index', $course)->with('message', 'Unit created successfully.');
     }
 
     public function edit(Course $course, Unit $unit)
@@ -57,12 +57,12 @@ class UnitController extends Controller
             'order' => $request->order,
         ]);
 
-    return redirect()->route('Units.Index', $course)->with('message', 'Unit updated successfully.');
+    return redirect()->route('units.index', $course)->with('message', 'Unit updated successfully.');
     }
 
     public function destroy(Course $course, Unit $unit)
     {
         $unit->delete();
-    return redirect()->route('Units.Index', $course)->with('message', 'Unit deleted successfully.');
+    return redirect()->route('units.index', $course)->with('message', 'Unit deleted successfully.');
     }
 }
