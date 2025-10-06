@@ -25,11 +25,14 @@ class AdminController extends Controller
 
     public function create()
     {
+        $this->authorize('createAdmin', User::class);
         return Inertia::render('Admins/Create', []);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('createAdmin', User::class);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',

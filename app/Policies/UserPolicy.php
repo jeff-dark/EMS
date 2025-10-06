@@ -35,6 +35,15 @@ class UserPolicy
     }
 
     /**
+     * Determine whether the user can create new admin users.
+     * Only admins are allowed to create admin accounts.
+     */
+    public function createAdmin(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
+    /**
      * Determine whether the user can update the specific user.
      */
     public function update(User $user, User $model): bool
