@@ -1,10 +1,11 @@
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
 
 interface Exam {
@@ -25,14 +26,15 @@ interface Course {
     name: string;
 }
 
-const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
-const unit: Unit = { id: 1, title: 'Sample Unit', course_id: 1 }; // Replace with actual data
-
-interface Props {
+interface PageProps extends InertiaPageProps {
     exam: Exam;
+    course: Course;
+    unit: Unit;
 }
 
-export default function Edit({ exam }: Props) {
+export default function Edit({ exam }: PageProps) {
+    const { course, unit } = usePage<PageProps>().props;
+
     function route(name: string, params?: (number | string)[]): string {
         // Simple implementation for demonstration purposes
         // In a real app, you might use a route helper or config

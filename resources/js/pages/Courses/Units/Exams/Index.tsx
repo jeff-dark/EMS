@@ -35,24 +35,25 @@ interface Course {
     name: string;
 }
 
-const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
-const unit: Unit = { id: 1, title: 'Sample Unit', course_id: 1 }; // Replace with actual data
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Courses', href: '/courses' },
-    { title: course.name, href: `/courses/${course.id}/units` },
-    { title: unit.title, href: `/courses/${course.id}/units/${unit.id}/exams` },
-];
-
-interface PageProps {
+interface PageProps extends InertiaPageProps {
     exams: Exam[];
     flash: {
         message?: string;
     };
+    course: Course;
+    unit: Unit;
 }
 
 export default function Index() {
-    const { exams, flash } = usePage().props as PageProps;
+    const { exams, flash, course, unit } = usePage<PageProps>().props;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Courses', href: '/courses' },
+        { title: course.name, href: `/courses/${course.id}/units` },
+        { title: unit.title, href: `/courses/${course.id}/units/${unit.id}/exams` },
+    ];
 
     const { processing, delete: destroy } = useForm();
 
@@ -63,11 +64,11 @@ export default function Index() {
     };
 
     // Simple implementation assuming route names map directly to paths
-    function route(name: string, params?: number[]): string {
-        const routes: Record<string, (params?: number[]) => string> = {
-            'courses.units.exams.create': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/create`,
-            'courses.units.exams.edit': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/${p ? p[2] : ''}/edit`,
-            'courses.units.exams.destroy': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/${p ? p[2] : ''}`,
+    function route(name: string, params?: (string | number)[]): string {
+        const routes: Record<string, (params?: (string | number)[]) => string> = {
+            'courses.units.exams.create': (p?: (string | number)[]) => `/courses/${p?.[0]}/units/${p?.[1]}/exams/create`,
+            'courses.units.exams.edit': (p?: (string | number)[]) => `/courses/${p?.[0]}/units/${p?.[1]}/exams/${p?.[2]}/edit`,
+            'courses.units.exams.destroy': (p?: (string | number)[]) => `/courses/${p?.[0]}/units/${p?.[1]}/exams/${p?.[2]}`,
             // Add more routes as needed
         };
         return routes[name] ? routes[name](params) : '/';
@@ -76,7 +77,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Exams" />
             <div className="m-4">
-                <Link href={route('courses.units.exams.create')}><Button>Create Exam</Button></Link>
+                <Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>
             </div>
             <div className="m-4">
                 <div>
@@ -109,14 +110,14 @@ export default function Index() {
                                 <TableRow
                                     key={exam.id}
                                     className="cursor-pointer hover:bg-gray-100 transition"
-                                    onClick={() => window.location.href = `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit`}
+                                    onClick={() => window.location.href = route('courses.units.exams.edit', [course.id, unit.id, exam.id])}
                                 >
                                     <TableCell>{exam.title}</TableCell>
                                     <TableCell>{exam.duration_minutes}</TableCell>
                                     <TableCell>{exam.passing_score}</TableCell>
                                     <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
                                     <TableCell onClick={e => e.stopPropagation()}>
-                                        <Link href={`/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit`}>
+                                        <Link href={route('courses.units.exams.edit', [course.id, unit.id, exam.id])}>
                                             <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
                                         </Link>
                                         <Button disabled={processing} onClick={() => handleDelete(exam.id, exam.title)} className="bg-red-500 hover:bg-red-700">Delete</Button>
@@ -127,8 +128,8 @@ export default function Index() {
                     </Table>
                 </div>
             ) : (
-                <div className="m-4 text-muted-foreground">No exams found for this unit.</div>
+                <div className="m-4 text-center text-gray-500">No exams found for this unit.</div>
             )}
         </AppLayout>
     );
-}
+}   

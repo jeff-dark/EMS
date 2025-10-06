@@ -1,18 +1,12 @@
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Create Exam',
-        href: '/courses/:courseId/units/:unitId/exams/create',
-    },
-];
 
 interface Unit {
     id: number;
@@ -24,7 +18,21 @@ interface Course {
     name: string;
 }
 
-export default function Index(){
+interface PageProps extends InertiaPageProps {
+    course: Course;
+    unit: Unit;
+}
+
+export default function Index() {
+    const { course, unit } = usePage<PageProps>().props;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Create Exam',
+            href: `/courses/${course.id}/units/${unit.id}/exams/create`,
+        },
+    ];
+
     function route(name: string, params: (string | number)[]): string {
         // Simple implementation for demonstration purposes
         // In a real app, you might use a route helper or config
@@ -43,15 +51,8 @@ export default function Index(){
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Assuming courseId and unitId are available in the component's scope
-        const courseId = 1; // Replace with actual course ID
-        const unitId = 1;   // Replace with actual unit ID
-        post(route('courses.units.exams.store', [courseId, unitId]));
+        post(route('courses.units.exams.store', [course.id, unit.id]));
     };
-
-     const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
-     const unit: Unit = { id: 1, title: 'Sample Unit' }; // Replace with actual data
-
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
