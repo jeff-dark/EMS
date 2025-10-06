@@ -27,6 +27,7 @@ interface PageProps {
         courses: number;
     };
     users: User[];
+    [key: string]: unknown;
 }
 
 export default function Dashboard() {
