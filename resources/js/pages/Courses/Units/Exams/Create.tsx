@@ -3,8 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { Head, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Create Exam',
+        href: '/courses/:courseId/units/:unitId/exams/create',
+    },
+];
 
 interface Unit {
     id: number;
@@ -16,13 +24,16 @@ interface Course {
     name: string;
 }
 
-interface ExamsCreateProps {
-    course: Course;
-    unit: Unit;
-    auth: any;
-}
+export default function Index(){
+    function route(name: string, params: (string | number)[]): string {
+        // Simple implementation for demonstration purposes
+        // In a real app, you might use a route helper or config
+        if (name === 'courses.units.exams.store' && params.length === 2) {
+            return `/courses/${params[0]}/units/${params[1]}/exams`;
+        }
+        return '/';
+    }
 
-export default function Create({ auth, course, unit }: ExamsCreateProps) {
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         duration_minutes: 60,
@@ -32,11 +43,18 @@ export default function Create({ auth, course, unit }: ExamsCreateProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('courses.units.exams.store', [course.id, unit.id]));
+        // Assuming courseId and unitId are available in the component's scope
+        const courseId = 1; // Replace with actual course ID
+        const unitId = 1;   // Replace with actual unit ID
+        post(route('courses.units.exams.store', [courseId, unitId]));
     };
 
+     const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
+     const unit: Unit = { id: 1, title: 'Sample Unit' }; // Replace with actual data
+
+
     return (
-        <AppLayout breadcrumbs={[{ title: 'Create Exam', href: `/courses/${course.id}/units/${unit.id}/exams/create` }]}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Create Exam for ${unit.title}`} />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>

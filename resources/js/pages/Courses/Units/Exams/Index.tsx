@@ -1,8 +1,9 @@
-import React from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import {
     Table,
@@ -34,30 +35,61 @@ interface Course {
     name: string;
 }
 
-interface ExamsIndexProps {
-    course: Course;
-    unit: Unit;
+const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
+const unit: Unit = { id: 1, title: 'Sample Unit', course_id: 1 }; // Replace with actual data
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Courses', href: '/courses' },
+    { title: course.name, href: `/courses/${course.id}/units` },
+    { title: unit.title, href: `/courses/${course.id}/units/${unit.id}/exams` },
+];
+
+interface PageProps {
     exams: Exam[];
-    auth: any;
+    flash: {
+        message?: string;
+    };
 }
 
-export default function Index({ auth, course, unit, exams }: ExamsIndexProps) {
-    const { flash } = usePage().props;
+export default function Index() {
+    const { exams, flash } = usePage().props as PageProps;
 
+    const { processing, delete: destroy } = useForm();
+
+    const handleDelete = (id: number, title: string) => {
+        if (confirm(`Are you sure you want to delete exam ${id} - ${title}?`)) {
+            destroy(route('courses.units.exams.destroy', [course.id, unit.id, id]));
+        }
+    };
+
+    // Simple implementation assuming route names map directly to paths
+    function route(name: string, params?: number[]): string {
+        const routes: Record<string, (params?: number[]) => string> = {
+            'courses.units.exams.create': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/create`,
+            'courses.units.exams.edit': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/${p ? p[2] : ''}/edit`,
+            'courses.units.exams.destroy': (p?: number[]) => `/courses/${p ? p[0] : ''}/units/${p ? p[1] : ''}/exams/${p ? p[2] : ''}`,
+            // Add more routes as needed
+        };
+        return routes[name] ? routes[name](params) : '/';
+    }
     return (
-        <AppLayout breadcrumbs={[{ title: 'Exams', href: `/courses/${course.id}/units/${unit.id}/exams` }]}>
-            <Head title={`Exams for ${unit.title}`} />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Exams" />
             <div className="m-4">
-                <Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>
+                <Link href={route('courses.units.exams.create')}><Button>Create Exam</Button></Link>
             </div>
             <div className="m-4">
-                {flash && flash.message && (
-                    <Alert>
-                        <Bell />
-                        <AlertTitle>Notification!</AlertTitle>
-                        <AlertDescription>{flash.message}</AlertDescription>
-                    </Alert>
-                )}
+                <div>
+                    {flash && flash.message && (
+                        <Alert>
+                            <Bell />
+                            <AlertTitle>Notification!</AlertTitle>
+                            <AlertDescription>
+                                {flash.message}
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                </div>
             </div>
             {exams.length > 0 ? (
                 <div className="m-4">
@@ -87,12 +119,7 @@ export default function Index({ auth, course, unit, exams }: ExamsIndexProps) {
                                         <Link href={`/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit`}>
                                             <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
                                         </Link>
-                                        <Button
-                                            className="bg-red-500 hover:bg-red-700"
-                                            onClick={e => { e.stopPropagation(); /* add delete logic here */ }}
-                                        >
-                                            Delete
-                                        </Button>
+                                        <Button disabled={processing} onClick={() => handleDelete(exam.id, exam.title)} className="bg-red-500 hover:bg-red-700">Delete</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

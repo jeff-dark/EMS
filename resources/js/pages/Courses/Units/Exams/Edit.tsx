@@ -1,9 +1,10 @@
-import { Head, useForm, Link, router } from '@inertiajs/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
 
 interface Exam {
@@ -14,35 +15,31 @@ interface Exam {
     passing_score: number;
     is_published: boolean;
 }
-
 interface Unit {
     id: number;
     title: string;
+    course_id: number;
 }
-
 interface Course {
     id: number;
     name: string;
 }
 
-interface ExamsEditProps {
-    course: Course;
-    unit: Unit;
+const course: Course = { id: 1, name: 'Sample Course' }; // Replace with actual data
+const unit: Unit = { id: 1, title: 'Sample Unit', course_id: 1 }; // Replace with actual data
+
+interface Props {
     exam: Exam;
-    auth: any;
 }
 
-export default function Edit({ auth, course, unit, exam }: ExamsEditProps) {
-    // Fallback for missing props
-    if (!course || !unit || !exam) {
-        return (
-            <AppLayout>
-                <Head title="Exam Not Found" />
-                <div className="w-8/12 p-4 text-center text-red-500">
-                    Error: Required exam data not found. Please check your route/controller.
-                </div>
-            </AppLayout>
-        );
+export default function Edit({ exam }: Props) {
+    function route(name: string, params?: (number | string)[]): string {
+        // Simple implementation for demonstration purposes
+        // In a real app, you might use a route helper or config
+        if (name === 'courses.units.exams.update' && params && params.length === 3) {
+            return `/courses/${params[0]}/units/${params[1]}/exams/${params[2]}`;
+        }
+        return '/';
     }
 
     const { data, setData, put, processing, errors } = useForm({
@@ -56,9 +53,19 @@ export default function Edit({ auth, course, unit, exam }: ExamsEditProps) {
         e.preventDefault();
         put(route('courses.units.exams.update', [course.id, unit.id, exam.id]));
     };
+    if (!exam || !unit || !course) {
+        return (
+            <AppLayout>
+                <Head title="Exam Not Found" />
+                <div className="w-8/12 p-4 text-center text-red-500">
+                    Error: Required exam data not found. Please check your route/controller.
+                </div>
+            </AppLayout>
+        );
+    }
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Edit Exam', href: `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit` }]}> 
+        <AppLayout breadcrumbs={[{ title: 'Edit Exam', href: `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit` }]}>
             <Head title={`Edit Exam: ${exam.title}`} />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
