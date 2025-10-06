@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class StudentsController extends Controller
 {
+    public function __construct()
+    {
+        // Enforce UserPolicy for student resource routes (route parameter name: 'student')
+        $this->authorizeResource(User::class, 'student');
+    }
+
     public function index()
     {
         $students = User::whereHas('role', function ($query) {

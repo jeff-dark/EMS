@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    public function __construct()
+    {
+        // Enforce UserPolicy for admin resource routes (route parameter name: 'admin')
+        $this->authorizeResource(User::class, 'admin');
+    }
+
     public function index()
     {
         $admins = User::whereHas('role', function ($query) {

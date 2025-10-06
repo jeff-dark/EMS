@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use App\Models\{Course, Exam, Unit};
-use App\Policies\{CoursePolicy, ExamPolicy, UnitPolicy};
+use App\Models\{Course, Exam, Unit, User};
+use App\Policies\{CoursePolicy, ExamPolicy, UnitPolicy, UserPolicy};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -18,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         Course::class => CoursePolicy::class,
         Unit::class => UnitPolicy::class,
         Exam::class => ExamPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**
