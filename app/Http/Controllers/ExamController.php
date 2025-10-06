@@ -16,11 +16,12 @@ class ExamController extends Controller
         // Fetch the exams for the given unit
         $exams = $unit->exams()->get();
 
-        // Render the Index view, passing the course, unit, and exams
+        // Render the Index view, passing the course, unit, exams, and auth
         return Inertia::render('Courses/Units/Exams/Index', [
             'course' => $course,
             'unit' => $unit,
             'exams' => $exams,
+            'auth' => request()->user(),
         ]);
     }
 
