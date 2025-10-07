@@ -4,6 +4,8 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,6 +27,9 @@ interface PageProps {
         teachers: number;
         students: number;
         courses: number;
+        units?: number;
+        exams?: number;
+        questions?: number;
     };
     users: User[];
     [key: string]: unknown;
@@ -38,7 +43,7 @@ export default function Dashboard() {
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 {/* Top cards */}
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+                <div className="grid auto-rows-min gap-4 md:grid-cols-3 xl:grid-cols-4">
                     <Card>
                         <CardHeader>
                             <CardTitle>Admins</CardTitle>
@@ -72,6 +77,50 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                 </div>
+                {/* Bar Chart */}
+                <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>Content Overview</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            config={{
+                                courses: { label: 'Courses', color: 'hsl(var(--chart-1))' },
+                                units: { label: 'Units', color: 'hsl(var(--chart-2))' },
+                                exams: { label: 'Exams', color: 'hsl(var(--chart-3))' },
+                                questions: { label: 'Questions', color: 'hsl(var(--chart-4))' },
+                            }}
+                            className="h-[300px]"
+                        >
+                            <BarChart
+                                data={[
+                                    {
+                                        name: 'Totals',
+                                        courses: counts.courses ?? 0,
+                                        units: counts.units ?? 0,
+                                        exams: counts.exams ?? 0,
+                                        questions: counts.questions ?? 0,
+                                    },
+                                ]}
+                                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                            >
+                                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                <XAxis
+                                    dataKey="name"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                />
+                                <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
+                                <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                <Bar dataKey="courses" fill="var(--color-courses)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="units" fill="var(--color-units)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="exams" fill="var(--color-exams)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="questions" fill="var(--color-questions)" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
                 {/* Users table */}
                 <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
                     <Table>
