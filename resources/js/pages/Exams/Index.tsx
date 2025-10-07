@@ -42,7 +42,9 @@ interface PageProps {
 }
 
 export default function Index() {
-    const { exams, flash } = usePage<PageProps>().props;
+    const page = usePage().props as unknown as Partial<PageProps> & { [key:string]: any };
+    const exams: BackendExam[] = page.exams || [];
+    const flash = page.flash || {};
 
     const { processing, delete: destroy } = useForm();
 

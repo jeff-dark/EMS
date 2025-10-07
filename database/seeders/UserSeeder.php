@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\{Role, User};
 
 class UserSeeder extends Seeder
 {
@@ -32,7 +31,7 @@ class UserSeeder extends Seeder
                 array_merge([
                     'name' => $overrides['name'] ?? Str::of($role->name)->title() . ' User',
                     'username' => $overrides['username'] ?? Str::slug($overrides['email']),
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('123456789'),
                     'email_verified_at' => now(),
                     'role_id' => $role->id,
                 ], $overrides)
@@ -40,14 +39,14 @@ class UserSeeder extends Seeder
         };
 
         // 2 Admins
-        $create(['name' => 'Primary Admin', 'email' => 'admin1@example.com', 'username' => 'admin1'], $adminRole);
+        $create(['name' => 'Primary Admin', 'email' => 'admintest@gmail.com', 'username' => 'admin1'], $adminRole);
         $create(['name' => 'Secondary Admin', 'email' => 'admin2@example.com', 'username' => 'admin2'], $adminRole);
 
         // 7 Teachers
         for ($i = 1; $i <= 7; $i++) {
             $create([
                 'name' => 'Teacher ' . $i,
-                'email' => "teacher{$i}@example.com",
+                'email' => "teacher{$i}@gmail.com.com",
                 'username' => "teacher{$i}",
             ], $teacherRole);
         }
@@ -56,7 +55,7 @@ class UserSeeder extends Seeder
         for ($i = 1; $i <= 30; $i++) {
             $create([
                 'name' => 'Student ' . $i,
-                'email' => "student{$i}@example.com",
+                'email' => "student{$i}@gmail.com",
                 'username' => "student{$i}",
             ], $studentRole);
         }

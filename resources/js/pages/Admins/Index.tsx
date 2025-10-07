@@ -37,7 +37,9 @@ interface PageProps {
 
 export default function Index() {
 
-    const { admins, flash } = usePage().props as PageProps;
+    const page = usePage().props as unknown as Partial<PageProps> & { [key:string]: any };
+    const admins = page.admins || [];
+    const flash = page.flash || {};
 
     const {processing, delete: destroy} = useForm();
 
