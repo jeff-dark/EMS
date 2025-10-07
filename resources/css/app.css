@@ -80,6 +80,14 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* New semantic colors */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
 }
 
 /* Brand primary color supplied: hsl(224.3 76.3% 48%).
@@ -121,6 +129,14 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
+
+    /* Semantic colors (light) */
+    --success: oklch(0.73 0.15 150);
+    --success-foreground: oklch(0.17 0.03 150);
+    --info: oklch(0.8 0.07 240);
+    --info-foreground: oklch(0.22 0.04 240);
+    --warning: oklch(0.86 0.16 80);
+    --warning-foreground: oklch(0.28 0.06 80);
 }
 
 .dark {
@@ -156,6 +172,14 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
+
+    /* Semantic colors (dark) */
+    --success: oklch(0.62 0.14 150);
+    --success-foreground: oklch(0.13 0.03 150);
+    --info: oklch(0.68 0.08 240);
+    --info-foreground: oklch(0.16 0.04 240);
+    --warning: oklch(0.7 0.16 80);
+    --warning-foreground: oklch(0.15 0.05 80);
 }
 
 @layer base {
