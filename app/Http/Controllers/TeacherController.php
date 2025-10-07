@@ -11,8 +11,7 @@ class TeacherController extends Controller
 {
     public function __construct()
     {
-        // Enforce UserPolicy for teacher resource routes (route parameter name: 'teacher')
-        $this->authorizeResource(User::class, 'teacher');
+        // Ensure user is authenticated for all teacher routes
         $this->middleware('auth');
     }
 

@@ -44,9 +44,8 @@ export default function Index() {
     const {processing, delete: destroy} = useForm();
 
     const handleDelete = (id: number, name: string) => {
-        // Implement delete functionality here
-        if(confirm(`Are you sure you want to delete student ${id} - ${name}?`)) {
-            destroy(route('students.destroy', id));
+        if(confirm(`Are you sure you want to delete teacher ${id} - ${name}?`)) {
+            destroy(route('teachers.destroy', id));
         }
     };
 
