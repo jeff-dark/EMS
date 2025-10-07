@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom'
 // jest-axe exports an object with the matcher property in some ESM interop scenarios
 // so we normalize it here.
-import * as jestAxe from 'jest-axe'
+import { toHaveNoViolations } from 'jest-axe'
+// jest-axe exports an object containing { toHaveNoViolations: { toHaveNoViolations(fn) } }
+// So we need the inner function.
 // @ts-ignore
-const matcher = (jestAxe as any).toHaveNoViolations || (jestAxe as any).default?.toHaveNoViolations
-if (typeof matcher === 'function') {
+const matcherFn = (toHaveNoViolations as any).toHaveNoViolations || toHaveNoViolations
+if (typeof matcherFn === 'function') {
 	// @ts-ignore
-	expect.extend({ toHaveNoViolations: matcher })
+	expect.extend({ toHaveNoViolations: matcherFn })
 }
