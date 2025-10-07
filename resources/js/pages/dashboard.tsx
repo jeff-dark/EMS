@@ -7,6 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
@@ -45,7 +46,7 @@ export default function Dashboard() {
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
-                {/* Simple Analysis Bar Chart */}
+                {/* Simple Analysis Bar & User Distribution Pie */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="md:col-span-2">
                         <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
@@ -74,34 +75,49 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader><CardTitle>Breakdown</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardHeader><CardTitle>User Distribution</CardTitle></CardHeader>
+                        <CardContent className="flex h-[340px] flex-col items-center justify-center">
                             {(() => {
-                                const total = (analysisData[0].courses + analysisData[0].units + analysisData[0].exams + analysisData[0].questions) || 1;
-                                const items: { key: keyof typeof analysisData[0]; label: string; color: string; value: number; }[] = [
-                                    { key: 'courses', label: 'Courses', color: 'var(--color-chart-1)', value: analysisData[0].courses },
-                                    { key: 'units', label: 'Units', color: 'var(--color-chart-2)', value: analysisData[0].units },
-                                    { key: 'exams', label: 'Exams', color: 'var(--color-chart-3)', value: analysisData[0].exams },
-                                    { key: 'questions', label: 'Questions', color: 'var(--color-chart-4)', value: analysisData[0].questions },
+                                const data = [
+                                    { name: 'Admins', value: counts.admins, key: 'admins', color: 'var(--color-chart-1)' },
+                                    { name: 'Teachers', value: counts.teachers, key: 'teachers', color: 'var(--color-chart-2)' },
+                                    { name: 'Students', value: counts.students, key: 'students', color: 'var(--color-chart-3)' },
                                 ];
+                                const total = data.reduce((acc, d) => acc + d.value, 0) || 1;
                                 return (
-                                    <ul className="space-y-3 text-sm">
-                                        {items.map(item => {
-                                            const pct = ((item.value / total) * 100).toFixed(1);
-                                            return (
-                                                <li key={item.key} className="flex items-center justify-between gap-4">
+                                    <div className="flex w-full flex-col items-center gap-4">
+                                        <PieChart width={250} height={200}>
+                                            <Pie
+                                                data={data}
+                                                dataKey="value"
+                                                nameKey="name"
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={50}
+                                                outerRadius={80}
+                                                paddingAngle={2}
+                                                stroke="none"
+                                            >
+                                                {data.map((entry) => (
+                                                    <Cell key={entry.key} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                        <ul className="w-full text-xs space-y-2">
+                                            {data.map(d => (
+                                                <li key={d.key} className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="h-3 w-3 rounded-sm" style={{ background: item.color }} />
-                                                        <span>{item.label}</span>
+                                                        <span className="h-3 w-3 rounded-sm" style={{ background: d.color }} />
+                                                        <span>{d.name}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-3 font-mono">
-                                                        <span className="tabular-nums">{item.value}</span>
-                                                        <span className="text-muted-foreground text-xs">{pct}%</span>
+                                                    <div className="font-mono tabular-nums flex items-center gap-2">
+                                                        <span>{d.value}</span>
+                                                        <span className="text-muted-foreground">{((d.value/total)*100).toFixed(1)}%</span>
                                                     </div>
                                                 </li>
-                                            );
-                                        })}
-                                    </ul>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 );
                             })()}
                         </CardContent>
