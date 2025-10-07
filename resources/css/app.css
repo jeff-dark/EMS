@@ -1,3 +1,24 @@
+/*
+ Theme Tokens Guide
+ -------------------
+ Primary brand color: hsl(224.3 76.3% 48%) ≈ #2D51D6
+ Exposed via CSS variable --primary (OKLCH form) for perceptual consistency.
+
+ Light mode uses:   --primary: oklch(0.53 0.17 262)
+ Dark mode uses:    --primary: oklch(0.72 0.17 262) (lighter tone to preserve contrast)
+
+ Usage in components (examples):
+  <Button class="bg-primary text-primary-foreground" />
+  <div class="text-primary" />
+  <div class="bg-primary/10 border border-primary/30" />
+
+ To add a new semantic color (e.g., info):
+  1. Add --info and --info-foreground under :root and .dark.
+  2. Mirror mapping under @theme if you want utility generation.
+  3. Create variants in component cva configs if needed.
+
+ Maintain OKLCH values when possible for better theming across light/dark.
+*/
 @import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
@@ -61,6 +82,10 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Brand primary color supplied: hsl(224.3 76.3% 48%).
+    Converted to oklch via approximate conversion.
+    hsl(224.3 76.3% 48%) ≈ srgb(45,81,214) ≈ hex #2D51D6.
+    Using OKLCH: oklch(0.53 0.17 262) (approx). Adjusted for light/dark contrast. */
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -68,7 +93,8 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    /* Primary brand color */
+    --primary: oklch(0.53 0.17 262);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -89,7 +115,7 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: oklch(0.53 0.17 262);
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -104,8 +130,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+    --primary: oklch(0.72 0.17 262); /* Elevated brand color for dark mode (lighter tone) */
+    --primary-foreground: oklch(0.145 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
@@ -124,8 +150,8 @@
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.72 0.17 262);
+    --sidebar-primary-foreground: oklch(0.145 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
