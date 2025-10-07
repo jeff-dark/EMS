@@ -8,35 +8,22 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
+    { title: 'Dashboard', href: dashboard().url },
 ];
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-}
+interface User { id: number; name: string; email: string; role: string; }
+
+interface ChartRow { month: string; courses: number; units: number; exams: number; questions: number; }
 
 interface PageProps {
-    counts: {
-        admins: number;
-        teachers: number;
-        students: number;
-        courses: number;
-        units?: number;
-        exams?: number;
-        questions?: number;
-    };
+    counts: { admins: number; teachers: number; students: number; courses: number; units?: number; exams?: number; questions?: number; };
     users: User[];
+    chartData: ChartRow[];
     [key: string]: unknown;
 }
 
 export default function Dashboard() {
-    const { counts, users } = usePage<PageProps>().props;
+    const { counts, users, chartData } = usePage<PageProps>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -44,44 +31,14 @@ export default function Dashboard() {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 {/* Top cards */}
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3 xl:grid-cols-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Admins</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-3xl font-bold">{counts.admins}</span>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Teachers</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-3xl font-bold">{counts.teachers}</span>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Students</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-3xl font-bold">{counts.students}</span>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Courses</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-3xl font-bold">{counts.courses}</span>
-                        </CardContent>
-                    </Card>
+                    <Card><CardHeader><CardTitle>Admins</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.admins}</span></CardContent></Card>
+                    <Card><CardHeader><CardTitle>Teachers</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
+                    <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
+                    <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
                 {/* Bar Chart */}
                 <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>Content Overview</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>Content Growth (Last 6 Months)</CardTitle></CardHeader>
                     <CardContent>
                         <ChartContainer
                             config={{
@@ -90,27 +47,11 @@ export default function Dashboard() {
                                 exams: { label: 'Exams', color: 'hsl(var(--chart-3))' },
                                 questions: { label: 'Questions', color: 'hsl(var(--chart-4))' },
                             }}
-                            className="h-[300px]"
+                            className="h-[320px]"
                         >
-                            <BarChart
-                                data={[
-                                    {
-                                        name: 'Totals',
-                                        courses: counts.courses ?? 0,
-                                        units: counts.units ?? 0,
-                                        exams: counts.exams ?? 0,
-                                        questions: counts.questions ?? 0,
-                                    },
-                                ]}
-                                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-                            >
+                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="name"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={8}
-                                />
+                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                                 <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
                                 <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
                                 <Bar dataKey="courses" fill="var(--color-courses)" radius={[4, 4, 0, 0]} />
