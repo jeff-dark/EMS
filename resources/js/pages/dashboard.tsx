@@ -46,32 +46,67 @@ export default function Dashboard() {
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
                 {/* Simple Analysis Bar Chart */}
-                <Card className="w-full">
-                    <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
-                    <CardContent>
-                        <ChartContainer
-                            config={{
-                                courses: { label: 'Courses', color: 'var(--color-chart-1)' },
-                                units: { label: 'Units', color: 'var(--color-chart-2)' },
-                                exams: { label: 'Exams', color: 'var(--color-chart-3)' },
-                                questions: { label: 'Questions', color: 'var(--color-chart-4)' },
-                            }}
-                            className="h-[260px]"
-                        >
-                            <BarChart data={analysisData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }} barCategoryGap={40}>
-                                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
-                                <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
-                                <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="units" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="questions" fill="var(--color-chart-4)" radius={[4, 4, 0, 0]} />
-                                <ChartLegend content={<ChartLegendContent />} />
-                            </BarChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="md:col-span-2">
+                        <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
+                        <CardContent>
+                            <ChartContainer
+                                config={{
+                                    courses: { label: 'Courses', color: 'var(--color-chart-1)' },
+                                    units: { label: 'Units', color: 'var(--color-chart-2)' },
+                                    exams: { label: 'Exams', color: 'var(--color-chart-3)' },
+                                    questions: { label: 'Questions', color: 'var(--color-chart-4)' },
+                                }}
+                                className="h-[340px]"
+                            >
+                                <BarChart data={analysisData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }} barCategoryGap={48}>
+                                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                    <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
+                                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
+                                    <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
+                                    <Bar dataKey="units" fill="var(--color-chart-2)" radius={[6, 6, 0, 0]} />
+                                    <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[6, 6, 0, 0]} />
+                                    <Bar dataKey="questions" fill="var(--color-chart-4)" radius={[6, 6, 0, 0]} />
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                </BarChart>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Breakdown</CardTitle></CardHeader>
+                        <CardContent>
+                            {(() => {
+                                const total = (analysisData[0].courses + analysisData[0].units + analysisData[0].exams + analysisData[0].questions) || 1;
+                                const items: { key: keyof typeof analysisData[0]; label: string; color: string; value: number; }[] = [
+                                    { key: 'courses', label: 'Courses', color: 'var(--color-chart-1)', value: analysisData[0].courses },
+                                    { key: 'units', label: 'Units', color: 'var(--color-chart-2)', value: analysisData[0].units },
+                                    { key: 'exams', label: 'Exams', color: 'var(--color-chart-3)', value: analysisData[0].exams },
+                                    { key: 'questions', label: 'Questions', color: 'var(--color-chart-4)', value: analysisData[0].questions },
+                                ];
+                                return (
+                                    <ul className="space-y-3 text-sm">
+                                        {items.map(item => {
+                                            const pct = ((item.value / total) * 100).toFixed(1);
+                                            return (
+                                                <li key={item.key} className="flex items-center justify-between gap-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="h-3 w-3 rounded-sm" style={{ background: item.color }} />
+                                                        <span>{item.label}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 font-mono">
+                                                        <span className="tabular-nums">{item.value}</span>
+                                                        <span className="text-muted-foreground text-xs">{pct}%</span>
+                                                    </div>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                );
+                            })()}
+                        </CardContent>
+                    </Card>
+                </div>
                 {/* Users table */}
                 <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
                     <Table>
