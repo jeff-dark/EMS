@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import {
     Table,
@@ -102,8 +102,15 @@ export default function Index() {
                                 const unit = exam.unit;
                                 const course = unit?.course;
                                 return (
-                                    <TableRow key={exam.id}>
-                                        <TableCell>{exam.title}</TableCell>
+                                    <TableRow
+                                        key={exam.id}
+                                        className="cursor-pointer hover:bg-gray-100"
+                                        onClick={() => router.get(`/exams/${exam.id}/questions`)}
+                                        title="View questions"
+                                    >
+                                        <TableCell className="font-medium text-blue-700 underline-offset-2 hover:underline">
+                                            <span>{exam.title}</span>
+                                        </TableCell>
                                         <TableCell>{course?.name ?? '—'}</TableCell>
                                         <TableCell>{unit?.title ?? '—'}</TableCell>
                                         <TableCell>{exam.duration_minutes}</TableCell>
@@ -111,14 +118,17 @@ export default function Index() {
                                         <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
                                         <TableCell className="text-center space-x-2">
                                             {course && unit && (
-                                                <Link href={route('courses.units.exams.edit', [course.id, unit.id, exam.id])}>
+                                                <Link
+                                                    href={route('courses.units.exams.edit', [course.id, unit.id, exam.id])}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
                                                     <Button className="bg-slate-500 hover:bg-slate-700">Edit</Button>
                                                 </Link>
                                             )}
                                             {course && unit && (
                                                 <Button
                                                     disabled={processing}
-                                                    onClick={() => handleDelete(exam)}
+                                                    onClick={(e) => { e.stopPropagation(); handleDelete(exam); }}
                                                     className="bg-red-500 hover:bg-red-700"
                                                 >
                                                     Delete

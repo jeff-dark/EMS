@@ -11,78 +11,83 @@ class QuestionController extends Controller
     {
         $this->authorize('viewAny', Question::class);
         $questions = $exam->questions()->with('answerKey')->get();
-        return inertia('Questions/Index', compact('exam', 'questions'));
+        return inertia('Questions/Index', [
+            'exam' => $exam->load('unit.course'),
+            'questions' => $questions,
+        ]);
     }
 
     public function create(Exam $exam)
     {
         $this->authorize('create', Question::class);
-        return inertia('Questions/Create', compact('exam'));
+        return inertia('Questions/Create', [
+            'exam' => $exam->load('unit.course'),
+        ]);
     }
 
     public function store(Request $request, Exam $exam)
     {
         $this->authorize('create', Question::class);
         $data = $request->validate([
-            'content' => 'required|string',
-            'points' => 'nullable|numeric',
-            'order' => 'nullable|integer',
+            'prompt' => 'required|string',
+            'points' => 'nullable|numeric|min:0',
             'expected_answer' => 'nullable|string',
-            'rubric' => 'nullable|string',
         ]);
 
         $question = $exam->questions()->create([
-            'content' => $data['content'],
+            'prompt' => $data['prompt'],
             'points' => $data['points'] ?? 1,
-            'order' => $data['order'] ?? null,
         ]);
 
-        if (!empty($data['expected_answer']) || !empty($data['rubric'])) {
+        if (!empty($data['expected_answer'])) {
             $question->answerKey()->create([
-                'expected_answer' => $data['expected_answer'] ?? null,
-                'rubric' => $data['rubric'] ?? null,
+                'answer' => $data['expected_answer'],
             ]);
         }
 
-        return redirect()->route('courses.units.exams.edit', [$exam->unit->course, $exam->unit, $exam]);
+        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question created');
     }
 
     public function edit(Exam $exam, Question $question)
     {
         $this->authorize('view', $question);
         $question->load('answerKey');
-        return inertia('Questions/Edit', compact('exam', 'question'));
+        return inertia('Questions/Edit', [
+            'exam' => $exam->load('unit.course'),
+            'question' => $question,
+            'answerKey' => $question->answerKey,
+        ]);
     }
 
     public function update(Request $request, Exam $exam, Question $question)
     {
         $this->authorize('update', $question);
         $data = $request->validate([
-            'content' => 'required|string',
-            'points' => 'nullable|numeric',
-            'order' => 'nullable|integer',
+            'prompt' => 'required|string',
+            'points' => 'nullable|numeric|min:0',
             'expected_answer' => 'nullable|string',
-            'rubric' => 'nullable|string',
         ]);
 
         $question->update([
-            'content' => $data['content'],
+            'prompt' => $data['prompt'],
             'points' => $data['points'] ?? $question->points,
-            'order' => $data['order'] ?? $question->order,
         ]);
 
-        $question->answerKey()->updateOrCreate([], [
-            'expected_answer' => $data['expected_answer'] ?? null,
-            'rubric' => $data['rubric'] ?? null,
-        ]);
+        if (!empty($data['expected_answer'])) {
+            // Ensure one answer key row (first or create new)
+            $question->answerKey()->delete();
+            $question->answerKey()->create(['answer' => $data['expected_answer']]);
+        } else {
+            $question->answerKey()->delete();
+        }
 
-        return redirect()->route('courses.units.exams.edit', [$exam->unit->course, $exam->unit, $exam]);
+        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question updated');
     }
 
     public function destroy(Exam $exam, Question $question)
     {
         $this->authorize('delete', $question);
         $question->delete();
-        return back();
+        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question deleted');
     }
 }
