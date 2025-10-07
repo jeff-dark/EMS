@@ -36,36 +36,44 @@ interface Exam {
 interface PageProps {
   exam: Exam;
   questions: Question[];
+  flash?: { message?: string };
+  [key: string]: any;
 }
 
 export default function Index() {
+  const { exam, questions, flash } = usePage<PageProps>().props;
 
-  const { questions, flash } = usePage().props as PageProps;
+  const { delete: destroy } = useForm();
 
-  const { processing, delete: destroy } = useForm();
+  // Local route helper (would normally use Ziggy)
+  function route(name: string, params: { exam?: number; question?: number } = {}): string {
+    const examId = params.exam ?? exam.id;
+    const questionId = params.question;
+    switch (name) {
+      case 'exams.questions.create':
+        return `/exams/${examId}/questions/create`;
+      case 'exams.questions.edit':
+        return `/exams/${examId}/questions/${questionId}/edit`;
+      case 'exams.questions.destroy':
+        return `/exams/${examId}/questions/${questionId}`;
+      case 'exams.questions.index':
+        return `/exams/${examId}/questions`;
+      default:
+        return '/';
+    }
+  }
 
   const handleDelete = (id: number, prompt: string) => {
-    // Implement delete functionality here
     if (confirm(`Are you sure you want to delete question ${id} - ${prompt}?`)) {
-      destroy(route('questions.destroy', id));
+      destroy(route('exams.questions.destroy', { exam: exam.id, question: id }));
     }
   };
-
-  // Simple implementation assuming route names map directly to paths
-  function route(name: string, param?: number): string {
-    const routes: Record<string, (param?: number) => string> = {
-      'questions.create': () => '/questions/create',
-      'questions.edit': (id?: number) => `/questions/${id}/edit`,
-      'questions.destroy': (id?: number) => `/questions/${id}`,
-      // Add more routes as needed
-    };
-    return routes[name] ? routes[name](param) : '/';
-  }
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Questions" />
-      <div className="mb-4">
-        <Link href={route('questions.create')}><Button>New Question</Button></Link>
+    <AppLayout breadcrumbs={[{ title: 'Exam Questions', href: route('exams.questions.index') }]}>
+      <Head title={`Questions | ${exam.title}`} />
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Questions for: {exam.title}</h1>
+        <Link href={route('exams.questions.create')}><Button>New Question</Button></Link>
       </div>
       <div className="mb-4">
         <div>
@@ -80,16 +88,15 @@ export default function Index() {
         )}
         </div>
       </div>
-
-      {questions.length === 0 && (
-        <div className="m-4">
+      {questions.length > 0 ? (
+        <div className="m-4 border rounded-md overflow-hidden">
           <Table>
-            <TableCaption>I list of Questions.</TableCaption>
+            <TableCaption>Question list.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>Prompt</TableHead>
-                <TableHead>Points</TableHead>
-                <TableHead></TableHead>
+                <TableHead className="w-24 text-center">Points</TableHead>
+                <TableHead className="w-40 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -98,16 +105,20 @@ export default function Index() {
                   <TableCell className="max-w-md truncate" title={question.prompt}>{question.prompt}</TableCell>
                   <TableCell className="text-center">{question.points}</TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Link href={route('questions.edit', question.id)} className="text-blue-600 hover:underline">Edit</Link>
-                    <Button variant="destructive" onClick={() => handleDelete(question.id, question.prompt)}>Delete</Button>
+                    <Link href={route('exams.questions.edit', { question: question.id })} className="text-blue-600 hover:underline">Edit</Link>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(question.id, question.prompt)}>Delete</Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
+      ) : (
+        <div className="m-4 p-6 text-sm text-muted-foreground border rounded-md bg-background">
+          <p>No questions have been added to this exam yet.</p>
+          <p className="mt-2"><Link className="text-blue-600 hover:underline" href={route('exams.questions.create')}>Create the first question</Link></p>
+        </div>
       )}
-
       </AppLayout>
   );
 }
