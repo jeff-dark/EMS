@@ -17,17 +17,38 @@ class TeacherController extends Controller
 
     public function index()
     {
-        $teachers = Teacher::with(['user:id,name,email', 'units.course'])->get();
-        return Inertia::render('Teachers/Index', [
-            'teachers' => $teachers->map(function($t){
+        // Fetch actual teacher records, and also show users with teacher role lacking a Teacher profile yet
+        $teacherRoleId = Role::where('name','teacher')->value('id');
+
+        $teachers = Teacher::with(['user:id,name,email', 'units.course'])->get()->map(function($t){
+            return [
+                'id' => $t->id,
+                'name' => $t->user->name,
+                'email' => $t->user->email,
+                'units_count' => $t->units->count(),
+                'courses' => $t->units->pluck('course.name')->unique()->values(),
+                'status' => 'registered',
+            ];
+        });
+
+        $unregistered = User::where('role_id', $teacherRoleId)
+            ->whereDoesntHave('teacher')
+            ->get(['id','name','email'])
+            ->map(function($u){
                 return [
-                    'id' => $t->id,
-                    'name' => $t->user->name,
-                    'email' => $t->user->email,
-                    'units_count' => $t->units->count(),
-                    'courses' => $t->units->pluck('course.name')->unique()->values(),
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'units_count' => 0,
+                    'courses' => collect(),
+                    'status' => 'unregistered',
                 ];
-            })
+            });
+
+        $combined = $teachers->concat($unregistered)->sortBy('name')->values();
+
+        return Inertia::render('Teachers/Index', [
+            'teachers' => $combined,
         ]);
     }
 
