@@ -105,7 +105,7 @@ export default function Index() {
                   <TableCell className="max-w-md truncate" title={question.prompt}>{question.prompt}</TableCell>
                   <TableCell className="text-center">{question.points}</TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Link href={route('exams.questions.edit', { question: question.id })} className="text-blue-600 hover:underline">Edit</Link>
+                    <Link href={route('exams.questions.edit', { question: question.id })}><Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button></Link>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(question.id, question.prompt)}>Delete</Button>
                   </TableCell>
                 </TableRow>
