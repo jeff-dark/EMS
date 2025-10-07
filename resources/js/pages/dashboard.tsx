@@ -26,10 +26,10 @@ interface PageProps {
 export default function Dashboard() {
     const { counts, users, chartData } = usePage<PageProps>().props;
 
-    console.debug('Dashboard chartData raw:', chartData);
-
     const normalizedChartData = React.useMemo(() => {
-        if (!chartData?.length) return [];
+        if (!chartData || chartData.length === 0) {
+            return [{ month: 'Totals', courses: counts.courses ?? 0, units: counts.units ?? 0, exams: counts.exams ?? 0, questions: counts.questions ?? 0 }];
+        }
         const hasAny = chartData.some(r => (r.courses + r.units + r.exams + r.questions) > 0);
         if (hasAny) return chartData;
         return [{ month: 'Totals', courses: counts.courses ?? 0, units: counts.units ?? 0, exams: counts.exams ?? 0, questions: counts.questions ?? 0 }];
@@ -50,11 +50,6 @@ export default function Dashboard() {
                 <Card className="w-full">
                     <CardHeader><CardTitle>Content Growth (Last 6 Months)</CardTitle></CardHeader>
                     <CardContent>
-                        {normalizedChartData.length === 0 ? (
-                            <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
-                                No data available yet.
-                            </div>
-                        ) : (
                         <ChartContainer
                             config={{
                                 courses: { label: 'Courses', color: 'var(--color-chart-1)' },
@@ -76,7 +71,6 @@ export default function Dashboard() {
                                 <ChartLegend content={<ChartLegendContent />} />
                             </BarChart>
                         </ChartContainer>
-                        )}
                     </CardContent>
                 </Card>
                 {/* Users table */}
