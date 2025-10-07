@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, ExamController, StudentsController, TeacherController, UnitController};
-use FFI\CData;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -18,12 +17,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/students/{student}', [StudentsController::class, 'update'])->name('students.update');
     Route::delete('/students/create', [StudentsController::class, 'create'])->name('students.create');
 
+    // Teacher management (new Teacher model & assignments)
     Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
-    Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
     Route::get('/teachers/create', [TeacherController::class, 'create'])->name('teachers.create');
+    Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
     Route::get('/teachers/{teacher}/edit', [TeacherController::class, 'edit'])->name('teachers.edit');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    // Reports
+    Route::get('/teachers/{teacher}/load-report', [TeacherController::class, 'loadReport'])->name('teachers.load');
+    Route::get('/courses/{course}/teacher-assignments', [TeacherController::class, 'courseAssignments'])->name('courses.teacher.assignments');
+    Route::get('/units/{unit}/teacher-assignments', [TeacherController::class, 'unitAssignments'])->name('units.teacher.assignments');
 
     Route::get('/admins', [App\Http\Controllers\AdminController::class, 'index'])->name('admins.index');
     Route::post('/admins', [App\Http\Controllers\AdminController::class, 'store'])->name('admins.store');

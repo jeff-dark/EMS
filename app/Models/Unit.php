@@ -20,8 +20,15 @@ class Unit extends Model
     }
 
     public function exams()
-{
-    // A Unit has many Exams
-    return $this->hasMany(Exam::class);
-}
+    {
+        // A Unit has many Exams
+        return $this->hasMany(Exam::class);
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class, 'teacher_unit_assignments')
+            ->withPivot(['assignment_status', 'start_date', 'end_date'])
+            ->withTimestamps();
+    }
 }

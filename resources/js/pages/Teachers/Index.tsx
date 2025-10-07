@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -25,7 +24,8 @@ interface Teacher {
     id: number;
     name: string;
     email: string;
-    username: string;
+    courses: string[];
+    units_count: number;
 }
 
 interface PageProps {
@@ -37,7 +37,9 @@ interface PageProps {
 
 export default function Index() {
 
-    const { teachers, flash } = usePage().props as PageProps;
+    const page = usePage().props as unknown as PageProps & { [key:string]: any };
+    const teachers = page.teachers || [];
+    const flash = page.flash || {};
 
     const {processing, delete: destroy} = useForm();
 
@@ -54,7 +56,7 @@ export default function Index() {
             'teachers.create': () => '/teachers/create',
             'teachers.edit': (id?: number) => `/teachers/${id}/edit`,
             'teachers.destroy': (id?: number) => `/teachers/${id}`,
-            // Add more routes as needed
+            'teachers.load': (id?: number) => `/teachers/${id}/load-report`,
         };
         return routes[name] ? routes[name](param) : '/';
     }
@@ -67,13 +69,13 @@ export default function Index() {
             <div className="m-4">
                 <div>
                     {flash.message && (
-                        <Alert>
+                        <div className="alert">
                             <Bell />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>
+                            <strong>Notification!</strong>
+                            <span>
                                 {flash.message}
-                            </AlertDescription>
-                        </Alert>
+                            </span>
+                        </div>
                     )
                     }
                 </div>
@@ -87,7 +89,8 @@ export default function Index() {
                             <TableRow>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
-                                <TableHead>Username</TableHead>
+                                <TableHead>Courses</TableHead>
+                                <TableHead>Units</TableHead>
                                 <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -96,9 +99,11 @@ export default function Index() {
                                 <TableRow key={teacher.id}>
                                     <TableCell>{teacher.name}</TableCell>
                                     <TableCell>{teacher.email}</TableCell>
-                                    <TableCell>{teacher.username}</TableCell>
+                                    <TableCell>{teacher.courses?.join(', ')}</TableCell>
+                                    <TableCell>{teacher.units_count}</TableCell>
                                     <TableCell className="text-center space-x-2">
                                         <Link href={route('teachers.edit', teacher.id)}><Button className="bg-slate-500 hover:bg-slate-700">Edit</Button></Link>
+                                        <Link href={route('teachers.load', teacher.id)}><Button className="bg-indigo-500 hover:bg-indigo-700">Load</Button></Link>
                                         <Button disabled={processing} onClick={() => handleDelete(teacher.id, teacher.name)} className="bg-red-500 hover:bg-red-700">Delete</Button>
                                     </TableCell>
                                 </TableRow>

@@ -3,40 +3,47 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
+import React, { useMemo } from 'react';
 
+interface Unit { id:number; title:string; course_id:number }
+interface Course { id:number; name:string; units: Unit[] }
+interface TeacherUnit { id:number; title:string; course_id:number }
+interface TeacherData { id:number; user:{ id:number; name:string; email:string }; contact_phone?:string; hire_date?:string; units: TeacherUnit[] }
+interface PageProps { teacher: TeacherData; courses: Course[] }
 
-interface Teacher {
-    id: number;
-    name: string;
-    email: string;
-    username: string;
-}
-interface Props {
-    teacher: Teacher;
-}
-
-export default function Edit({ teacher }: Props) {
+export default function Edit({ teacher, courses }: PageProps) {
     function route(name: string, id?: number): string {
-        // Simple implementation for demonstration purposes
-        // In a real app, you might use a route helper or config
-        if (name === 'teachers.store') {
-            return '/teachers';
-        }
-        if (name === 'teachers.update' && id !== undefined) {
-            return `/teachers/${id}`;
-        }
-        return '/';
+        if (name === 'teachers.update' && id) return `/teachers/${id}`;
+        return '/teachers';
     }
 
     const { data, setData, put, processing, errors } = useForm({
-        name: teacher.name,
-        email: teacher.email,
-        username: teacher.username,
-        password: '',
+        contact_phone: teacher.contact_phone || '',
+        hire_date: teacher.hire_date || '',
+        courses: Array.from(new Set(teacher.units.map(u => u.course_id))) as number[],
+        units: teacher.units.map(u => u.id) as number[],
     });
+
+    const filteredUnits = useMemo(() => {
+        return courses
+            .filter(c => data.courses.includes(c.id))
+            .flatMap(c => c.units.map(u => ({ ...u, courseName: c.name })));
+    }, [courses, data.courses]);
+
+    const toggleArrayValue = (field: 'courses'|'units', value:number) => {
+        const current = data[field] as number[];
+        const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
+        setData(field, next as any);
+        if (field === 'courses') {
+            // Remove units that no longer belong to selected courses
+            if (!next.includes(value)) {
+                const validUnitIds = new Set(courses.filter(c => next.includes(c.id)).flatMap(c => c.units.map(u => u.id)));
+                setData('units', (data.units as number[]).filter(id => validUnitIds.has(id)) as any);
+            }
+        }
+    };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,41 +51,62 @@ export default function Edit({ teacher }: Props) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Edit Teacher', href: `/teachers/${teacher.id}/edit` }]}>
-            <Head title="Edit Teacher" />
-            <div className='w-8/12 p-4'>
-                <form onSubmit={handleUpdate} className='space-y-4'>
-                    {/* Display validation errors */}
+        <AppLayout breadcrumbs={[{ title: 'Edit Teacher', href: `/teachers/${teacher.id}/edit` }]}>            
+            <Head title={`Edit Teacher - ${teacher.user.name}`} />
+            <div className='w-full max-w-5xl p-4 space-y-6'>
+                <h1 className='text-2xl font-semibold'>Edit Teacher Assignments - {teacher.user.name}</h1>
+                <form onSubmit={handleUpdate} className='space-y-6'>
                     {Object.keys(errors).length > 0 && (
-                        <Alert>
+                        <Alert variant='destructive'>
                             <OctagonAlert />
                             <AlertTitle>Errors</AlertTitle>
                             <AlertDescription>
-                                {Object.values(errors).map((error, index) => (
-                                    <div key={index}>{error}</div>
-                                ))}
+                                {Object.values(errors).map((error, index) => <div key={index}>{error}</div>)}
                             </AlertDescription>
                         </Alert>
                     )}
 
+                    <div className='grid md:grid-cols-3 gap-4'>
+                        <div>
+                            <Label>Contact Phone</Label>
+                            <Input value={data.contact_phone} onChange={e => setData('contact_phone', e.target.value)} />
+                            {errors.contact_phone && <p className='text-red-600 text-sm'>{errors.contact_phone}</p>}
+                        </div>
+                        <div>
+                            <Label>Hire Date</Label>
+                            <Input type='date' value={data.hire_date} onChange={e => setData('hire_date', e.target.value)} />
+                            {errors.hire_date && <p className='text-red-600 text-sm'>{errors.hire_date}</p>}
+                        </div>
+                    </div>
 
-                    <div className='gap-2'>
-                        <Label htmlFor="teacher-name">Name</Label>
-                        <Input type='text' placeholder="Enter teacher name" value={data.name} onChange={e => setData('name', e.target.value)} />
+                    <div className='grid md:grid-cols-2 gap-8'>
+                        <div>
+                            <h2 className='font-semibold mb-2'>Courses</h2>
+                            <div className='space-y-2 max-h-64 overflow-auto border p-3 rounded'>
+                                {courses.map(course => (
+                                    <label key={course.id} className='flex items-center space-x-2'>
+                                        <input type='checkbox' checked={data.courses.includes(course.id)} onChange={() => toggleArrayValue('courses', course.id)} />
+                                        <span>{course.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {errors.courses && <p className='text-red-600 text-sm mt-1'>{errors.courses}</p>}
+                        </div>
+                        <div>
+                            <h2 className='font-semibold mb-2'>Units</h2>
+                            <div className='space-y-2 max-h-64 overflow-auto border p-3 rounded'>
+                                {filteredUnits.map(unit => (
+                                    <label key={unit.id} className='flex items-center space-x-2'>
+                                        <input type='checkbox' checked={data.units.includes(unit.id)} onChange={() => toggleArrayValue('units', unit.id)} />
+                                        <span>{unit.title} <span className='text-xs text-gray-500'>({unit.courseName})</span></span>
+                                    </label>
+                                ))}
+                            </div>
+                            {errors.units && <p className='text-red-600 text-sm mt-1'>{errors.units}</p>}
+                        </div>
                     </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="teacher-email">Email</Label>
-                        <Input type='email' placeholder="Enter teacher email" value={data.email} onChange={e => setData('email', e.target.value)} />
-                    </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="teacher-username">Username</Label>
-                        <Input type='text' placeholder="Enter teacher username" value={data.username} onChange={e => setData('username', e.target.value)} />
-                    </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="teacher-password">Password</Label>
-                        <Input type='password' placeholder="Enter new teacher password" value={data.password} onChange={e => setData('password', e.target.value)} />
-                    </div>
-                    <Button type="submit">Update Teacher</Button>
+
+                    <Button disabled={processing} type='submit'>{processing ? 'Saving...' : 'Save Changes'}</Button>
                 </form>
             </div>
         </AppLayout>
