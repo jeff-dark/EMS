@@ -88,6 +88,8 @@
     --color-info-foreground: var(--info-foreground);
     --color-warning: var(--warning);
     --color-warning-foreground: var(--warning-foreground);
+    --color-critical: var(--critical);
+    --color-critical-foreground: var(--critical-foreground);
 }
 
 /* Brand primary color supplied: hsl(224.3 76.3% 48%).
@@ -137,6 +139,9 @@
     --info-foreground: oklch(0.22 0.04 240);
     --warning: oklch(0.86 0.16 80);
     --warning-foreground: oklch(0.28 0.06 80);
+    /* Critical (higher severity than destructive) */
+    --critical: oklch(0.55 0.25 25);
+    --critical-foreground: oklch(0.985 0 0);
 }
 
 .dark {
@@ -180,6 +185,8 @@
     --info-foreground: oklch(0.16 0.04 240);
     --warning: oklch(0.7 0.16 80);
     --warning-foreground: oklch(0.15 0.05 80);
+    --critical: oklch(0.46 0.23 25);
+    --critical-foreground: oklch(0.985 0 0);
 }
 
 @layer base {

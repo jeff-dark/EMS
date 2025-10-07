@@ -25,6 +25,8 @@ const badgeVariants = cva(
           "border-transparent bg-warning text-warning-foreground [a&]:hover:bg-warning/90",
         subtle:
           "border border-primary/30 bg-primary/10 text-primary [a&]:hover:bg-primary/15 dark:bg-primary/15 dark:[a&]:hover:bg-primary/20",
+        critical:
+          "border-transparent bg-critical text-critical-foreground [a&]:hover:bg-critical/90",
       },
     },
     defaultVariants: {

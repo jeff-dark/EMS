@@ -17,6 +17,8 @@ const alertVariants = cva(
           "bg-info/15 text-info border-info/30 [&>svg]:text-info *:data-[slot=alert-description]:text-info/90 dark:bg-info/20",
         warning:
           "bg-warning/15 text-warning border-warning/30 [&>svg]:text-warning *:data-[slot=alert-description]:text-warning/90 dark:bg-warning/20",
+        critical:
+          "bg-critical/15 text-critical border-critical/30 [&>svg]:text-critical *:data-[slot=alert-description]:text-critical/90 dark:bg-critical/20",
       },
     },
     defaultVariants: {
