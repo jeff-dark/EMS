@@ -73,6 +73,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Top-level exams listing (all exams across units/courses)
     Route::get('/exams', [ExamController::class, 'allExamsIndex'])->name('exams.index');
+    Route::get('/exams/{exam}/create', [ExamController::class, 'create'])->name('exams.create');
+    Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+    Route::put('/exams/{exam}', [ExamController::class, 'update'])->name('exams.update');
+    Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('exams.destroy');
+
 
 });
 
