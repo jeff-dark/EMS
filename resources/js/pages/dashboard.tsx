@@ -47,8 +47,8 @@ export default function Dashboard() {
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
                 {/* Simple Analysis Bar & User Distribution Pie */}
-                <div className="grid gap-4 md:grid-cols-3">
-                    <Card className="md:col-span-2">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Card>
                         <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
                         <CardContent>
                             <ChartContainer
