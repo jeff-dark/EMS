@@ -65,7 +65,7 @@ export default function Index() {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Questions" />
       <div className="mb-4">
-        <Link href={route('questions.create')} className="text-blue-600 hover:underline">New Question</Link>
+        <Link href={route('questions.create')}><Button>New Question</Button></Link>
       </div>
       <div className="mb-4">
         <div>
@@ -89,7 +89,6 @@ export default function Index() {
               <TableRow>
                 <TableHead>Prompt</TableHead>
                 <TableHead>Points</TableHead>
-                <TableHead>Expected Answer</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -98,7 +97,6 @@ export default function Index() {
                 <TableRow key={question.id}>
                   <TableCell className="max-w-md truncate" title={question.prompt}>{question.prompt}</TableCell>
                   <TableCell className="text-center">{question.points}</TableCell>
-                  <TableCell className="text-xs">{question.answer_key?.[0]?.answer || <span className="text-gray-400">—</span>}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Link href={route('questions.edit', question.id)} className="text-blue-600 hover:underline">Edit</Link>
                     <Button variant="destructive" onClick={() => handleDelete(question.id, question.prompt)}>Delete</Button>
