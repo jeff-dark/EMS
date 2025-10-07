@@ -55,40 +55,24 @@ class TeacherController extends Controller
     public function create()
     {
         $courses = Course::with('units:id,course_id,title')->get(['id','name']);
-
-        // Provide users who have teacher role but not yet linked in teachers table
-        $teacherRole = Role::where('name','teacher')->first();
-        $availableUsers = User::where('role_id', $teacherRole?->id)
-            ->whereDoesntHave('teacher')
-            ->get(['id','name','email']);
-
-        $prefillUserId = request('user_id');
-        $prefillUserId = $availableUsers->firstWhere('id', $prefillUserId)?->id; // ensure valid
-
         return Inertia::render('Teachers/Create', [
             'courses' => $courses,
-            'availableUsers' => $availableUsers,
-            'prefillUserId' => $prefillUserId,
         ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'create_new_user' => 'required|boolean',
-            'user_id' => 'required_if:create_new_user,false|nullable|exists:users,id|unique:teachers,user_id',
-            'new_user.name' => 'required_if:create_new_user,true|string|max:255',
-            'new_user.email' => 'required_if:create_new_user,true|email|max:255|unique:users,email',
-            'new_user.username' => 'required_if:create_new_user,true|string|max:255|unique:users,username',
-            'new_user.password' => 'required_if:create_new_user,true|string|min:8',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'username' => 'required|string|max:255|unique:users,username',
+            'password' => 'required|string|min:8',
             'contact_phone' => 'nullable|string|max:50',
             'hire_date' => 'nullable|date',
             'courses' => 'required|array|min:1',
             'courses.*' => 'integer|exists:courses,id',
             'units' => 'required|array|min:1',
             'units.*' => 'integer|exists:units,id',
-        ], [
-            'user_id.required_if' => 'Please select an existing user or choose to create a new one.',
         ]);
 
         // Ensure units belong to selected courses
@@ -99,23 +83,18 @@ class TeacherController extends Controller
         }
 
         DB::transaction(function() use ($data) {
-            // Create user if requested
-            $userId = $data['user_id'] ?? null;
-            if ($data['create_new_user']) {
-                $teacherRoleId = Role::where('name','teacher')->value('id');
-                $newUser = User::create([
-                    'name' => $data['new_user']['name'],
-                    'email' => $data['new_user']['email'],
-                    'username' => $data['new_user']['username'],
-                    'password' => Hash::make($data['new_user']['password']),
-                    'role_id' => $teacherRoleId,
-                    'email_verified_at' => now(),
-                ]);
-                $userId = $newUser->id;
-            }
+            $teacherRoleId = Role::where('name','teacher')->value('id');
+            $newUser = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'username' => $data['username'],
+                'password' => Hash::make($data['password']),
+                'role_id' => $teacherRoleId,
+                'email_verified_at' => now(),
+            ]);
 
             $teacher = Teacher::create([
-                'user_id' => $userId,
+                'user_id' => $newUser->id,
                 'contact_phone' => $data['contact_phone'] ?? null,
                 'hire_date' => $data['hire_date'] ?? null,
             ]);

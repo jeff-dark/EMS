@@ -14,11 +14,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Unit { id:number; title:string; course_id:number; }
 interface Course { id:number; name:string; units: Unit[] }
-interface UserOption { id:number; name:string; email:string }
-interface PageProps { courses: Course[]; availableUsers: UserOption[]; prefillUserId?: number|null }
+interface PageProps { courses: Course[] }
 
 export default function Create(props: PageProps) {
-    const { courses = [], availableUsers = [], prefillUserId = null } = props;
+    const { courses = [] } = props;
 
     function route(name: string): string {
         if (name === 'teachers.store') return '/teachers';
@@ -26,14 +25,10 @@ export default function Create(props: PageProps) {
     }
 
     const { data, setData, post, processing, errors } = useForm({
-        create_new_user: prefillUserId ? false : true,
-        user_id: prefillUserId ? String(prefillUserId) : '',
-        new_user: {
-            name: '',
-            email: '',
-            username: '',
-            password: '',
-        },
+        name: '',
+        email: '',
+        username: '',
+        password: '',
         contact_phone: '',
         hire_date: '',
         courses: [] as number[],
@@ -73,66 +68,27 @@ export default function Create(props: PageProps) {
                         </Alert>
                     )}
 
-                    <div className='space-y-2'>
-                        <Label className='font-semibold'>Teacher Account</Label>
-                        <div className='flex items-center space-x-4'>
-                            <label className='flex items-center space-x-2'>
-                                <input
-                                    type='radio'
-                                    name='user_mode'
-                                    checked={data.create_new_user === true}
-                                    onChange={() => setData({ ...data, create_new_user: true, user_id: '' })}
-                                />
-                                <span>Create New User</span>
-                            </label>
-                            <label className='flex items-center space-x-2'>
-                                <input
-                                    type='radio'
-                                    name='user_mode'
-                                    checked={data.create_new_user === false}
-                                    onChange={() => setData({ ...data, create_new_user: false })}
-                                />
-                                <span>Use Existing User</span>
-                            </label>
+                    <div className='grid md:grid-cols-2 gap-4'>
+                        <div>
+                            <Label>Name</Label>
+                            <Input value={data.name} onChange={e => setData('name', e.target.value)} />
+                            {errors.name && <p className='text-red-600 text-sm'>{errors.name}</p>}
                         </div>
-                        {!data.create_new_user && (
-                            <div>
-                                <Label>Select Existing User</Label>
-                                <select
-                                    className='border rounded w-full p-2 mt-1'
-                                    value={data.user_id}
-                                    onChange={e => setData('user_id', e.target.value)}
-                                >
-                                    <option value=''>-- Choose User --</option>
-                                    {availableUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
-                                </select>
-                                {errors.user_id && <p className='text-red-600 text-sm'>{errors.user_id}</p>}
-                            </div>
-                        )}
-                        {data.create_new_user && (
-                            <div className='grid md:grid-cols-2 gap-4'>
-                                <div>
-                                    <Label>Name</Label>
-                                    <Input value={data.new_user.name} onChange={e => setData('new_user', { ...data.new_user, name: e.target.value })} />
-                                    {errors['new_user.name'] && <p className='text-red-600 text-sm'>{errors['new_user.name']}</p>}
-                                </div>
-                                <div>
-                                    <Label>Email</Label>
-                                    <Input type='email' value={data.new_user.email} onChange={e => setData('new_user', { ...data.new_user, email: e.target.value })} />
-                                    {errors['new_user.email'] && <p className='text-red-600 text-sm'>{errors['new_user.email']}</p>}
-                                </div>
-                                <div>
-                                    <Label>Username</Label>
-                                    <Input value={data.new_user.username} onChange={e => setData('new_user', { ...data.new_user, username: e.target.value })} />
-                                    {errors['new_user.username'] && <p className='text-red-600 text-sm'>{errors['new_user.username']}</p>}
-                                </div>
-                                <div>
-                                    <Label>Password</Label>
-                                    <Input type='password' value={data.new_user.password} onChange={e => setData('new_user', { ...data.new_user, password: e.target.value })} />
-                                    {errors['new_user.password'] && <p className='text-red-600 text-sm'>{errors['new_user.password']}</p>}
-                                </div>
-                            </div>
-                        )}
+                        <div>
+                            <Label>Email</Label>
+                            <Input type='email' value={data.email} onChange={e => setData('email', e.target.value)} />
+                            {errors.email && <p className='text-red-600 text-sm'>{errors.email}</p>}
+                        </div>
+                        <div>
+                            <Label>Username</Label>
+                            <Input value={data.username} onChange={e => setData('username', e.target.value)} />
+                            {errors.username && <p className='text-red-600 text-sm'>{errors.username}</p>}
+                        </div>
+                        <div>
+                            <Label>Password</Label>
+                            <Input type='password' value={data.password} onChange={e => setData('password', e.target.value)} />
+                            {errors.password && <p className='text-red-600 text-sm'>{errors.password}</p>}
+                        </div>
                     </div>
 
                     <div className='grid md:grid-cols-3 gap-4'>
