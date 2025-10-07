@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{DB, Hash};
 use App\Models\{Course, Role, Teacher, TeacherUnitAssignment, Unit, User};
 use Inertia\Inertia;
 
@@ -62,22 +62,33 @@ class TeacherController extends Controller
             ->whereDoesntHave('teacher')
             ->get(['id','name','email']);
 
+        $prefillUserId = request('user_id');
+        $prefillUserId = $availableUsers->firstWhere('id', $prefillUserId)?->id; // ensure valid
+
         return Inertia::render('Teachers/Create', [
             'courses' => $courses,
             'availableUsers' => $availableUsers,
+            'prefillUserId' => $prefillUserId,
         ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'user_id' => 'required|exists:users,id|unique:teachers,user_id',
+            'create_new_user' => 'required|boolean',
+            'user_id' => 'required_if:create_new_user,false|nullable|exists:users,id|unique:teachers,user_id',
+            'new_user.name' => 'required_if:create_new_user,true|string|max:255',
+            'new_user.email' => 'required_if:create_new_user,true|email|max:255|unique:users,email',
+            'new_user.username' => 'required_if:create_new_user,true|string|max:255|unique:users,username',
+            'new_user.password' => 'required_if:create_new_user,true|string|min:8',
             'contact_phone' => 'nullable|string|max:50',
             'hire_date' => 'nullable|date',
             'courses' => 'required|array|min:1',
             'courses.*' => 'integer|exists:courses,id',
             'units' => 'required|array|min:1',
             'units.*' => 'integer|exists:units,id',
+        ], [
+            'user_id.required_if' => 'Please select an existing user or choose to create a new one.',
         ]);
 
         // Ensure units belong to selected courses
@@ -88,8 +99,23 @@ class TeacherController extends Controller
         }
 
         DB::transaction(function() use ($data) {
+            // Create user if requested
+            $userId = $data['user_id'] ?? null;
+            if ($data['create_new_user']) {
+                $teacherRoleId = Role::where('name','teacher')->value('id');
+                $newUser = User::create([
+                    'name' => $data['new_user']['name'],
+                    'email' => $data['new_user']['email'],
+                    'username' => $data['new_user']['username'],
+                    'password' => Hash::make($data['new_user']['password']),
+                    'role_id' => $teacherRoleId,
+                    'email_verified_at' => now(),
+                ]);
+                $userId = $newUser->id;
+            }
+
             $teacher = Teacher::create([
-                'user_id' => $data['user_id'],
+                'user_id' => $userId,
                 'contact_phone' => $data['contact_phone'] ?? null,
                 'hire_date' => $data['hire_date'] ?? null,
             ]);
@@ -129,7 +155,7 @@ class TeacherController extends Controller
                     'title' => $u->title,
                     'course_id' => $u->course_id,
                     'assignment_status' => $u->pivot->assignment_status,
-                ])
+                ])->values(),
             ],
             'courses' => $courses,
         ]);
@@ -137,19 +163,22 @@ class TeacherController extends Controller
 
     public function update(Request $request, Teacher $teacher)
     {
+        $unitsRule = $teacher->units()->count() === 0 ? 'array' : 'required|array|min:1';
         $data = $request->validate([
             'contact_phone' => 'nullable|string|max:50',
             'hire_date' => 'nullable|date',
             'courses' => 'required|array|min:1',
             'courses.*' => 'integer|exists:courses,id',
-            'units' => 'required|array|min:1',
+            'units' => $unitsRule,
             'units.*' => 'integer|exists:units,id',
         ]);
 
-        $unitCourses = Unit::whereIn('id', $data['units'])->pluck('course_id','id');
-        $invalidUnits = $unitCourses->reject(fn($courseId) => in_array($courseId, $data['courses']))->keys();
-        if ($invalidUnits->isNotEmpty()) {
-            return back()->withErrors(['units' => 'One or more units do not belong to selected courses.'])->withInput();
+        if (!empty($data['units'])) {
+            $unitCourses = Unit::whereIn('id', $data['units'])->pluck('course_id','id');
+            $invalidUnits = $unitCourses->reject(fn($courseId) => in_array($courseId, $data['courses']))->keys();
+            if ($invalidUnits->isNotEmpty()) {
+                return back()->withErrors(['units' => 'One or more units do not belong to selected courses.'])->withInput();
+            }
         }
 
         DB::transaction(function() use ($teacher, $data) {
@@ -160,14 +189,16 @@ class TeacherController extends Controller
 
             $syncData = [];
             $now = now();
-            foreach ($data['units'] as $unitId) {
-                $syncData[$unitId] = [
-                    'assignment_status' => 'active',
-                    'start_date' => $now->toDateString(),
-                    'updated_at' => $now,
-                ];
+            if (!empty($data['units'])) {
+                foreach ($data['units'] as $unitId) {
+                    $syncData[$unitId] = [
+                        'assignment_status' => 'active',
+                        'start_date' => $now->toDateString(),
+                        'updated_at' => $now,
+                    ];
+                }
+                $teacher->units()->sync($syncData);
             }
-            $teacher->units()->sync($syncData);
         });
 
         return redirect()->route('teachers.index')->with('message', 'Teacher updated successfully.');
