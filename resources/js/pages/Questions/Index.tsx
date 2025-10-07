@@ -106,8 +106,6 @@ export default function Index() {
               {questions.map(question => (
                 <TableRow
                   key={question.id}
-                  className="cursor-pointer hover:bg-gray-100 transition"
-                  onClick={() => window.location.href = route('exams.questions.edit', { question: question.id })}
                 >
                   <TableCell className="max-w-md truncate" title={question.prompt}>{question.prompt}</TableCell>
                   <TableCell>{question.points}</TableCell>

@@ -110,7 +110,7 @@ export default function Index() {
                                 <TableRow
                                     key={exam.id}
                                     className="cursor-pointer hover:bg-gray-100 transition"
-                                    onClick={() => window.location.href = route('courses.units.exams.edit', [course.id, unit.id, exam.id])}
+                                    onClick={() => window.location.href = `/exams/${exam.id}/questions`}
                                 >
                                     <TableCell>{exam.title}</TableCell>
                                     <TableCell>{exam.duration_minutes}</TableCell>
