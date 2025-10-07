@@ -14,26 +14,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface User { id: number; name: string; email: string; role: string; }
 
-interface ChartRow { month: string; courses: number; units: number; exams: number; questions: number; }
-
 interface PageProps {
     counts: { admins: number; teachers: number; students: number; courses: number; units?: number; exams?: number; questions?: number; };
     users: User[];
-    chartData: ChartRow[];
     [key: string]: unknown;
 }
 
 export default function Dashboard() {
-    const { counts, users, chartData } = usePage<PageProps>().props;
+    const { counts, users } = usePage<PageProps>().props;
 
-    console.debug('Dashboard chartData raw:', chartData);
-
-    const normalizedChartData = React.useMemo(() => {
-        if (!chartData?.length) return [];
-        const hasAny = chartData.some(r => (r.courses + r.units + r.exams + r.questions) > 0);
-        if (hasAny) return chartData;
-        return [{ month: 'Totals', courses: counts.courses ?? 0, units: counts.units ?? 0, exams: counts.exams ?? 0, questions: counts.questions ?? 0 }];
-    }, [chartData, counts]);
+    // Build a single row dataset from aggregate counts for direct analysis display
+    const analysisData = [
+        {
+            label: 'Totals',
+            courses: counts.courses ?? 0,
+            units: counts.units ?? 0,
+            exams: counts.exams ?? 0,
+            questions: counts.questions ?? 0,
+        }
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -46,15 +45,10 @@ export default function Dashboard() {
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
-                {/* Bar Chart */}
+                {/* Simple Analysis Bar Chart */}
                 <Card className="w-full">
-                    <CardHeader><CardTitle>Content Growth (Last 6 Months)</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
                     <CardContent>
-                        {normalizedChartData.length === 0 ? (
-                            <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
-                                No data available yet.
-                            </div>
-                        ) : (
                         <ChartContainer
                             config={{
                                 courses: { label: 'Courses', color: 'var(--color-chart-1)' },
@@ -62,13 +56,13 @@ export default function Dashboard() {
                                 exams: { label: 'Exams', color: 'var(--color-chart-3)' },
                                 questions: { label: 'Questions', color: 'var(--color-chart-4)' },
                             }}
-                            className="h-[320px]"
+                            className="h-[260px]"
                         >
-                            <BarChart data={normalizedChartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                            <BarChart data={analysisData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }} barCategoryGap={40}>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                                <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
                                 <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
-                                <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
                                 <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
                                 <Bar dataKey="units" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
                                 <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[4, 4, 0, 0]} />
@@ -76,7 +70,6 @@ export default function Dashboard() {
                                 <ChartLegend content={<ChartLegendContent />} />
                             </BarChart>
                         </ChartContainer>
-                        )}
                     </CardContent>
                 </Card>
                 {/* Users table */}
