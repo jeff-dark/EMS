@@ -29,12 +29,23 @@ class DashboardController extends Controller
             ->map(fn($i) => Carbon::now()->subMonths($i)->startOfMonth())
             ->sort();
 
+        // Driver-aware monthly aggregation helper.
         $perMonth = function($modelClass) use ($months) {
-            // For PostgreSQL adjust DATE_FORMAT to TO_CHAR(created_at, 'YYYY-MM')
-            $counts = $modelClass::select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as ym'), DB::raw('COUNT(*) as aggregate'))
+            $driver = DB::getDriverName();
+            // Choose the correct SQL expression for year-month extraction.
+            $groupExpr = match ($driver) {
+                'mysql' => "DATE_FORMAT(created_at, '%Y-%m')",
+                'pgsql' => "TO_CHAR(created_at, 'YYYY-MM')",
+                'sqlite' => "strftime('%Y-%m', created_at)",
+                'sqlsrv' => "FORMAT(created_at, 'yyyy-MM')",
+                default => "strftime('%Y-%m', created_at)", // sensible fallback
+            };
+
+            $counts = $modelClass::selectRaw("{$groupExpr} as ym, COUNT(*) as aggregate")
                 ->where('created_at', '>=', $months->first())
                 ->groupBy('ym')
                 ->pluck('aggregate', 'ym');
+
             return $months->map(function($m) use ($counts) {
                 $key = $m->format('Y-m');
                 return [
