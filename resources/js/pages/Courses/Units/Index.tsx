@@ -30,10 +30,11 @@ interface PageProps {
     course: Course;
     units: Unit[];
     flash: { message?: string };
+    [key: string]: any;
 }
 
 export default function Index() {
-    const { course, units, flash } = usePage().props as PageProps;
+    const { course, units, flash } = usePage<PageProps>().props;
     const { processing, delete: destroy } = useForm();
 
     function route(name: string, param?: number): string {
@@ -87,7 +88,7 @@ export default function Index() {
                             {units.map(unit => (
                                 <TableRow
                                     key={unit.id}
-                                    className="cursor-pointer hover:bg-gray-100 transition"
+                                    className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                     onClick={() => window.location.href = `/courses/${course.id}/units/${unit.id}/exams`}
                                 >
                                     <TableCell>{unit.order}</TableCell>

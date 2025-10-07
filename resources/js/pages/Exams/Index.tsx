@@ -104,7 +104,7 @@ export default function Index() {
                                 return (
                                     <TableRow
                                         key={exam.id}
-                                        className="cursor-pointer hover:bg-gray-100"
+                                        className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                         onClick={() => router.get(`/exams/${exam.id}/questions`)}
                                         title="View questions"
                                     >

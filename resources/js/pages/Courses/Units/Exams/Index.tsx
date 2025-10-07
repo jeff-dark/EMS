@@ -109,7 +109,7 @@ export default function Index() {
                             {exams.map(exam => (
                                 <TableRow
                                     key={exam.id}
-                                    className="cursor-pointer hover:bg-gray-100 transition"
+                                    className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                     onClick={() => window.location.href = `/exams/${exam.id}/questions`}
                                 >
                                     <TableCell>{exam.title}</TableCell>
