@@ -26,6 +26,8 @@ interface PageProps {
 export default function Dashboard() {
     const { counts, users, chartData } = usePage<PageProps>().props;
 
+    console.debug('Dashboard chartData raw:', chartData);
+
     const normalizedChartData = React.useMemo(() => {
         if (!chartData?.length) return [];
         const hasAny = chartData.some(r => (r.courses + r.units + r.exams + r.questions) > 0);
@@ -48,6 +50,11 @@ export default function Dashboard() {
                 <Card className="w-full">
                     <CardHeader><CardTitle>Content Growth (Last 6 Months)</CardTitle></CardHeader>
                     <CardContent>
+                        {normalizedChartData.length === 0 ? (
+                            <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
+                                No data available yet.
+                            </div>
+                        ) : (
                         <ChartContainer
                             config={{
                                 courses: { label: 'Courses', color: 'var(--color-chart-1)' },
@@ -62,13 +69,14 @@ export default function Dashboard() {
                                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                                 <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
                                 <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                                <Bar dataKey="courses" fill="var(--color-courses, var(--color-chart-1))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="units" fill="var(--color-units, var(--color-chart-2))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="exams" fill="var(--color-exams, var(--color-chart-3))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="questions" fill="var(--color-questions, var(--color-chart-4))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="units" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="questions" fill="var(--color-chart-4)" radius={[4, 4, 0, 0]} />
                                 <ChartLegend content={<ChartLegendContent />} />
                             </BarChart>
                         </ChartContainer>
+                        )}
                     </CardContent>
                 </Card>
                 {/* Users table */}
