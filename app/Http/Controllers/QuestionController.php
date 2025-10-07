@@ -10,9 +10,12 @@ class QuestionController extends Controller
     public function index(Exam $exam)
     {
         $this->authorize('viewAny', Question::class);
-    $questions = $exam->questions()->with('answerKey')->get();
+	$exam->load('unit.course');
+	$questions = $exam->questions()->with('answerKey')->get();
         return inertia('Questions/Index', [
-            'exam' => $exam->load('unit.course'),
+            'exam' => $exam,
+            'unit' => $exam->unit,
+            'course' => $exam->unit?->course,
             'questions' => $questions,
         ]);
     }
@@ -20,8 +23,11 @@ class QuestionController extends Controller
     public function create(Exam $exam)
     {
         $this->authorize('create', Question::class);
+        $exam->load('unit.course');
         return inertia('Questions/Create', [
-            'exam' => $exam->load('unit.course'),
+            'exam' => $exam,
+            'unit' => $exam->unit,
+            'course' => $exam->unit?->course,
         ]);
     }
 
@@ -49,9 +55,12 @@ class QuestionController extends Controller
     public function edit(Exam $exam, Question $question)
     {
         $this->authorize('view', $question);
-    $question->load('answerKey');
+	$exam->load('unit.course');
+	$question->load('answerKey');
         return inertia('Questions/Edit', [
-            'exam' => $exam->load('unit.course'),
+            'exam' => $exam,
+            'unit' => $exam->unit,
+            'course' => $exam->unit?->course,
             'question' => $question,
             'answerKey' => $question->answerKey,
         ]);

@@ -4,38 +4,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
-import React, { useState } from 'react';
-import { usePage, router } from '@inertiajs/react';
+import React from 'react';
 
-interface Exam {
-  id: number;
-  title: string;
-}
+interface Exam { id: number; title: string; unit_id: number; }
+interface Unit { id: number; title: string; course_id: number; }
+interface Course { id: number; name: string; }
 
 interface PageProps {
   exam: Exam;
+  unit: Unit;
+  course: Course;
   errors: Record<string, string>;
   [key: string]: unknown;
 }
 
-export default function Index() {
-  const { exam, errors } = usePage<PageProps>().props;
+export default function Create() {
+  const { exam, unit, course, errors } = usePage<PageProps>().props;
 
   const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Create New Question',
-    href: '/exams/' + exam.id + '/questions/create',
-  },
-];
+    { title: 'Courses', href: '/courses' },
+    { title: course.name, href: `/courses/${course.id}/units` },
+    { title: unit.title, href: `/courses/${course.id}/units/${unit.id}/exams` },
+    { title: exam.title, href: `/courses/${course.id}/units/${unit.id}/exams/${exam.id}/edit` },
+    { title: 'Questions', href: `/exams/${exam.id}/questions` },
+    { title: 'Create', href: `/exams/${exam.id}/questions/create` },
+  ];
 
-  function route(name: string, id?: number): string {
-    // Simple implementation for demonstration purposes
-    // In a real app, you might use a route helper or config
-    if (name === 'exams.questions.store' && id !== undefined) {
-      return `/exams/${id}/questions`;
-    }
+  function route(name: string): string {
+    if (name === 'exams.questions.store') return `/exams/${exam.id}/questions`;
+    if (name === 'exams.questions.index') return `/exams/${exam.id}/questions`;
     return '/';
   }
 
@@ -47,12 +46,12 @@ export default function Index() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post(route('exams.questions.store', exam.id));
+    post(route('exams.questions.store'));
   }
 
   return (
-    <AppLayout breadcrumbs={[{ title: 'Questions', href: `/exams/${exam.id}/questions` }, { title: 'Create New Question', href: `/exams/${exam.id}/questions/create` }]}>
-      <Head title={`Create New Question ${exam.title}`} />
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title={`Create Question • ${exam.title}`} />
       <div className="w-8/12 p-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Display validation errors */}
@@ -80,8 +79,14 @@ export default function Index() {
               {formErrors.points && <p className="text-red-600 text-xs mt-1">{formErrors.points}</p>}
             </div>
           </div>
+          <div>
+            <Label htmlFor="expected_answer">Expected Answer (optional)</Label>
+            <textarea id="expected_answer" className="w-full border rounded p-2 text-sm" rows={3} value={data.expected_answer} onChange={e => setData('expected_answer', e.target.value)} />
+            {formErrors.expected_answer && <p className="text-red-600 text-xs mt-1">{formErrors.expected_answer}</p>}
+          </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={processing}>{processing ? 'Saving...' : 'Save Question'}</Button>
+            <Button variant="outline" type="button" onClick={() => window.location.href = route('exams.questions.index')}>Cancel</Button>
           </div>
         </form>
       </div>
