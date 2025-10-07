@@ -1,10 +1,11 @@
+import React from 'react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,6 +26,13 @@ interface PageProps {
 export default function Dashboard() {
     const { counts, users, chartData } = usePage<PageProps>().props;
 
+    const normalizedChartData = React.useMemo(() => {
+        if (!chartData?.length) return [];
+        const hasAny = chartData.some(r => (r.courses + r.units + r.exams + r.questions) > 0);
+        if (hasAny) return chartData;
+        return [{ month: 'Totals', courses: counts.courses ?? 0, units: counts.units ?? 0, exams: counts.exams ?? 0, questions: counts.questions ?? 0 }];
+    }, [chartData, counts]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -42,22 +50,23 @@ export default function Dashboard() {
                     <CardContent>
                         <ChartContainer
                             config={{
-                                courses: { label: 'Courses', color: 'hsl(var(--chart-1))' },
-                                units: { label: 'Units', color: 'hsl(var(--chart-2))' },
-                                exams: { label: 'Exams', color: 'hsl(var(--chart-3))' },
-                                questions: { label: 'Questions', color: 'hsl(var(--chart-4))' },
+                                courses: { label: 'Courses', color: 'var(--color-chart-1)' },
+                                units: { label: 'Units', color: 'var(--color-chart-2)' },
+                                exams: { label: 'Exams', color: 'var(--color-chart-3)' },
+                                questions: { label: 'Questions', color: 'var(--color-chart-4)' },
                             }}
                             className="h-[320px]"
                         >
-                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                            <BarChart data={normalizedChartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                                 <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
                                 <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                                <Bar dataKey="courses" fill="var(--color-courses)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="units" fill="var(--color-units)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="exams" fill="var(--color-exams)" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="questions" fill="var(--color-questions)" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="courses" fill="var(--color-courses, var(--color-chart-1))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="units" fill="var(--color-units, var(--color-chart-2))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="exams" fill="var(--color-exams, var(--color-chart-3))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="questions" fill="var(--color-questions, var(--color-chart-4))" radius={[4, 4, 0, 0]} />
+                                <ChartLegend content={<ChartLegendContent />} />
                             </BarChart>
                         </ChartContainer>
                     </CardContent>
