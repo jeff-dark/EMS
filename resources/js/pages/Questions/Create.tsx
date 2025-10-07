@@ -9,15 +9,6 @@ import { OctagonAlert } from 'lucide-react';
 import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Create New Question',
-    href: '/questions/create',
-  },
-];
-
-
-
 interface Exam {
   id: number;
   title: string;
@@ -29,8 +20,15 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-export default function Create() {
+export default function Index() {
   const { exam, errors } = usePage<PageProps>().props;
+
+  const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Create New Question',
+    href: '/exams/' + exam.id + '/questions/create',
+  },
+];
 
   function route(name: string, id?: number): string {
     // Simple implementation for demonstration purposes
