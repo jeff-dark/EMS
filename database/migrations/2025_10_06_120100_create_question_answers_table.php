@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('question_answers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
-            // For subjective answers store the canonical expected answer text
-            $table->text('expected_answer')->nullable();
+            // Canonical expected answer text
+            $table->text('answer')->nullable();
             // Optionally store a sample rubric or notes for graders
             $table->text('rubric')->nullable();
             $table->timestamps();

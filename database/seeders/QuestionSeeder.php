@@ -50,7 +50,7 @@ class QuestionSeeder extends Seeder
                 $contentIndex = $i % count($defaultContents);
                 $questionsData[] = [
                     'exam_id' => $exam->id,
-                    'content' => $defaultContents[$contentIndex] . " (Q" . ($i + 1) . ")",
+                    'prompt' => $defaultContents[$contentIndex] . " (Q" . ($i + 1) . ")",
                     'points' => 1.00,
                     'order' => $i + 1,
                     'created_at' => now(),

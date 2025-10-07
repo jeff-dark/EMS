@@ -10,7 +10,7 @@ class QuestionController extends Controller
     public function index(Exam $exam)
     {
         $this->authorize('viewAny', Question::class);
-        $questions = $exam->questions()->with('answerKey')->get();
+    $questions = $exam->questions()->with('answerKey')->get();
         return inertia('Questions/Index', [
             'exam' => $exam->load('unit.course'),
             'questions' => $questions,
@@ -40,18 +40,16 @@ class QuestionController extends Controller
         ]);
 
         if (!empty($data['expected_answer'])) {
-            $question->answerKey()->create([
-                'answer' => $data['expected_answer'],
-            ]);
+            $question->answerKey()->create(['answer' => $data['expected_answer']]);
         }
 
-        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question created');
+    return redirect()->route('exams.questions.index', $exam)->with('message', 'Question created');
     }
 
     public function edit(Exam $exam, Question $question)
     {
         $this->authorize('view', $question);
-        $question->load('answerKey');
+    $question->load('answerKey');
         return inertia('Questions/Edit', [
             'exam' => $exam->load('unit.course'),
             'question' => $question,
@@ -73,21 +71,19 @@ class QuestionController extends Controller
             'points' => $data['points'] ?? $question->points,
         ]);
 
+        // Simplify: keep only one canonical answer row
+        $question->answerKey()->delete();
         if (!empty($data['expected_answer'])) {
-            // Ensure one answer key row (first or create new)
-            $question->answerKey()->delete();
             $question->answerKey()->create(['answer' => $data['expected_answer']]);
-        } else {
-            $question->answerKey()->delete();
         }
 
-        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question updated');
+    return redirect()->route('exams.questions.index', $exam)->with('message', 'Question updated');
     }
 
     public function destroy(Exam $exam, Question $question)
     {
         $this->authorize('delete', $question);
         $question->delete();
-        return redirect()->route('exams.questions.index', $exam)->with('success', 'Question deleted');
+    return redirect()->route('exams.questions.index', $exam)->with('message', 'Question deleted');
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
-            $table->text('content');
+            $table->text('prompt');
             $table->decimal('points', 8, 2)->default(1);
             $table->unsignedInteger('order')->nullable();
             $table->timestamps();

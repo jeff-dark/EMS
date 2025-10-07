@@ -11,7 +11,7 @@ class Question extends Model
 
     protected $fillable = [
         'exam_id',
-        'content',
+        'prompt', // renamed from content for clarity in UI
         'points',
         'order',
     ];
@@ -23,7 +23,8 @@ class Question extends Model
 
     public function answerKey()
     {
-        return $this->hasOne(QuestionAnswer::class);
+        // Allow multiple stored answers (even if in practice only one is used)
+        return $this->hasMany(QuestionAnswer::class);
     }
 
     public function studentAnswers()
