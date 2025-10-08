@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,8 +24,6 @@ export default function Index() {
         }
         return '/';
     }
-
-    import { usePage } from '@inertiajs/react';
     const page = usePage().props as any;
     const courses = page.courses || [];
     const { data, setData, post, processing, errors } = useForm<{
