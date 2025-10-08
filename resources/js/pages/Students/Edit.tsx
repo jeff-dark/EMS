@@ -76,6 +76,18 @@ export default function Edit({ student, courses = [], studentCourses = [] }: Pro
                         <Input type='text' placeholder="Enter student name" value={data.name} onChange={e => setData('name', e.target.value)} />
                     </div>
                     <div className='gap-2'>
+                        <Label htmlFor="student-email">Email</Label>
+                        <Input type='email' placeholder="Enter student email" value={data.email} onChange={e => setData('email', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-username">Username</Label>
+                        <Input type='text' placeholder="Enter student username" value={data.username} onChange={e => setData('username', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-password">Password</Label>
+                        <Input type='password' placeholder="Enter new student password" value={data.password} onChange={e => setData('password', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
                         <Label>Courses (max 2)</Label>
                         <div className="flex flex-col gap-2">
                             {courses.map((course: any) => (
@@ -103,18 +115,6 @@ export default function Edit({ student, courses = [], studentCourses = [] }: Pro
                         {data.courses.length > 2 && (
                             <div className="text-red-500 text-sm">You can select up to 2 courses only.</div>
                         )}
-                    </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="student-email">Email</Label>
-                        <Input type='email' placeholder="Enter student email" value={data.email} onChange={e => setData('email', e.target.value)} />
-                    </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="student-username">Username</Label>
-                        <Input type='text' placeholder="Enter student username" value={data.username} onChange={e => setData('username', e.target.value)} />
-                    </div>
-                    <div className='gap-2'>
-                        <Label htmlFor="student-password">Password</Label>
-                        <Input type='password' placeholder="Enter new student password" value={data.password} onChange={e => setData('password', e.target.value)} />
                     </div>
                     <Button type="submit">Update Student</Button>
                 </form>
