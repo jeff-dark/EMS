@@ -16,9 +16,11 @@ interface Student {
 }
 interface Props {
     student: Student;
+    courses: any[];
+    studentCourses: string[];
 }
 
-export default function Edit({ student }: Props) {
+export default function Edit({ student, courses = [], studentCourses = [] }: Props) {
     function route(name: string, id?: number): string {
         // Simple implementation for demonstration purposes
         // In a real app, you might use a route helper or config
@@ -31,11 +33,18 @@ export default function Edit({ student }: Props) {
         return '/';
     }
 
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, put, processing, errors } = useForm<{
+        name: string;
+        email: string;
+        username: string;
+        password: string;
+        courses: string[];
+    }>({
         name: student.name,
         email: student.email,
         username: student.username,
         password: '',
+        courses: studentCourses || [],
     });
 
     const handleUpdate = (e: React.FormEvent) => {
@@ -65,6 +74,27 @@ export default function Edit({ student }: Props) {
                     <div className='gap-2'>
                         <Label htmlFor="student-name">Name</Label>
                         <Input type='text' placeholder="Enter student name" value={data.name} onChange={e => setData('name', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-courses">Courses (max 2)</Label>
+                        <select
+                            multiple
+                            value={data.courses}
+                            onChange={e => {
+                                const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                                if (selected.length <= 2) {
+                                    setData('courses', selected);
+                                }
+                            }}
+                            className="w-full border rounded p-2"
+                        >
+                            {courses.map((course: any) => (
+                                <option key={course.id} value={course.id}>{course.name}</option>
+                            ))}
+                        </select>
+                        {data.courses.length > 2 && (
+                            <div className="text-red-500 text-sm">You can select up to 2 courses only.</div>
+                        )}
                     </div>
                     <div className='gap-2'>
                         <Label htmlFor="student-email">Email</Label>

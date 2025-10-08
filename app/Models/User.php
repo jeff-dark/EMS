@@ -54,6 +54,15 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+        public function courses()
+        {
+            return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id')->withTimestamps();
+        }
+
+        public function units()
+        {
+            return $this->belongsToMany(Unit::class, 'student_unit', 'student_id', 'unit_id')->withTimestamps();
+        }
 
     public function hasRole(string $roleName): bool
     {

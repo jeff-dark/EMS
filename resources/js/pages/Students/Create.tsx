@@ -24,11 +24,20 @@ export default function Index() {
         return '/';
     }
 
-    const { data, setData, post, processing, errors } = useForm({
+    // @ts-ignore
+    const courses = (window.pageProps?.courses || []);
+    const { data, setData, post, processing, errors } = useForm<{
+        name: string;
+        email: string;
+        username: string;
+        password: string;
+        courses: string[];
+    }>({
         name: '',
         email: '',
         username: '',
         password: '',
+        courses: [],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -58,6 +67,27 @@ export default function Index() {
                     <div className='gap-2'>
                         <Label htmlFor="student-name">Name</Label>
                         <Input type='text' placeholder="Enter student name" value={data.name} onChange={e => setData('name', e.target.value)} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="student-courses">Courses (max 2)</Label>
+                        <select
+                            multiple
+                            value={data.courses}
+                            onChange={e => {
+                                const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                                if (selected.length <= 2) {
+                                    setData('courses', selected);
+                                }
+                            }}
+                            className="w-full border rounded p-2"
+                        >
+                            {courses.map((course: any) => (
+                                <option key={course.id} value={course.id}>{course.name}</option>
+                            ))}
+                        </select>
+                        {data.courses.length > 2 && (
+                            <div className="text-red-500 text-sm">You can select up to 2 courses only.</div>
+                        )}
                     </div>
                     <div className='gap-2'>
                         <Label htmlFor="student-email">Email</Label>

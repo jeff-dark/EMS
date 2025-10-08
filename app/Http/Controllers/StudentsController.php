@@ -25,7 +25,8 @@ class StudentsController extends Controller
 
     public function create()
     {
-        return Inertia::render('Students/Create', []);
+    $courses = \App\Models\Course::all();
+    return Inertia::render('Students/Create', compact('courses'));
     }
 
     public function store(Request $request)
@@ -35,11 +36,12 @@ class StudentsController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'courses' => 'required|array|min:1|max:2',
+            'courses.*' => 'exists:courses,id',
         ]);
 
         $studentRole = Role::where('name', 'student')->first();
-
-        User::create([
+        $student = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'username' => $request->username,
@@ -47,12 +49,21 @@ class StudentsController extends Controller
             'role_id' => $studentRole->id,
         ]);
 
+        // Attach selected courses
+        $student->courses()->sync($request->courses);
+
+        // Assign units from selected courses
+        $unitIds = \App\Models\Unit::whereIn('course_id', $request->courses)->pluck('id')->toArray();
+        $student->units()->sync($unitIds);
+
         return redirect()->route('students.index')->with('message', 'Student created successfully.');
     }
 
     public function edit(User $student)
     {
-        return Inertia::render('Students/Edit', compact('student'));
+    $courses = \App\Models\Course::all();
+    $studentCourses = $student->courses()->pluck('courses.id')->toArray();
+    return Inertia::render('Students/Edit', compact('student', 'courses', 'studentCourses'));
     }
 
     public function update(Request $request, User $student)
@@ -62,6 +73,8 @@ class StudentsController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $student->id,
             'username' => 'required|string|max:255|unique:users,username,' . $student->id,
             'password' => 'nullable|string|min:8',
+            'courses' => 'required|array|min:1|max:2',
+            'courses.*' => 'exists:courses,id',
         ]);
 
         $student->name = $request->name;
@@ -71,6 +84,13 @@ class StudentsController extends Controller
             $student->password = bcrypt($request->password);
         }
         $student->save();
+
+        // Sync selected courses
+        $student->courses()->sync($request->courses);
+
+        // Sync units from selected courses
+        $unitIds = \App\Models\Unit::whereIn('course_id', $request->courses)->pluck('id')->toArray();
+        $student->units()->sync($unitIds);
 
         return redirect()->route('students.index')->with('message', 'Student updated successfully.');
     }
