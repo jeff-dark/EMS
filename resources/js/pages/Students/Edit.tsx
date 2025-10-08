@@ -76,22 +76,30 @@ export default function Edit({ student, courses = [], studentCourses = [] }: Pro
                         <Input type='text' placeholder="Enter student name" value={data.name} onChange={e => setData('name', e.target.value)} />
                     </div>
                     <div className='gap-2'>
-                        <Label htmlFor="student-courses">Courses (max 2)</Label>
-                        <select
-                            multiple
-                            value={data.courses}
-                            onChange={e => {
-                                const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
-                                if (selected.length <= 2) {
-                                    setData('courses', selected);
-                                }
-                            }}
-                            className="w-full border rounded p-2"
-                        >
+                        <Label>Courses (max 2)</Label>
+                        <div className="flex flex-col gap-2">
                             {courses.map((course: any) => (
-                                <option key={course.id} value={course.id}>{course.name}</option>
+                                <label key={course.id} className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        value={course.id}
+                                        checked={data.courses.includes(course.id)}
+                                        onChange={e => {
+                                            let selected = [...data.courses];
+                                            if (e.target.checked) {
+                                                if (selected.length < 2) {
+                                                    selected.push(course.id);
+                                                }
+                                            } else {
+                                                selected = selected.filter(id => id !== course.id);
+                                            }
+                                            setData('courses', selected);
+                                        }}
+                                    />
+                                    {course.name}
+                                </label>
                             ))}
-                        </select>
+                        </div>
                         {data.courses.length > 2 && (
                             <div className="text-red-500 text-sm">You can select up to 2 courses only.</div>
                         )}
