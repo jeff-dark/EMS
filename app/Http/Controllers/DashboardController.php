@@ -213,7 +213,6 @@ class DashboardController extends Controller
                 ['metric' => 'Courses', 'value' => $counts['courses'] ?? 0],
                 ['metric' => 'Units', 'value' => $counts['units'] ?? 0],
                 ['metric' => 'Exams', 'value' => $counts['exams'] ?? 0],
-                ['metric' => 'Questions', 'value' => $counts['questions'] ?? 0],
                 ['metric' => 'Teachers', 'value' => $counts['teachers'] ?? 0],
                 ['metric' => 'Students', 'value' => $counts['students'] ?? 0],
                 ['metric' => 'Admins', 'value' => $counts['admins'] ?? 0],
