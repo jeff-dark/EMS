@@ -186,8 +186,8 @@ class DashboardController extends Controller
             }
         }
 
-        // Only send users list for admin/teacher roles
-        $users = ($roleName === 'admin' || $roleName === 'teacher')
+        // Only send users list for admin role
+        $users = ($roleName === 'admin')
             ? User::with('role:id,name')
                 ->get(['id', 'name', 'email', 'role_id'])
                 ->map(fn($u) => [
@@ -208,6 +208,16 @@ class DashboardController extends Controller
             ],
             'studentData' => $studentData,
             'teacherData' => $teacherData,
+            // Admin: interactive bar chart data
+            'adminInteractive' => [
+                ['metric' => 'Courses', 'value' => $counts['courses'] ?? 0],
+                ['metric' => 'Units', 'value' => $counts['units'] ?? 0],
+                ['metric' => 'Exams', 'value' => $counts['exams'] ?? 0],
+                ['metric' => 'Questions', 'value' => $counts['questions'] ?? 0],
+                ['metric' => 'Teachers', 'value' => $counts['teachers'] ?? 0],
+                ['metric' => 'Students', 'value' => $counts['students'] ?? 0],
+                ['metric' => 'Admins', 'value' => $counts['admins'] ?? 0],
+            ],
         ]);
     }
 }

@@ -42,11 +42,12 @@ interface PageProps {
     authUser?: { id: number; name: string; role: string };
     studentData?: StudentData | null;
     teacherData?: TeacherData | null;
+    adminInteractive?: { metric: string; value: number }[];
     [key: string]: unknown;
 }
 
 export default function Dashboard() {
-    const { counts, users, authUser, studentData, teacherData } = usePage<PageProps>().props;
+    const { counts, users, authUser, studentData, teacherData, adminInteractive } = usePage<PageProps>().props;
     const role = authUser?.role;
 
     // Build a single row dataset from aggregate counts for direct analysis display
@@ -295,6 +296,31 @@ export default function Dashboard() {
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
+                {/* Admin interactive bar chart (full width) */}
+                {role === 'admin' && adminInteractive && (
+                    <Card>
+                        <CardHeader><CardTitle>Platform Analytics</CardTitle></CardHeader>
+                        <CardContent className="h-[420px]">
+                            <ChartContainer
+                                config={{
+                                    value: { label: 'Total', color: 'var(--color-chart-1)' },
+                                }}
+                                className="h-full"
+                            >
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={adminInteractive} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
+                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                        <XAxis dataKey="metric" tickLine={false} axisLine={false} interval={0} angle={-20} height={60} tickMargin={12} />
+                                        <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
+                                        <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                        <ChartLegend content={<ChartLegendContent />} />
+                                        <Bar dataKey="value" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                )}
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
@@ -371,6 +397,8 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                 </div>
+                {/* Users table (admin-only) */}
+                {role === 'admin' && (
                 <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
                     <Table>
                         <TableHeader>
@@ -391,6 +419,7 @@ export default function Dashboard() {
                         </TableBody>
                     </Table>
                 </div>
+                )}
             </div>
         </AppLayout>
     );
