@@ -20,6 +20,8 @@ class Exam extends Model
         'duration_minutes',
         'passing_score',
         'is_published',
+        'start_time',
+        'end_time',
     ];
 
     /**
@@ -39,6 +41,14 @@ class Exam extends Model
     }
 
     /**
+     * Sessions (student attempts) associated with this exam.
+     */
+    public function sessions()
+    {
+        return $this->hasMany(ExamSession::class);
+    }
+
+    /**
      * The attributes that should be cast to native types.
      *
      * @var array
@@ -48,6 +58,8 @@ class Exam extends Model
         return [
             'is_published' => 'boolean',
             'passing_score' => 'float',
+            'start_time' => 'datetime',
+            'end_time' => 'datetime',
         ];
     }
 }

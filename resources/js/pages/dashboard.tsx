@@ -6,7 +6,7 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -15,14 +15,27 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface User { id: number; name: string; email: string; role: string; }
 
+interface StudentExamStats { total: number; available: number; upcoming: number; completed: number; }
+interface StudentCourse { id: number; name: string; description?: string | null; }
+interface StudentUnit { id: number; course_id: number; course_name?: string; title: string; order: number; }
+interface ExamDistributionItem { status: string; value: number; }
+interface StudentData {
+    examStats: StudentExamStats;
+    courses: StudentCourse[];
+    units: StudentUnit[];
+    examDistribution: ExamDistributionItem[];
+}
 interface PageProps {
     counts: { admins: number; teachers: number; students: number; courses: number; units?: number; exams?: number; questions?: number; };
     users: User[];
+    authUser?: { id: number; name: string; role: string };
+    studentData?: StudentData | null;
     [key: string]: unknown;
 }
 
 export default function Dashboard() {
-    const { counts, users } = usePage<PageProps>().props;
+    const { counts, users, authUser, studentData } = usePage<PageProps>().props;
+    const role = authUser?.role;
 
     // Build a single row dataset from aggregate counts for direct analysis display
     const analysisData = [
@@ -35,18 +48,137 @@ export default function Dashboard() {
         }
     ];
 
+    // Student-specific view
+    if (role === 'student' && studentData) {
+        const { examStats, examDistribution, courses, units } = studentData;
+        const distributionTotal = examDistribution.reduce((acc, d) => acc + d.value, 0) || 1;
+        const areaData = [{ name: 'Exams', Available: examStats.available, Upcoming: examStats.upcoming, Completed: examStats.completed }];
+
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <Head title="Dashboard" />
+                <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                    {/* Stat cards */}
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <Card><CardHeader><CardTitle>Total Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.total}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>Available Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.available}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>Upcoming Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.upcoming}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>Completed Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.completed}</span></CardContent></Card>
+                    </div>
+
+                    {/* Analysis charts */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
+                            <CardHeader><CardTitle>Exam Status Distribution</CardTitle></CardHeader>
+                            <CardContent className="flex h-[340px] flex-col items-center justify-center">
+                                <PieChart width={260} height={220}>
+                                    <Pie
+                                        data={examDistribution}
+                                        dataKey="value"
+                                        nameKey="status"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={55}
+                                        outerRadius={90}
+                                        paddingAngle={2}
+                                        stroke="none"
+                                    >
+                                        {examDistribution.map((entry, idx) => (
+                                            <Cell key={entry.status} fill={`var(--color-chart-${idx+1})`} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                                <ul className="w-full text-xs space-y-2 mt-4">
+                                    {examDistribution.map((d, idx) => (
+                                        <li key={d.status} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="h-3 w-3 rounded-sm" style={{ background: `var(--color-chart-${idx+1})` }} />
+                                                <span>{d.status}</span>
+                                            </div>
+                                            <div className="font-mono tabular-nums flex items-center gap-2">
+                                                <span>{d.value}</span>
+                                                <span className="text-muted-foreground">{((d.value/distributionTotal)*100).toFixed(1)}%</span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>Exam Overview</CardTitle></CardHeader>
+                            <CardContent className="h-[340px]">
+                                <ChartContainer
+                                    config={{
+                                        Available: { label: 'Available', color: 'var(--color-chart-1)' },
+                                        Upcoming: { label: 'Upcoming', color: 'var(--color-chart-2)' },
+                                        Completed: { label: 'Completed', color: 'var(--color-chart-3)' },
+                                    }}
+                                    className="h-full"
+                                >
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={areaData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="name" />
+                                            <YAxis allowDecimals={false} />
+                                            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                                            <Area type="monotone" dataKey="Available" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.25} />
+                                            <Area type="monotone" dataKey="Upcoming" stroke="var(--color-chart-2)" fill="var(--color-chart-2)" fillOpacity={0.25} />
+                                            <Area type="monotone" dataKey="Completed" stroke="var(--color-chart-3)" fill="var(--color-chart-3)" fillOpacity={0.25} />
+                                            <ChartLegend content={<ChartLegendContent />} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </ChartContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Courses & Units lists */}
+                    <div className="grid gap-4 md:grid-cols-2 flex-1">
+                        <Card className="flex flex-col">
+                            <CardHeader><CardTitle>Your Courses</CardTitle></CardHeader>
+                            <CardContent className="flex-1 overflow-auto">
+                                {courses.length === 0 && <p className="text-sm text-muted-foreground">No courses assigned.</p>}
+                                <ul className="space-y-3">
+                                    {courses.map(c => (
+                                        <li key={c.id} className="rounded border p-3 bg-muted/40"> 
+                                            <p className="font-medium">{c.name}</p>
+                                            {c.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{c.description}</p>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                        <Card className="flex flex-col">
+                            <CardHeader><CardTitle>Your Units</CardTitle></CardHeader>
+                            <CardContent className="flex-1 overflow-auto">
+                                {units.length === 0 && <p className="text-sm text-muted-foreground">No units available.</p>}
+                                <ul className="space-y-3">
+                                    {units.map(u => (
+                                        <li key={u.id} className="rounded border p-3 bg-muted/40 flex flex-col gap-1">
+                                            <div className="text-sm font-medium">{u.title}</div>
+                                            <div className="text-xs text-muted-foreground">Course: {u.course_name || u.course_id} • Order {u.order}</div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </AppLayout>
+        );
+    }
+
+    // Default (admin/teacher) existing view
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                {/* Top cards */}
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3 xl:grid-cols-4">
                     <Card><CardHeader><CardTitle>Admins</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.admins}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Teachers</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
-                {/* Simple Analysis Bar & User Distribution Pie */}
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
@@ -123,7 +255,6 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                 </div>
-                {/* Users table */}
                 <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
                     <Table>
                         <TableHeader>
