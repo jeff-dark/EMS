@@ -25,16 +25,28 @@ interface StudentData {
     units: StudentUnit[];
     examDistribution: ExamDistributionItem[];
 }
+interface TeacherCards { myUnits: number; myStudents: number; activeExamsToday: number; totalExams: number; }
+interface TeacherCharts {
+    studentsPerUnit: { unit: string; students: number }[];
+    examsPerUnit: { unit: string; exams: number }[];
+}
+interface TeacherStudent { id: number; name: string; email: string; units: { id: number; title: string }[] }
+interface TeacherData {
+    cards: TeacherCards;
+    charts: TeacherCharts;
+    students: TeacherStudent[];
+}
 interface PageProps {
     counts: { admins: number; teachers: number; students: number; courses: number; units?: number; exams?: number; questions?: number; };
     users: User[];
     authUser?: { id: number; name: string; role: string };
     studentData?: StudentData | null;
+    teacherData?: TeacherData | null;
     [key: string]: unknown;
 }
 
 export default function Dashboard() {
-    const { counts, users, authUser, studentData } = usePage<PageProps>().props;
+    const { counts, users, authUser, studentData, teacherData } = usePage<PageProps>().props;
     const role = authUser?.role;
 
     // Build a single row dataset from aggregate counts for direct analysis display
@@ -169,6 +181,91 @@ export default function Dashboard() {
     }
 
     // Default (admin/teacher) existing view
+    if (role === 'teacher' && teacherData) {
+        const { cards, charts, students } = teacherData;
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <Head title="Dashboard" />
+                <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                    {/* Top cards */}
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <Card><CardHeader><CardTitle>My Units</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{cards.myUnits}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>My Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{cards.myStudents}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>Active Exams (Today)</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{cards.activeExamsToday}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>Total Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{cards.totalExams}</span></CardContent></Card>
+                    </div>
+
+                    {/* Analytics charts */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
+                            <CardHeader><CardTitle>Students per Unit</CardTitle></CardHeader>
+                            <CardContent>
+                                <ChartContainer
+                                    config={{ students: { label: 'Students', color: 'var(--color-chart-1)' } }}
+                                    className="h-[340px]"
+                                >
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={charts.studentsPerUnit} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                            <XAxis dataKey="unit" tickLine={false} axisLine={false} interval={0} angle={-20} height={50} tickMargin={10} />
+                                            <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
+                                            <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                            <Bar dataKey="students" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </ChartContainer>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>Exams per Unit</CardTitle></CardHeader>
+                            <CardContent>
+                                <ChartContainer
+                                    config={{ exams: { label: 'Exams', color: 'var(--color-chart-2)' } }}
+                                    className="h-[340px]"
+                                >
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={charts.examsPerUnit} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                            <XAxis dataKey="unit" tickLine={false} axisLine={false} interval={0} angle={-20} height={50} tickMargin={10} />
+                                            <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
+                                            <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                            <Bar dataKey="exams" fill="var(--color-chart-2)" radius={[6, 6, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </ChartContainer>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Students table */}
+                    <div className="relative flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border bg-card">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Units</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {students.map((s) => (
+                                    <TableRow key={s.id}>
+                                        <TableCell>{s.name}</TableCell>
+                                        <TableCell>{s.email}</TableCell>
+                                        <TableCell className="text-xs text-muted-foreground">
+                                            {s.units.map(u => u.title).join(', ')}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            </AppLayout>
+        );
+    }
+
+    // Default (admin) existing view
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
