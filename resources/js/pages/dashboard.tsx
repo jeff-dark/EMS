@@ -183,6 +183,20 @@ export default function Dashboard() {
     // Default (admin/teacher) existing view
     if (role === 'teacher' && teacherData) {
         const { cards, charts, students } = teacherData;
+        // Merge datasets by unit for combined chart (students & exams per unit)
+        const combinedByUnit = new Map<string, { unit: string; students: number; exams: number }>();
+        charts.studentsPerUnit.forEach((s) => {
+            combinedByUnit.set(s.unit, { unit: s.unit, students: s.students, exams: 0 });
+        });
+        charts.examsPerUnit.forEach((e) => {
+            const existing = combinedByUnit.get(e.unit);
+            if (existing) {
+                existing.exams = e.exams;
+            } else {
+                combinedByUnit.set(e.unit, { unit: e.unit, students: 0, exams: e.exams });
+            }
+        });
+        const studentsAndExamsData = Array.from(combinedByUnit.values());
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Dashboard" />
@@ -217,18 +231,23 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                         <Card>
-                            <CardHeader><CardTitle>Exams per Unit</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>Students & Exams</CardTitle></CardHeader>
                             <CardContent>
                                 <ChartContainer
-                                    config={{ exams: { label: 'Exams', color: 'var(--color-chart-2)' } }}
+                                    config={{
+                                        students: { label: 'Students', color: 'var(--color-chart-1)' },
+                                        exams: { label: 'Exams', color: 'var(--color-chart-2)' },
+                                    }}
                                     className="h-[340px]"
                                 >
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={charts.examsPerUnit} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                        <BarChart data={studentsAndExamsData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                                             <CartesianGrid vertical={false} strokeDasharray="3 3" />
                                             <XAxis dataKey="unit" tickLine={false} axisLine={false} interval={0} angle={-20} height={50} tickMargin={10} />
                                             <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
                                             <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                            <ChartLegend content={<ChartLegendContent />} />
+                                            <Bar dataKey="students" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
                                             <Bar dataKey="exams" fill="var(--color-chart-2)" radius={[6, 6, 0, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
