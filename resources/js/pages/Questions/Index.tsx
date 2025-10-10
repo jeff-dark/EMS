@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
+import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -109,11 +110,13 @@ export default function Index() {
                 >
                   <TableCell className="max-w-md truncate" title={question.prompt}>{question.prompt}</TableCell>
                   <TableCell>{question.points}</TableCell>
-                  <TableCell onClick={e => e.stopPropagation()}>
-                    <Link href={route('exams.questions.edit', { question: question.id })}>
-                      <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
-                    </Link>
-                    <Button disabled={processing} variant="destructive" size="sm" onClick={() => handleDelete(question.id, question.prompt)}>Delete</Button>
+                  <TableCell>
+                    <ActionMenu
+                      items={[
+                        { label: 'Edit', href: route('exams.questions.edit', { question: question.id }) },
+                        { label: 'Delete', onClick: () => handleDelete(question.id, question.prompt), variant: 'destructive', disabled: processing },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

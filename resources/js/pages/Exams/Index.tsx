@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
@@ -118,23 +119,14 @@ export default function Index() {
                                         <TableCell>{exam.duration_minutes}</TableCell>
                                         <TableCell>{exam.passing_score}</TableCell>
                                         <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
-                                        <TableCell className="text-center space-x-2">
+                                        <TableCell className="text-center">
                                             {course && unit && (
-                                                <Link
-                                                    href={route('courses.units.exams.edit', [course.id, unit.id, exam.id])}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <Button className="bg-slate-500 hover:bg-slate-700">Edit</Button>
-                                                </Link>
-                                            )}
-                                            {course && unit && (
-                                                <Button
-                                                    disabled={processing}
-                                                    onClick={(e) => { e.stopPropagation(); handleDelete(exam); }}
-                                                    className="bg-red-500 hover:bg-red-700"
-                                                >
-                                                    Delete
-                                                </Button>
+                                                <ActionMenu
+                                                    items={[
+                                                        { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
+                                                        { label: 'Delete', onClick: () => handleDelete(exam), variant: 'destructive', disabled: processing },
+                                                    ]}
+                                                />
                                             )}
                                         </TableCell>
                                     </TableRow>

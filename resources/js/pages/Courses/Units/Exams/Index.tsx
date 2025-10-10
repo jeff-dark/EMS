@@ -1,6 +1,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
@@ -116,11 +117,13 @@ export default function Index() {
                                     <TableCell>{exam.duration_minutes}</TableCell>
                                     <TableCell>{exam.passing_score}</TableCell>
                                     <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
-                                    <TableCell onClick={e => e.stopPropagation()}>
-                                        <Link href={route('courses.units.exams.edit', [course.id, unit.id, exam.id])}>
-                                            <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
-                                        </Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(exam.id, exam.title)} className="bg-red-500 hover:bg-red-700">Delete</Button>
+                                    <TableCell>
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
+                                                { label: 'Delete', onClick: () => handleDelete(exam.id, exam.title), variant: 'destructive', disabled: processing },
+                                            ]}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}

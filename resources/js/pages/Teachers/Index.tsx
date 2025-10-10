@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -100,10 +101,14 @@ export default function Index() {
                                     <TableCell>{teacher.email}</TableCell>
                                     <TableCell>{teacher.courses?.join(', ')}</TableCell>
                                     <TableCell>{teacher.units_count}</TableCell>
-                                    <TableCell className="text-center space-x-2">
-                                        <Link href={route('teachers.edit', teacher.id)}><Button className="bg-slate-500 hover:bg-slate-700">Edit</Button></Link>
-                                        <Link href={route('teachers.load', teacher.id)}><Button className="bg-indigo-500 hover:bg-indigo-700">Load</Button></Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(teacher.id, teacher.name)} className="bg-red-500 hover:bg-red-700">Delete</Button>
+                                    <TableCell className="text-center">
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: route('teachers.edit', teacher.id) },
+                                                { label: 'Load', href: route('teachers.load', teacher.id) },
+                                                { label: 'Delete', onClick: () => handleDelete(teacher.id, teacher.name), variant: 'destructive', disabled: processing },
+                                            ]}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}       

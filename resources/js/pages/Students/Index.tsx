@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from '@/components/ui/button';
+import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -99,9 +100,13 @@ export default function Index() {
                                     <TableCell>{student.name}</TableCell>
                                     <TableCell>{student.email}</TableCell>
                                     <TableCell>{student.username}</TableCell>
-                                    <TableCell className="text-center space-x-2">
-                                        <Link href={route('students.edit', student.id)}><Button className="bg-slate-500 hover:bg-slate-700">Edit</Button></Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(student.id, student.name)} className="bg-red-500 hover:bg-red-700">Delete</Button>
+                                    <TableCell className="text-center">
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: route('students.edit', student.id) },
+                                                { label: 'Delete', onClick: () => handleDelete(student.id, student.name), variant: 'destructive', disabled: processing },
+                                            ]}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}       

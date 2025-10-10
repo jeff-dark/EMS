@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import ActionMenu from "@/components/ui/action-menu";
 import AppLayout from "@/layouts/app-layout";
 import { Head, Link, usePage, useForm } from "@inertiajs/react";
 import { Bell } from "lucide-react";
@@ -94,17 +95,13 @@ export default function Index() {
                                     <TableCell>{unit.order}</TableCell>
                                     <TableCell>{unit.title}</TableCell>
                                     <TableCell>{unit.summary}</TableCell>
-                                    <TableCell onClick={e => e.stopPropagation()}>
-                                        <Link href={route("units.edit", unit.id)}>
-                                            <Button className="bg-slate-500 hover:bg-slate-700 mr-2">Edit</Button>
-                                        </Link>
-                                        <Button
-                                            disabled={processing}
-                                            onClick={e => { e.stopPropagation(); handleDelete(unit.id, unit.title); }}
-                                            className="bg-red-500 hover:bg-red-700"
-                                        >
-                                            Delete
-                                        </Button>
+                                    <TableCell>
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: route("units.edit", unit.id) },
+                                                { label: 'Delete', onClick: () => handleDelete(unit.id, unit.title), variant: 'destructive', disabled: processing },
+                                            ]}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}
