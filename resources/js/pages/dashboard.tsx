@@ -84,23 +84,27 @@ export default function Dashboard() {
                         <Card>
                             <CardHeader><CardTitle>Exam Status Distribution</CardTitle></CardHeader>
                             <CardContent className="flex h-[340px] flex-col items-center justify-center">
-                                <PieChart width={260} height={220}>
-                                    <Pie
-                                        data={examDistribution}
-                                        dataKey="value"
-                                        nameKey="status"
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={55}
-                                        outerRadius={90}
-                                        paddingAngle={2}
-                                        stroke="none"
-                                    >
-                                        {examDistribution.map((entry, idx) => (
-                                            <Cell key={entry.status} fill={`var(--color-chart-${idx+1})`} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
+                                <div className="w-full h-[220px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={examDistribution}
+                                                dataKey="value"
+                                                nameKey="status"
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius="45%"
+                                                outerRadius="75%"
+                                                paddingAngle={2}
+                                                stroke="none"
+                                            >
+                                                {examDistribution.map((entry, idx) => (
+                                                    <Cell key={entry.status} fill={`var(--color-chart-${idx+1})`} />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
                                 <ul className="w-full text-xs space-y-2 mt-4">
                                     {examDistribution.map((d, idx) => (
                                         <li key={d.status} className="flex items-center justify-between">
@@ -299,7 +303,7 @@ export default function Dashboard() {
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader><CardTitle>Content Analysis</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardContent className="h-[340px]">
                             <ChartContainer
                                 config={{
                                     courses: { label: 'Courses', color: 'var(--color-chart-1)' },
@@ -307,19 +311,21 @@ export default function Dashboard() {
                                     exams: { label: 'Exams', color: 'var(--color-chart-3)' },
                                     questions: { label: 'Questions', color: 'var(--color-chart-4)' },
                                 }}
-                                className="h-[340px]"
+                                className="h-full w-full"
                             >
-                                <BarChart data={analysisData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }} barCategoryGap={48}>
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                    <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                                    <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
-                                    <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
-                                    <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="units" fill="var(--color-chart-2)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="questions" fill="var(--color-chart-4)" radius={[6, 6, 0, 0]} />
-                                    <ChartLegend content={<ChartLegendContent />} />
-                                </BarChart>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={analysisData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }} barCategoryGap={48}>
+                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                                        <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
+                                        <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent hideLabel />} />
+                                        <Bar dataKey="courses" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
+                                        <Bar dataKey="units" fill="var(--color-chart-2)" radius={[6, 6, 0, 0]} />
+                                        <Bar dataKey="exams" fill="var(--color-chart-3)" radius={[6, 6, 0, 0]} />
+                                        <Bar dataKey="questions" fill="var(--color-chart-4)" radius={[6, 6, 0, 0]} />
+                                        <ChartLegend content={<ChartLegendContent />} />
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </ChartContainer>
                         </CardContent>
                     </Card>
@@ -335,23 +341,27 @@ export default function Dashboard() {
                                 const total = data.reduce((acc, d) => acc + d.value, 0) || 1;
                                 return (
                                     <div className="flex w-full flex-col items-center gap-4">
-                                        <PieChart width={250} height={200}>
-                                            <Pie
-                                                data={data}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={50}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                stroke="none"
-                                            >
-                                                {data.map((entry) => (
-                                                    <Cell key={entry.key} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
+                                        <div className="w-full h-[220px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={data}
+                                                        dataKey="value"
+                                                        nameKey="name"
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        innerRadius="45%"
+                                                        outerRadius="75%"
+                                                        paddingAngle={2}
+                                                        stroke="none"
+                                                    >
+                                                        {data.map((entry) => (
+                                                            <Cell key={entry.key} fill={entry.color} />
+                                                        ))}
+                                                    </Pie>
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        </div>
                                         <ul className="w-full text-xs space-y-2">
                                             {data.map(d => (
                                                 <li key={d.key} className="flex items-center justify-between">
