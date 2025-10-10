@@ -376,21 +376,26 @@ export default function Dashboard() {
                 {role === 'admin' && adminInteractive && (
                     <Card className="w-full">
                         <CardHeader><CardTitle>Platform Analytics</CardTitle></CardHeader>
-                        <CardContent className="h-[480px] px-0">
+                        <CardContent className="h-[480px] p-0">
                             <ChartContainer
                                 config={{
                                     value: { label: 'Total', color: 'var(--color-chart-1)' },
                                 }}
-                                className="h-full px-0"
+                                className="h-full w-full"
                             >
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={adminInteractive} margin={{ top: 10, right: 8, left: 8, bottom: 40 }} barSize={56}>
+                                    <BarChart
+                                        data={adminInteractive}
+                                        margin={{ top: 10, right: 0, left: 0, bottom: 40 }}
+                                        barCategoryGap={0}
+                                        barSize={80}
+                                    >
                                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                                         <XAxis dataKey="metric" tickLine={false} axisLine={false} interval={0} height={60} tickMargin={12} />
                                         <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
                                         <ChartTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
                                         <ChartLegend content={<ChartLegendContent />} />
-                                        <Bar dataKey="value" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
+                                        <Bar dataKey="value" fill="var(--color-chart-1)" radius={[8, 8, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </ChartContainer>
