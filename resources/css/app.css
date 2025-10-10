@@ -24,6 +24,9 @@
 @plugin 'tailwindcss-animate';
 
 @source '../views';
+@source '../js';
+@source '../js/**/*.tsx';
+@source '../js/**/*.ts';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @custom-variant dark (&:is(.dark *));
@@ -195,6 +198,12 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground overflow-x-hidden;
     }
+}
+
+/* Utility helpers for responsive truncation and wrapping */
+@layer utilities {
+    .no-x-scroll { overflow-x: hidden; }
+    .wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
 }
