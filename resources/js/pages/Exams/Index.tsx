@@ -145,9 +145,7 @@ export default function Index() {
                                         onClick={() => router.get(`/exams/${exam.id}/questions`)}
                                         title="View questions"
                                     >
-                                        <TableCell className="font-medium text-blue-700 underline-offset-2 hover:underline">
-                                            <span>{exam.title}</span>
-                                        </TableCell>
+                                        <TableCell>{exam.title}</TableCell>
                                         <TableCell>{course?.name ?? '—'}</TableCell>
                                         <TableCell>{unit?.title ?? '—'}</TableCell>
                                         <TableCell>{exam.duration_minutes}</TableCell>
