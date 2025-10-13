@@ -33,18 +33,16 @@ class DashboardController extends Controller
     $studentData = null;
     $teacherData = null;
 
-        if ($roleName === 'student') {
+    if ($roleName === 'student') {
             // Restrict counts for students: they should only see exam-related personal stats, not global user/course counts.
             // We'll still send counts for exam cards but with specific keys for clarity on frontend.
             $now = now();
-            // Preload student's courses (only what we need)
-            $authUser->loadMissing(['courses:id,name,description']);
-            $courseIds = $authUser->courses->pluck('id');
+            // Preload student's registered units and derive courses from them
+            $authUser->loadMissing(['units:id,course_id,title,order']);
+            $unitIds = $authUser->units->pluck('id');
+            $courseIds = Unit::whereIn('id', $unitIds)->distinct()->pluck('course_id');
 
-            // Units under student's courses
-            $unitIds = Unit::whereIn('course_id', $courseIds)->pluck('id');
-
-            // Exams under student's courses (via units under those courses)
+            // Exams under student's registered units
             $examQuery = Exam::whereIn('unit_id', $unitIds);
 
             // Total exams (published only?) - assume only published should count

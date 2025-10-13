@@ -21,14 +21,13 @@ class ExamPolicy
             return $teacher && $exam->unit && $exam->unit->teachers()->where('teachers.id', $teacher->id)->exists();
         }
         if ($user->hasRole('student')) {
-            $exam->loadMissing('unit.course');
-            $courseId = $exam->unit?->course?->id;
-            if (!$courseId) {
+            $exam->loadMissing('unit');
+            if (!$exam->unit) {
                 return false;
             }
-            // Student must be enrolled and exam should be published and within time window
-            $enrolled = $user->courses()->where('courses.id', $courseId)->exists();
-            if (!$enrolled) {
+            // Student must be registered to the unit and the exam must be available
+            $registered = $user->units()->where('units.id', $exam->unit->id)->exists();
+            if (!$registered) {
                 return false;
             }
             $now = \now();

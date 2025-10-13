@@ -13,16 +13,13 @@ class StudentExamController extends Controller
     {
         $user = Auth::user();
 
-        // Students must be enrolled in the exam's course to access it
-        $exam->loadMissing('unit.course');
-        $courseId = $exam->unit?->course?->id;
-        if (!$courseId) {
+        // Students must be registered to the exam's unit to access it
+        $exam->loadMissing('unit');
+        if (!$exam->unit) {
             \abort(404);
         }
-
-        // Ensure the authenticated student is enrolled in this course
-        $isEnrolled = $user->courses()->where('courses.id', $courseId)->exists();
-        if (!$isEnrolled) {
+        $isRegisteredToUnit = $user->units()->where('units.id', $exam->unit->id)->exists();
+        if (!$isRegisteredToUnit) {
             \abort(403);
         }
 

@@ -31,8 +31,9 @@ class CourseController extends Controller
                 $courses = collect();
             }
         } elseif ($user && $user->hasRole('student')) {
-            // Students only see courses they are enrolled in
-            $courses = $user->courses()->get(['courses.id','name','description']);
+            // Students see courses that have units they are registered to
+            $unitCourseIds = $user->units()->pluck('units.course_id');
+            $courses = Course::whereIn('id', $unitCourseIds)->get(['id','name','description']);
         } else {
             // Admin and others (if any) see all courses
             $courses = Course::all();

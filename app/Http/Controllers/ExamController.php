@@ -37,8 +37,12 @@ class ExamController extends Controller
             // Admin sees all
             $exams = Exam::with(['unit', 'unit.course'])->get();
         } else {
-            // Students (and any other roles) are not allowed to view the global exams list
-            \abort(403);
+            // Students: show exams under units they are registered to (published only)
+            $unitIds = $user->units()->pluck('units.id');
+            $exams = Exam::whereIn('unit_id', $unitIds)
+                ->where('is_published', true)
+                ->with(['unit', 'unit.course'])
+                ->get();
         }
 
         return Inertia::render('Exams/Index', [
@@ -60,14 +64,9 @@ class ExamController extends Controller
                 \abort(403);
             }
         } elseif ($user && $user->hasRole('student')) {
-            // Students can only access exams for units that belong to a course they are enrolled in
-            $unit->loadMissing('course');
-            $courseId = $unit->course?->id;
-            if ($courseId !== $course->id) {
-                \abort(404);
-            }
-            $enrolled = $user->courses()->where('courses.id', $courseId)->exists();
-            if (!$enrolled) {
+            // Students can only access exams for units they are registered to
+            $registered = $user->units()->where('units.id', $unit->id)->exists();
+            if (!$registered) {
                 \abort(403);
             }
         }
