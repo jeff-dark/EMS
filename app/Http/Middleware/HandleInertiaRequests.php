@@ -38,12 +38,19 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $user = $request->user();
+        // Eager-load role name when available to avoid N+1 on frontend
+        if ($user && !$user->relationLoaded('role')) {
+            $user->load('role');
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'role' => $user?->role?->name,
             ],
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),

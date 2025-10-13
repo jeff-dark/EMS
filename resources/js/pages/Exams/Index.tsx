@@ -50,6 +50,7 @@ export default function Index() {
     const page = usePage().props as unknown as Partial<PageProps> & { [key:string]: any };
     const exams: BackendExam[] = page.exams || [];
     const flash = page.flash || {};
+    const role: string | undefined = page.auth?.role || page.authUser?.role;
 
     const { processing, delete: destroy } = useForm();
 
@@ -142,8 +143,14 @@ export default function Index() {
                                     <TableRow
                                         key={exam.id}
                                         className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-                                        onClick={() => router.get(`/exams/${exam.id}/questions`)}
-                                        title="View questions"
+                                        onClick={() => {
+                                            if (role === 'student') {
+                                                router.get(`/exams/${exam.id}/start`);
+                                            } else {
+                                                router.get(`/exams/${exam.id}/questions`);
+                                            }
+                                        }}
+                                        title={role === 'student' ? 'Start exam' : 'View questions'}
                                     >
                                         <TableCell>{exam.title}</TableCell>
                                         <TableCell>{course?.name ?? '—'}</TableCell>
@@ -152,7 +159,7 @@ export default function Index() {
                                         <TableCell>{exam.passing_score}</TableCell>
                                         <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
                                         <TableCell className="text-center">
-                                            {course && unit && (
+                                            {role !== 'student' && course && unit && (
                                                 <ActionMenu
                                                     items={[
                                                         { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },

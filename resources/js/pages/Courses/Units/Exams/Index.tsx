@@ -53,6 +53,8 @@ interface PageProps extends InertiaPageProps {
 
 export default function Index() {
     const { exams, flash, course, unit } = usePage<PageProps>().props;
+    const page: any = usePage();
+    const role: string | undefined = page?.props?.auth?.role || page?.props?.authUser?.role;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Courses', href: '/courses' },
@@ -140,19 +142,27 @@ export default function Index() {
                                 <TableRow
                                     key={exam.id}
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-                                    onClick={() => window.location.href = `/exams/${exam.id}/questions`}
+                                    onClick={() => {
+                                        if (role === 'student') {
+                                            window.location.href = `/exams/${exam.id}/start`;
+                                        } else {
+                                            window.location.href = `/exams/${exam.id}/questions`;
+                                        }
+                                    }}
                                 >
                                     <TableCell>{exam.title}</TableCell>
                                     <TableCell>{exam.duration_minutes}</TableCell>
                                     <TableCell>{exam.passing_score}</TableCell>
                                     <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
                                     <TableCell>
-                                        <ActionMenu
-                                            items={[
-                                                { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
-                                                { label: 'Delete', onClick: () => handleDelete(exam.id, exam.title), variant: 'destructive', disabled: processing },
-                                            ]}
-                                        />
+                                        {role !== 'student' && (
+                                            <ActionMenu
+                                                items={[
+                                                    { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
+                                                    { label: 'Delete', onClick: () => handleDelete(exam.id, exam.title), variant: 'destructive', disabled: processing },
+                                                ]}
+                                            />
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}

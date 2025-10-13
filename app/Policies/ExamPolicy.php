@@ -8,7 +8,8 @@ class ExamPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        // Students can list exams (frontend further restricts to enrolled/published)
+        return $user->hasRole('admin') || $user->hasRole('teacher') || $user->hasRole('student');
     }
 
     public function view(User $user, Exam $exam): bool
