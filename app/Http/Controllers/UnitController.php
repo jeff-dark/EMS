@@ -37,12 +37,15 @@ class UnitController extends Controller
                 ->orderBy('order')
                 ->get();
         } elseif ($user && $user->hasRole('student')) {
-            // Students can only access units under courses they are enrolled in
+            // Students can only access and SEE units they are registered to within this course
             $enrolled = $user->courses()->where('courses.id', $course->id)->exists();
             if (!$enrolled) {
                 \abort(403);
             }
-            $units = $course->units()->orderBy('order')->get();
+            $units = $user->units()
+                ->where('course_id', $course->id)
+                ->orderBy('order')
+                ->get();
         } else {
             $units = $course->units()->orderBy('order')->get();
         }
