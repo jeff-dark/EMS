@@ -22,7 +22,12 @@ class QuestionPolicy
 
     public function view(User $user, Question $question)
     {
-        return $user->hasRole('teacher');
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $question->loadMissing('exam.unit.teachers');
+            return $teacher && $question->exam && $question->exam->unit && $question->exam->unit->teachers->contains('id', $teacher->id);
+        }
+        return false;
     }
 
     public function create(User $user)
@@ -32,11 +37,21 @@ class QuestionPolicy
 
     public function update(User $user, Question $question)
     {
-        return $user->hasRole('teacher');
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $question->loadMissing('exam.unit.teachers');
+            return $teacher && $question->exam && $question->exam->unit && $question->exam->unit->teachers->contains('id', $teacher->id);
+        }
+        return false;
     }
 
     public function delete(User $user, Question $question)
     {
-        return $user->hasRole('teacher');
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $question->loadMissing('exam.unit.teachers');
+            return $teacher && $question->exam && $question->exam->unit && $question->exam->unit->teachers->contains('id', $teacher->id);
+        }
+        return false;
     }
 }

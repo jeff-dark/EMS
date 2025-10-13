@@ -17,7 +17,16 @@ class CoursePolicy
 
     public function view(User $user, Course $course): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $course->units()->whereHas('teachers', function ($q) use ($teacher) {
+                $q->where('teachers.id', $teacher->id);
+            })->exists();
+        }
+        return false;
     }
 
     public function create(User $user): bool
@@ -27,11 +36,29 @@ class CoursePolicy
 
     public function update(User $user, Course $course): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $course->units()->whereHas('teachers', function ($q) use ($teacher) {
+                $q->where('teachers.id', $teacher->id);
+            })->exists();
+        }
+        return false;
     }
 
     public function delete(User $user, Course $course): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $course->units()->whereHas('teachers', function ($q) use ($teacher) {
+                $q->where('teachers.id', $teacher->id);
+            })->exists();
+        }
+        return false;
     }
 }

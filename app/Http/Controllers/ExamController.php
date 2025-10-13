@@ -19,8 +19,23 @@ class ExamController extends Controller
      */
     public function allExamsIndex()
     {
-        // Load exams with their unit and course for context
-        $exams = Exam::with(['unit', 'unit.course'])->get();
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$teacher) {
+                $exams = collect();
+            } else {
+                // Only exams under units assigned to this teacher
+                $exams = Exam::whereHas('unit.teachers', function ($q) use ($teacher) {
+                        $q->where('teachers.id', $teacher->id);
+                    })
+                    ->with(['unit', 'unit.course'])
+                    ->get();
+            }
+        } else {
+            // Admin (and others) see all
+            $exams = Exam::with(['unit', 'unit.course'])->get();
+        }
 
         return Inertia::render('Exams/Index', [
             'exams' => $exams,
@@ -33,6 +48,14 @@ class ExamController extends Controller
      */
     public function index(Course $course, Unit $unit)
     {
+        // Teachers can only access exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         // Fetch the exams for the given unit
         $exams = $unit->exams()->get();
 
@@ -49,6 +72,14 @@ class ExamController extends Controller
      */
     public function create(Course $course, Unit $unit)
     {
+        // Teachers can only create exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         // Render the Create view, passing the parent course and unit data
         return Inertia::render('Courses/Units/Exams/Create', compact('course', 'unit'));
     }
@@ -58,6 +89,14 @@ class ExamController extends Controller
      */
     public function store(Request $request, Course $course, Unit $unit)
     {
+        // Teachers can only store exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         // Validate the request data
         $request->validate([
             'title' => 'required|string|max:255',
@@ -84,6 +123,14 @@ class ExamController extends Controller
      */
     public function edit(Course $course, Unit $unit, Exam $exam)
     {
+        // Teachers can only edit exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         // Render the Edit view, passing the context objects
         return Inertia::render('Courses/Units/Exams/Edit', compact('course', 'unit', 'exam'));
     }
@@ -93,6 +140,14 @@ class ExamController extends Controller
      */
     public function update(Request $request, Course $course, Unit $unit, Exam $exam)
     {
+        // Teachers can only update exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         // Validate the request data
         $request->validate([
             'title' => 'required|string|max:255',
@@ -117,6 +172,14 @@ class ExamController extends Controller
      */
     public function destroy(Course $course, Unit $unit, Exam $exam)
     {
+        // Teachers can only delete exams for units they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         $exam->delete();
 
         return redirect()->route('courses.units.exams.index', [$course, $unit])

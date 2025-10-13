@@ -17,9 +17,29 @@ class StudentsController extends Controller
 
     public function index()
     {
-        $students = User::whereHas('role', function ($query) {
-            $query->where('name', 'student');
-        })->get();
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if ($teacher) {
+                // Students registered under courses/units the teacher teaches
+                $students = User::whereHas('role', fn($q) => $q->where('name', 'student'))
+                    ->where(function ($q) use ($teacher) {
+                        // Either same courses or units
+                        $q->whereHas('courses.units.teachers', function ($q2) use ($teacher) {
+                            $q2->where('teachers.id', $teacher->id);
+                        })->orWhereHas('units.teachers', function ($q3) use ($teacher) {
+                            $q3->where('teachers.id', $teacher->id);
+                        });
+                    })
+                    ->get();
+            } else {
+                $students = collect();
+            }
+        } else {
+            $students = User::whereHas('role', function ($query) {
+                $query->where('name', 'student');
+            })->get();
+        }
         return Inertia::render('Students/Index', compact('students'));
     }
 

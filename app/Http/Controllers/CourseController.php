@@ -19,7 +19,20 @@ class CourseController extends Controller
 
     public function index()
     {
-        $courses = Course::all();
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if ($teacher) {
+                $courses = Course::whereHas('units.teachers', function ($q) use ($teacher) {
+                    $q->where('teachers.id', $teacher->id);
+                })->get();
+            } else {
+                $courses = collect();
+            }
+        } else {
+            // Admin and others (if any) see all courses
+            $courses = Course::all();
+        }
         return Inertia::render('Courses/Index', compact('courses'));
     }
 

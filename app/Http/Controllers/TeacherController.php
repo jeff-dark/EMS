@@ -13,6 +13,14 @@ class TeacherController extends Controller
     {
         // Ensure user is authenticated for all teacher routes
         $this->middleware('auth');
+        // Only admins should access teacher management screens
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!$user || !$user->hasRole('admin')) {
+                abort(403, 'Only admins can access teacher management.');
+            }
+            return $next($request);
+        });
     }
 
     public function index()

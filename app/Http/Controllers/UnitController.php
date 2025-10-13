@@ -18,17 +18,59 @@ class UnitController extends Controller
 
     public function index(Course $course)
     {
-        $units = $course->units()->orderBy('order')->get(); 
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$teacher) {
+                abort(403);
+            }
+            // Ensure teacher is assigned to at least one unit in this course
+            $isAssignedToCourse = Unit::where('course_id', $course->id)
+                ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
+                ->exists();
+            if (!$isAssignedToCourse) {
+                abort(403);
+            }
+            // Show only the units in this course that the teacher teaches
+            $units = $course->units()
+                ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
+                ->orderBy('order')
+                ->get();
+        } else {
+            $units = $course->units()->orderBy('order')->get();
+        }
         return Inertia::render('Courses/Units/Index', compact('course', 'units'));
     }
 
     public function create(Course $course)
     {
+        // Teachers can only create units under courses they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $isAssignedToCourse = Unit::where('course_id', $course->id)
+                ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
+                ->exists();
+            if (!$isAssignedToCourse) {
+                abort(403);
+            }
+        }
         return Inertia::render('Courses/Units/Create', compact('course'));
     }
 
     public function store(Request $request, Course $course)
     {
+        // Teachers can only create units under courses they teach
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $isAssignedToCourse = Unit::where('course_id', $course->id)
+                ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
+                ->exists();
+            if (!$isAssignedToCourse) {
+                abort(403);
+            }
+        }
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'nullable|string',
@@ -47,11 +89,25 @@ class UnitController extends Controller
 
     public function edit(Course $course, Unit $unit)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         return Inertia::render('Courses/Units/Edit', compact('course', 'unit'));
     }
 
     public function update(Request $request, Course $course, Unit $unit)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'nullable|string',
@@ -69,6 +125,13 @@ class UnitController extends Controller
 
     public function destroy(Course $course, Unit $unit)
     {
+        $user = auth()->user();
+        if ($user && $user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
+                abort(403);
+            }
+        }
         $unit->delete();
     return redirect()->route('units.index', $course)->with('message', 'Unit deleted successfully.');
     }

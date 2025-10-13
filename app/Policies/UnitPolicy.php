@@ -13,7 +13,14 @@ class UnitPolicy
 
     public function view(User $user, Unit $unit): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $unit->teachers()->where('teachers.id', $teacher->id)->exists();
+        }
+        return false;
     }
 
     public function create(User $user): bool
@@ -23,11 +30,25 @@ class UnitPolicy
 
     public function update(User $user, Unit $unit): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $unit->teachers()->where('teachers.id', $teacher->id)->exists();
+        }
+        return false;
     }
 
     public function delete(User $user, Unit $unit): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            return $teacher && $unit->teachers()->where('teachers.id', $teacher->id)->exists();
+        }
+        return false;
     }
 }
