@@ -50,19 +50,6 @@ const mainNavItems: NavItem[] = [
     
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Documentation',
-        href: '/dashboard',
-        icon: Folder,
-    },
-    {
-        title: 'Repository',
-        href: '/dashboard',
-        icon: BookOpen,
-    },
-];
-
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -81,11 +68,6 @@ export function AppSidebar() {
             <SidebarContent>
                 <NavMain items={mainNavItems} />
             </SidebarContent>
-
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
-                <NavUser />
-            </SidebarFooter>
         </Sidebar>
     );
 }
