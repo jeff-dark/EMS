@@ -1,5 +1,5 @@
 import React from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -8,27 +8,7 @@ export default function ForbiddenHandler() {
   const [message, setMessage] = React.useState<string>('you are not authorised, contact your admin for assistance');
   const page = usePage<{ flash?: { error?: string } }>();
 
-  React.useEffect(() => {
-    const handler = (event: any) => {
-      // Inertia emits errors with different shapes depending on adapter/transport
-      const status = event?.detail?.status
-        ?? event?.detail?.response?.status
-        ?? event?.response?.status
-        ?? event?.status;
-      if (status === 403) {
-        setMessage('you are not authorised, contact your admin for assistance');
-        setOpen(true);
-      }
-    };
-    // Subscribe
-    // @ts-ignore - Inertia router has on/off at runtime
-    router.on('error', handler);
-    return () => {
-      // Unsubscribe
-      // @ts-ignore
-      router.off?.('error', handler);
-    };
-  }, []);
+  // Removed router error listener; rely on flash error for consistent UX.
 
   // Also react to flash error shared by backend (e.g. redirect with flash on 403)
   React.useEffect(() => {

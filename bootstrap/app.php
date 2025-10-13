@@ -33,7 +33,12 @@ return Application::configure(basePath: dirname(__DIR__))
               $isAuthz = $e instanceof AuthorizationException;
               $isHttp403 = ($e instanceof HttpExceptionInterface && $e->getStatusCode() === 403);
             if ($isInertia && ($isAuthz || $isHttp403)) {
-                 return Redirect::back(303)->with('error', 'you are not authorised, contact your admin for assistance');
+                $previous = url()->previous();
+                $current = $request->fullUrl();
+                if ($previous && $previous !== $current) {
+                    return Redirect::back(303)->with('error', 'you are not authorised, contact your admin for assistance');
+                }
+                return Redirect::route('dashboard')->with('error', 'you are not authorised, contact your admin for assistance');
             }
             if ($request->expectsJson() && ($isAuthz || $isHttp403)) {
                  return Response::json(['message' => 'Forbidden'], 403);
