@@ -6,6 +6,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Auth\Access\AuthorizationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,10 +27,22 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Normalize 403 responses for Inertia to trigger the frontend modal
-        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
-            if (method_exists($request, 'inertia') && $request->inertia()) {
-                return response()->json(['message' => 'Forbidden'], 403);
+        // Handle 403 consistently for Inertia requests with a flash + redirect
+        $exceptions->render(function (\Throwable $e, $request) {
+              $isInertia = (bool) $request->headers->get('X-Inertia');
+              $isAuthz = $e instanceof AuthorizationException;
+              $isHttp403 = ($e instanceof HttpExceptionInterface && $e->getStatusCode() === 403);
+            if ($isInertia && ($isAuthz || $isHttp403)) {
+                 return Redirect::back(303)->with('error', 'you are not authorised, contact your admin for assistance');
             }
+            if ($request->expectsJson() && ($isAuthz || $isHttp403)) {
+                 return Response::json(['message' => 'Forbidden'], 403);
+            }
+            if ($isAuthz || $isHttp403) {
+                // Non-Inertia, non-JSON web request: redirect to dashboard with flash
+                return Redirect::route('dashboard')
+                    ->with('error', 'you are not authorised, contact your admin for assistance');
+            }
+            // Default rendering for other exceptions
         });
     })->create();
