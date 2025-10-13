@@ -23,5 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Normalize 403 responses for Inertia to trigger the frontend modal
+        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
+            if (method_exists($request, 'inertia') && $request->inertia()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+        });
     })->create();
