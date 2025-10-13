@@ -5,6 +5,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import FilterBar from '@/components/ui/filter-bar';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -44,6 +47,19 @@ export default function Index() {
 
     const {processing, delete: destroy} = useForm();
 
+    const [q, setQ] = useState("");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        if (!term) return students;
+        return students.filter(s => {
+            const name = s.name?.toLowerCase() ?? '';
+            const email = s.email?.toLowerCase() ?? '';
+            const username = s.username?.toLowerCase() ?? '';
+            return name.includes(term) || email.includes(term) || username.includes(term);
+        });
+    }, [students, q]);
+
     const handleDelete = (id: number, name: string) => {
         // Implement delete functionality here
         if(confirm(`Are you sure you want to delete student ${id} - ${name}?`)) {
@@ -64,9 +80,16 @@ export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students" />
-            <div className='m-4'>
-                <Link href={route('students.create')}><Button>Create Student</Button></Link>
-            </div>
+            <FilterBar
+                right={<Link href={route('students.create')}><Button>Create Student</Button></Link>}
+                onReset={() => setQ("")}
+            >
+                <Input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search name, email, username"
+                />
+            </FilterBar>
             <div className="m-4">
                 <div>
                     {flash.message && (
@@ -82,7 +105,7 @@ export default function Index() {
                 </div>
             </div>
 
-            {students.length > 0 && (
+            {filtered.length > 0 && (
                 <div className="m-4">
                     <Table>
                         <TableCaption>A list of your recent students.</TableCaption>
@@ -95,7 +118,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {students.map((student) => (
+                            {filtered.map((student) => (
                                 <TableRow key={student.id}>
                                     <TableCell>{student.name}</TableCell>
                                     <TableCell>{student.email}</TableCell>

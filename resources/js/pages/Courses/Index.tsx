@@ -5,6 +5,9 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import FilterBar from '@/components/ui/filter-bar';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -43,6 +46,18 @@ export default function Index() {
 
     const {processing, delete: destroy} = useForm();
 
+    const [q, setQ] = useState("");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        if (!term) return courses;
+        return courses.filter(c => {
+            const name = c.name?.toLowerCase() ?? '';
+            const description = c.description?.toLowerCase() ?? '';
+            return name.includes(term) || description.includes(term);
+        });
+    }, [courses, q]);
+
     const handleDelete = (id: number, name: string) => {
         // Implement delete functionality here
         if(confirm(`Are you sure you want to delete course ${id} - ${name}?`)) {
@@ -64,9 +79,16 @@ export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="courses" />
-            <div className='m-4'>
-                <Link href={route('courses.create')}><Button>Create course</Button></Link>
-            </div>
+            <FilterBar
+                right={<Link href={route('courses.create')}><Button>Create course</Button></Link>}
+                onReset={() => setQ("")}
+            >
+                <Input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search name or description"
+                />
+            </FilterBar>
             <div className="m-4">
                 <div>
                     {flash.message && (
@@ -81,9 +103,9 @@ export default function Index() {
                 </div>
             </div>
 
-            {courses.length > 0 && (
+            {filtered.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-4">
-                    {courses.map((course) => (
+                    {filtered.map((course) => (
                         <Card
                             key={course.id}
                             className="cursor-pointer hover:shadow-lg transition"

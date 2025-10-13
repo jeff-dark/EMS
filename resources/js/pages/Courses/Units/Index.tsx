@@ -4,6 +4,10 @@ import ActionMenu from "@/components/ui/action-menu";
 import AppLayout from "@/layouts/app-layout";
 import { Head, Link, usePage, useForm, router } from "@inertiajs/react";
 import { Bell } from "lucide-react";
+import FilterBar from "@/components/ui/filter-bar";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMemo, useState } from "react";
 import {
     Table,
     TableBody,
@@ -38,6 +42,22 @@ export default function Index() {
     const { course, units, flash } = usePage<PageProps>().props;
     const { processing, delete: destroy } = useForm();
 
+    const [q, setQ] = useState("");
+    const [orderSort, setOrderSort] = useState<string>("none");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        let data = units.filter(u => {
+            if (!term) return true;
+            const title = u.title?.toLowerCase() ?? '';
+            const summary = u.summary?.toLowerCase() ?? '';
+            return title.includes(term) || summary.includes(term);
+        });
+        if (orderSort === 'asc') data = [...data].sort((a,b)=>a.order-b.order);
+        if (orderSort === 'desc') data = [...data].sort((a,b)=>b.order-a.order);
+        return data;
+    }, [units, q, orderSort]);
+
     function route(name: string, param?: number): string {
         const routes: Record<string, (param?: number) => string> = {
             "units.create": (id?: number) => `/courses/${id}/units/create`,
@@ -59,11 +79,26 @@ export default function Index() {
             { title: course.name, href: `/courses/${course.id}/units` }
         ]}>
             <Head title={`Units for ${course.name}`} />
-            <div className="m-4">
-                <Link href={route("units.create", course.id)}>
-                    <Button>Create Unit</Button>
-                </Link>
-            </div>
+            <FilterBar
+                right={<Link href={route("units.create", course.id)}><Button>Create Unit</Button></Link>}
+                onReset={() => { setQ(""); setOrderSort("none"); }}
+            >
+                <Input
+                    value={q}
+                    onChange={(e)=>setQ(e.target.value)}
+                    placeholder="Search title or summary"
+                />
+                <Select value={orderSort} onValueChange={setOrderSort}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Sort by order" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Sort: None</SelectItem>
+                        <SelectItem value="asc">Order: Low → High</SelectItem>
+                        <SelectItem value="desc">Order: High → Low</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterBar>
             <div className="m-4">
                 {flash.message && (
                     <Alert>
@@ -73,7 +108,7 @@ export default function Index() {
                     </Alert>
                 )}
             </div>
-            {units.length > 0 ? (
+            {filtered.length > 0 ? (
                 <div className="m-4">
                     <Table>
                         <TableCaption>List of units for this course</TableCaption>
@@ -86,7 +121,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {units.map(unit => (
+                            {filtered.map(unit => (
                                 <TableRow
                                     key={unit.id}
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"

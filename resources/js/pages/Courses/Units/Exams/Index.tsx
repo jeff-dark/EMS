@@ -6,6 +6,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import FilterBar from '@/components/ui/filter-bar';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -58,6 +62,18 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
+    const [q, setQ] = useState("");
+    const [status, setStatus] = useState<string>('all');
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        return exams.filter(ex => {
+            const matchesText = !term || (ex.title ?? '').toLowerCase().includes(term);
+            const matchesStatus = status === 'all' || (status === 'published' ? ex.is_published : !ex.is_published);
+            return matchesText && matchesStatus;
+        });
+    }, [exams, q, status]);
+
     const handleDelete = (id: number, title: string) => {
         if (confirm(`Are you sure you want to delete exam ${id} - ${title}?`)) {
             destroy(route('courses.units.exams.destroy', [course.id, unit.id, id]));
@@ -77,9 +93,22 @@ export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Exams" />
-            <div className="m-4">
-                <Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>
-            </div>
+            <FilterBar
+                right={<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>}
+                onReset={() => { setQ(''); setStatus('all'); }}
+            >
+                <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title" />
+                <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterBar>
             <div className="m-4">
                 <div>
                     {flash && flash.message && (
@@ -93,7 +122,7 @@ export default function Index() {
                     )}
                 </div>
             </div>
-            {exams.length > 0 ? (
+            {filtered.length > 0 ? (
                 <div className="m-4">
                     <Table>
                         <TableCaption>List of exams for this unit</TableCaption>
@@ -107,7 +136,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {exams.map(exam => (
+                            {filtered.map(exam => (
                                 <TableRow
                                     key={exam.id}
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"

@@ -5,6 +5,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import FilterBar from '@/components/ui/filter-bar';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -49,6 +53,22 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
+    const [q, setQ] = useState("");
+    const [status, setStatus] = useState<string>("all");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        return (exams || []).filter(exam => {
+            const matchesText = !term || [
+                exam.title,
+                exam.unit?.title,
+                exam.unit?.course?.name,
+            ].some(v => (v ?? '').toLowerCase().includes(term));
+            const matchesStatus = status === 'all' || (status === 'published' ? exam.is_published : !exam.is_published);
+            return matchesText && matchesStatus;
+        });
+    }, [exams, q, status]);
+
     // Build nested exam route since top-level create/edit requires context (course + unit)
     function route(name: string, params: (string | number)[] = []): string {
         const map: Record<string, (p: (string | number)[]) => string> = {
@@ -85,7 +105,21 @@ export default function Index() {
                 </div>
             </div>
 
-            {exams && exams.length > 0 ? (
+            <FilterBar onReset={() => { setQ(""); setStatus('all'); }}>
+                <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title, course, unit" />
+                <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterBar>
+
+            {filtered && filtered.length > 0 ? (
                 <div className="m-4">
                     <Table>
                         <TableCaption>All exams across courses & units</TableCaption>
@@ -101,7 +135,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {exams.map((exam) => {
+                            {filtered.map((exam) => {
                                 const unit = exam.unit;
                                 const course = unit?.course;
                                 return (

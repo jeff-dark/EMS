@@ -5,6 +5,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import FilterBar from '@/components/ui/filter-bar';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -44,6 +47,19 @@ export default function Index() {
 
     const {processing, delete: destroy} = useForm();
 
+    const [q, setQ] = useState("");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        if (!term) return admins;
+        return admins.filter(a => {
+            const name = a.name?.toLowerCase() ?? '';
+            const email = a.email?.toLowerCase() ?? '';
+            const username = a.username?.toLowerCase() ?? '';
+            return name.includes(term) || email.includes(term) || username.includes(term);
+        });
+    }, [admins, q]);
+
     const handleDelete = (id: number, name: string) => {
         // Implement delete functionality here
         if(confirm(`Are you sure you want to delete admin ${id} - ${name}?`)) {
@@ -64,9 +80,16 @@ export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admins" />
-            <div className='m-4'>
-                <Link href={route('admins.create')}><Button>Create Admin</Button></Link>
-            </div>
+            <FilterBar
+                right={<Link href={route('admins.create')}><Button>Create Admin</Button></Link>}
+                onReset={() => setQ("")}
+            >
+                <Input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search name, email, username"
+                />
+            </FilterBar>
             <div className="m-4">
                 <div>
                     {flash.message && (
@@ -82,7 +105,7 @@ export default function Index() {
                 </div>
             </div>
 
-            {admins.length > 0 && (
+            {filtered.length > 0 && (
                 <div className="m-4">
                     <Table>
                         <TableCaption>A list of your recent admins.</TableCaption>
@@ -95,7 +118,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {admins.map((admin) => (
+                            {filtered.map((admin) => (
                                 <TableRow key={admin.id}>
                                     <TableCell>{admin.name}</TableCell>
                                     <TableCell>{admin.email}</TableCell>

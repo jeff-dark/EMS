@@ -5,6 +5,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import FilterBar from '@/components/ui/filter-bar';
+import { Input } from '@/components/ui/input';
+import { useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -47,6 +50,24 @@ export default function Index() {
 
   const { processing, delete: destroy } = useForm();
 
+  const [q, setQ] = useState("");
+  const [minPoints, setMinPoints] = useState<string>("");
+  const [maxPoints, setMaxPoints] = useState<string>("");
+
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    const min = Number(minPoints);
+    const hasMin = !Number.isNaN(min) && minPoints !== "";
+    const max = Number(maxPoints);
+    const hasMax = !Number.isNaN(max) && maxPoints !== "";
+    return questions.filter((qu) => {
+      const matchesText = !term || (qu.prompt ?? '').toLowerCase().includes(term);
+      const matchesMin = !hasMin || qu.points >= min;
+      const matchesMax = !hasMax || qu.points <= max;
+      return matchesText && matchesMin && matchesMax;
+    });
+  }, [questions, q, minPoints, maxPoints]);
+
   // Local route helper (would normally use Ziggy)
   function route(name: string, params?: { exam?: number; question?: number }): string {
     const examId = params?.exam ?? exam.id;
@@ -79,6 +100,11 @@ export default function Index() {
         <h1 className="text-xl font-semibold">Questions - {exam.title}</h1>
         <Link href={route('exams.questions.create')}><Button>Create Question</Button></Link>
       </div>
+      <FilterBar onReset={() => { setQ(""); setMinPoints(""); setMaxPoints(""); }}>
+        <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search prompt" />
+        <Input value={minPoints} onChange={(e)=>setMinPoints(e.target.value)} placeholder="Min points" type="number" />
+        <Input value={maxPoints} onChange={(e)=>setMaxPoints(e.target.value)} placeholder="Max points" type="number" />
+      </FilterBar>
       <div className="mb-4">
         <div>
           {flash?.message && (
@@ -92,7 +118,7 @@ export default function Index() {
         )}
         </div>
       </div>
-      {questions.length > 0 ? (
+      {filtered.length > 0 ? (
         <div className="m-4">
           <Table>
             <TableCaption>List of questions for this exam</TableCaption>
@@ -104,7 +130,7 @@ export default function Index() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {questions.map(question => (
+              {filtered.map(question => (
                 <TableRow
                   key={question.id}
                 >

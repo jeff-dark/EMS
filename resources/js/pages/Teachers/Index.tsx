@@ -4,6 +4,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import FilterBar from '@/components/ui/filter-bar';
+import { useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -44,6 +47,26 @@ export default function Index() {
 
     const {processing, delete: destroy} = useForm();
 
+    const [q, setQ] = useState("");
+    const [courseQ, setCourseQ] = useState("");
+    const [minUnits, setMinUnits] = useState<string>("");
+
+    const filtered = useMemo(() => {
+        const term = q.trim().toLowerCase();
+        const cterm = courseQ.trim().toLowerCase();
+        const mu = Number(minUnits);
+        const hasMu = !Number.isNaN(mu) && minUnits !== "";
+        return teachers.filter(t => {
+            const name = t.name?.toLowerCase() ?? '';
+            const email = t.email?.toLowerCase() ?? '';
+            const coursesStr = (t.courses ?? []).join(', ').toLowerCase();
+            const matchesUser = !term || name.includes(term) || email.includes(term);
+            const matchesCourse = !cterm || coursesStr.includes(cterm);
+            const matchesUnits = !hasMu || (t.units_count ?? 0) >= mu;
+            return matchesUser && matchesCourse && matchesUnits;
+        });
+    }, [teachers, q, courseQ, minUnits]);
+
     const handleDelete = (id: number, name: string) => {
         if(confirm(`Are you sure you want to delete teacher ${id} - ${name}?`)) {
             destroy(route('teachers.destroy', id));
@@ -63,9 +86,14 @@ export default function Index() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Teachers" />
-            <div className='m-4'>
-                <Link href={route('teachers.create')}><Button>Create Teacher</Button></Link>
-            </div>
+            <FilterBar
+                right={<Link href={route('teachers.create')}><Button>Create Teacher</Button></Link>}
+                onReset={() => { setQ(""); setCourseQ(""); setMinUnits(""); }}
+            >
+                <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search name or email" />
+                <Input value={courseQ} onChange={(e)=>setCourseQ(e.target.value)} placeholder="Filter by course name" />
+                <Input value={minUnits} onChange={(e)=>setMinUnits(e.target.value)} placeholder="Min units" type="number" />
+            </FilterBar>
             <div className="m-4">
                 <div>
                     {flash.message && (
@@ -81,7 +109,7 @@ export default function Index() {
                 </div>
             </div>
 
-            {teachers.length > 0 && (
+            {filtered.length > 0 && (
                 <div className="m-4">
                     <Table>
                         <TableCaption>A list of your recent teachers.</TableCaption>
@@ -95,7 +123,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {teachers.map((teacher) => (
+                            {filtered.map((teacher) => (
                                 <TableRow key={teacher.id}>
                                     <TableCell>{teacher.name}</TableCell>
                                     <TableCell>{teacher.email}</TableCell>
