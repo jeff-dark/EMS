@@ -53,12 +53,12 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Documentation',
-        href: 'https://example.com/docs',
+        href: '/dashboard',
         icon: Folder,
     },
     {
         title: 'Repository',
-        href: 'https://github.com',
+        href: '/dashboard',
         icon: BookOpen,
     },
 ];
