@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import ActionMenu from "@/components/ui/action-menu";
 import AppLayout from "@/layouts/app-layout";
-import { Head, Link, usePage, useForm } from "@inertiajs/react";
+import { Head, Link, usePage, useForm, router } from "@inertiajs/react";
 import { Bell } from "lucide-react";
 import {
     Table,
@@ -90,12 +90,12 @@ export default function Index() {
                                 <TableRow
                                     key={unit.id}
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-                                    onClick={() => window.location.href = `/courses/${course.id}/units/${unit.id}/exams`}
+                                    onClick={() => router.get(`/courses/${course.id}/units/${unit.id}/exams`)}
                                 >
                                     <TableCell>{unit.order}</TableCell>
                                     <TableCell>{unit.title}</TableCell>
                                     <TableCell>{unit.summary}</TableCell>
-                                    <TableCell>
+                                    <TableCell onClick={(e) => e.stopPropagation()}>
                                         <ActionMenu
                                             items={[
                                                 { label: 'Edit', href: route("units.edit", unit.id) },
