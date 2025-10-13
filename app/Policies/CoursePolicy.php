@@ -12,7 +12,8 @@ class CoursePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        // Allow students to access the index; controller will filter results to enrolled courses
+        return $user->hasRole('admin') || $user->hasRole('teacher') || $user->hasRole('student');
     }
 
     public function view(User $user, Course $course): bool
@@ -25,6 +26,10 @@ class CoursePolicy
             return $teacher && $course->units()->whereHas('teachers', function ($q) use ($teacher) {
                 $q->where('teachers.id', $teacher->id);
             })->exists();
+        }
+        if ($user->hasRole('student')) {
+            // Students can view courses they are enrolled in
+            return $user->courses()->where('courses.id', $course->id)->exists();
         }
         return false;
     }

@@ -22,20 +22,27 @@ class UnitController extends Controller
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$teacher) {
-                abort(403);
+                \abort(403);
             }
             // Ensure teacher is assigned to at least one unit in this course
             $isAssignedToCourse = Unit::where('course_id', $course->id)
                 ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
                 ->exists();
             if (!$isAssignedToCourse) {
-                abort(403);
+                \abort(403);
             }
             // Show only the units in this course that the teacher teaches
             $units = $course->units()
                 ->whereHas('teachers', fn($q) => $q->where('teachers.id', $teacher->id))
                 ->orderBy('order')
                 ->get();
+        } elseif ($user && $user->hasRole('student')) {
+            // Students can only access units under courses they are enrolled in
+            $enrolled = $user->courses()->where('courses.id', $course->id)->exists();
+            if (!$enrolled) {
+                \abort(403);
+            }
+            $units = $course->units()->orderBy('order')->get();
         } else {
             $units = $course->units()->orderBy('order')->get();
         }

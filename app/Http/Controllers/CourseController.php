@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\{Course, User};
 use Inertia\Inertia;
 
@@ -19,7 +20,7 @@ class CourseController extends Controller
 
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if ($teacher) {
@@ -29,6 +30,9 @@ class CourseController extends Controller
             } else {
                 $courses = collect();
             }
+        } elseif ($user && $user->hasRole('student')) {
+            // Students only see courses they are enrolled in
+            $courses = $user->courses()->get(['courses.id','name','description']);
         } else {
             // Admin and others (if any) see all courses
             $courses = Course::all();

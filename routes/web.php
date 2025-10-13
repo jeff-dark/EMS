@@ -9,6 +9,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Ensure nested implicit bindings are scoped to their parent route parameters
+    Route::scopeBindings();
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/students', [StudentsController::class, 'index'])->name('students.index');
     Route::post('/students', [StudentsController::class, 'store'])->name('students.store');

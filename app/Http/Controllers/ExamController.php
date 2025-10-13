@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\{Course, Exam, Unit};
 use Inertia\Inertia;
 
@@ -19,7 +20,7 @@ class ExamController extends Controller
      */
     public function allExamsIndex()
     {
-        $user = auth()->user();
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$teacher) {
@@ -32,9 +33,12 @@ class ExamController extends Controller
                     ->with(['unit', 'unit.course'])
                     ->get();
             }
-        } else {
-            // Admin (and others) see all
+        } elseif ($user && $user->hasRole('admin')) {
+            // Admin sees all
             $exams = Exam::with(['unit', 'unit.course'])->get();
+        } else {
+            // Students (and any other roles) are not allowed to view the global exams list
+            \abort(403);
         }
 
         return Inertia::render('Exams/Index', [
@@ -49,15 +53,30 @@ class ExamController extends Controller
     public function index(Course $course, Unit $unit)
     {
         // Teachers can only access exams for units they teach
-        $user = auth()->user();
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
-                abort(403);
+                \abort(403);
+            }
+        } elseif ($user && $user->hasRole('student')) {
+            // Students can only access exams for units that belong to a course they are enrolled in
+            $unit->loadMissing('course');
+            $courseId = $unit->course?->id;
+            if ($courseId !== $course->id) {
+                \abort(404);
+            }
+            $enrolled = $user->courses()->where('courses.id', $courseId)->exists();
+            if (!$enrolled) {
+                \abort(403);
             }
         }
         // Fetch the exams for the given unit
-        $exams = $unit->exams()->get();
+        $query = $unit->exams();
+        if ($user && $user->hasRole('student')) {
+            $query->where('is_published', true);
+        }
+        $exams = $query->get();
 
         // Render the Index view, passing the course, unit, exams, and auth
         return Inertia::render('Courses/Units/Exams/Index', [
@@ -73,11 +92,11 @@ class ExamController extends Controller
     public function create(Course $course, Unit $unit)
     {
         // Teachers can only create exams for units they teach
-        $user = auth()->user();
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
-                abort(403);
+                \abort(403);
             }
         }
         // Render the Create view, passing the parent course and unit data
@@ -94,7 +113,7 @@ class ExamController extends Controller
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
-                abort(403);
+                \abort(403);
             }
         }
         // Validate the request data
@@ -114,7 +133,7 @@ class ExamController extends Controller
         ]);
 
         // Redirect back to the list of exams for this specific unit
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return \redirect()->route('courses.units.exams.index', [$course, $unit])
             ->with('message', 'Exam "' . $request->title . '" created successfully.');
     }
 
@@ -124,11 +143,11 @@ class ExamController extends Controller
     public function edit(Course $course, Unit $unit, Exam $exam)
     {
         // Teachers can only edit exams for units they teach
-        $user = auth()->user();
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
-                abort(403);
+                \abort(403);
             }
         }
         // Render the Edit view, passing the context objects
@@ -163,7 +182,7 @@ class ExamController extends Controller
             'is_published' => $request->is_published ?? false,
         ]);
 
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return \redirect()->route('courses.units.exams.index', [$course, $unit])
             ->with('message', 'Exam updated successfully.');
     }
 
@@ -173,7 +192,7 @@ class ExamController extends Controller
     public function destroy(Course $course, Unit $unit, Exam $exam)
     {
         // Teachers can only delete exams for units they teach
-        $user = auth()->user();
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
@@ -182,7 +201,7 @@ class ExamController extends Controller
         }
         $exam->delete();
 
-        return redirect()->route('courses.units.exams.index', [$course, $unit])
+        return \redirect()->route('courses.units.exams.index', [$course, $unit])
             ->with('message', 'Exam deleted successfully.');
     }
 }
