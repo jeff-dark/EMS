@@ -50,6 +50,19 @@ const mainNavItems: NavItem[] = [
     
 ];
 
+const footerNavItems: NavItem[] = [
+    {
+        title: 'Documentation',
+        href: 'https://example.com/docs',
+        icon: Folder,
+    },
+    {
+        title: 'Repository',
+        href: 'https://github.com',
+        icon: BookOpen,
+    },
+];
+
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
