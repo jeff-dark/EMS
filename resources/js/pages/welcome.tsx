@@ -24,7 +24,7 @@ export default function Welcome() {
                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
                                 <span className="text-sm font-bold">OE</span>
                             </div>
-                            <span className="text-base font-semibold tracking-tight">Brandlogo</span>
+                            <span className="text-base font-semibold tracking-tight">EMS</span>
                         </div>
 
                         <nav className="flex items-center gap-3">
