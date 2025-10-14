@@ -16,22 +16,29 @@ export default function Welcome() {
                 />
             </Head>
 
-            <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC]">
+            <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col">
                 {/* Top bar */}
                 <header className="mx-auto w-full max-w-6xl px-6 py-5">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-rose-500 text-white shadow-sm dark:bg-rose-600">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
                                 <span className="text-sm font-bold">OE</span>
                             </div>
                             <span className="text-base font-semibold tracking-tight">Brandlogo</span>
                         </div>
 
                         <nav className="flex items-center gap-3">
-                            {!isAuthed && (
+                            {isAuthed ? (
+                                <Link
+                                    href="/dashboard"
+                                    className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
+                                >
+                                    Dashboard
+                                </Link>
+                            ) : (
                                 <Link
                                     href="/login"
-                                    className="inline-flex items-center rounded-full bg-rose-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-rose-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
+                                    className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
                                 >
                                     Log in
                                 </Link>
@@ -41,7 +48,7 @@ export default function Welcome() {
                 </header>
 
                 {/* Hero section */}
-                <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-4 lg:pb-24 lg:pt-2">
+                <main className="mx-auto w-full max-w-6xl px-6 py-12 lg:py-20 flex-1 flex items-center">
                     <div className="grid items-center gap-10 lg:grid-cols-2">
                         {/* Left copy */}
                         <section>
@@ -51,7 +58,7 @@ export default function Welcome() {
                             <h1 className="text-5xl font-bold leading-tight tracking-tight lg:text-6xl">
                                 Online
                                 <br />
-                                <span className="text-rose-600 dark:text-rose-500">Exam</span>
+                                <span className="text-[#68a1ff]">Exam</span>
                             </h1>
                             <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
                                 Manage courses, units, and exams in one place. Create questions, start sessions,
@@ -59,12 +66,21 @@ export default function Welcome() {
                                 responsive and theme-aware.
                             </p>
                             <div className="mt-8 flex flex-wrap items-center gap-3">
-                                <Link
-                                    href="/login"
-                                    className="inline-flex items-center rounded-full bg-rose-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                >
-                                    Read more
-                                </Link>
+                                {isAuthed ? (
+                                    <Link
+                                        href="/dashboard"
+                                        className="inline-flex items-center rounded-full bg-[#68a1ff] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
+                                    >
+                                        Go to dashboard
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className="inline-flex items-center rounded-full bg-[#68a1ff] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
+                                    >
+                                        Get started
+                                    </Link>
+                                )}
                                 <span className="text-xs text-[#8a8984] dark:text-[#9E9D97]">
                                     No account? Log in to get started.
                                 </span>
@@ -98,7 +114,7 @@ export default function Welcome() {
                                                                     />
                                                                 </svg>
                                                             ) : (
-                                                                <span className="block h-3 w-3 rounded bg-rose-500/80 dark:bg-rose-500" />
+                                                                <span className="block h-3 w-3 rounded bg-[#68a1ff]" />
                                                             )}
                                                         </span>
                                                         <div className="h-2.5 flex-1 rounded bg-[#cfd5ef] dark:bg-[#2b3350]" />
