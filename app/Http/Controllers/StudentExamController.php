@@ -35,6 +35,15 @@ class StudentExamController extends Controller
             \abort(403);
         }
 
+        // If the student already submitted this exam, block access
+        $alreadySubmitted = ExamSession::where('exam_id', $exam->id)
+            ->where('user_id', $user->id)
+            ->whereNotNull('submitted_at')
+            ->exists();
+        if ($alreadySubmitted) {
+            return redirect()->route('exams.index')->with('message', 'You have already submitted this exam.');
+        }
+
         $session = ExamSession::firstOrCreate(
             ['exam_id' => $exam->id, 'user_id' => $user->id],
             ['started_at' => \now()]
@@ -48,6 +57,10 @@ class StudentExamController extends Controller
     public function answer(Request $request, ExamSession $session)
     {
     $this->authorize('view', $session);
+
+        if (!is_null($session->submitted_at)) {
+            return response()->json(['status' => 'forbidden', 'message' => 'Exam already submitted.'], 403);
+        }
 
         $data = $request->validate([
             'question_id' => 'required|exists:questions,id',
@@ -65,6 +78,9 @@ class StudentExamController extends Controller
     public function submit(ExamSession $session)
     {
         $this->authorize('view', $session);
+        if (!is_null($session->submitted_at)) {
+            return redirect()->route('dashboard')->with('status', 'You have already submitted this exam.');
+        }
 
         $session->update(['submitted_at' => \now()]);
 

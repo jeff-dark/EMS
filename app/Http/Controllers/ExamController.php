@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\{Course, Exam, Unit};
+use App\Models\{Course, Exam, Unit, User};
 use Inertia\Inertia;
 
 class ExamController extends Controller
@@ -20,8 +20,9 @@ class ExamController extends Controller
      */
     public function allExamsIndex()
     {
+        /** @var User|null $user */
     $user = Auth::user();
-        if ($user && $user->hasRole('teacher')) {
+        if ($user instanceof User && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$teacher) {
                 $exams = collect();
@@ -33,16 +34,26 @@ class ExamController extends Controller
                     ->with(['unit', 'unit.course'])
                     ->get();
             }
-        } elseif ($user && $user->hasRole('admin')) {
+        } elseif ($user instanceof User && $user->hasRole('admin')) {
             // Admin sees all
             $exams = Exam::with(['unit', 'unit.course'])->get();
         } else {
-            // Students: show exams under units they are registered to (published only)
-            $unitIds = $user->units()->pluck('units.id');
+            // Students: show exams under units they are registered to (published only),
+            // and compute a per-user is_submitted flag via exists on sessions.
+            $unitIds = $user instanceof User ? $user->units()->pluck('units.id') : collect();
             $exams = Exam::whereIn('unit_id', $unitIds)
                 ->where('is_published', true)
                 ->with(['unit', 'unit.course'])
-                ->get();
+                ->withExists(['sessions as is_submitted' => function ($q) use ($user) {
+                    if ($user instanceof User) {
+                        $q->where('user_id', $user->id)->whereNotNull('submitted_at');
+                    }
+                }])
+                ->get()
+                ->map(function ($exam) {
+                    $exam->is_submitted = (bool) ($exam->is_submitted ?? false);
+                    return $exam;
+                });
         }
 
         return Inertia::render('Exams/Index', [
@@ -57,13 +68,14 @@ class ExamController extends Controller
     public function index(Course $course, Unit $unit)
     {
         // Teachers can only access exams for units they teach
+        /** @var User|null $user */
     $user = Auth::user();
-        if ($user && $user->hasRole('teacher')) {
+        if ($user instanceof User && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
                 \abort(403);
             }
-        } elseif ($user && $user->hasRole('student')) {
+        } elseif ($user instanceof User && $user->hasRole('student')) {
             // Students can only access exams for units they are registered to
             $registered = $user->units()->where('units.id', $unit->id)->exists();
             if (!$registered) {
@@ -72,10 +84,18 @@ class ExamController extends Controller
         }
         // Fetch the exams for the given unit
         $query = $unit->exams();
-        if ($user && $user->hasRole('student')) {
-            $query->where('is_published', true);
+        if ($user instanceof User && $user->hasRole('student')) {
+            $query->where('is_published', true)
+                ->withExists(['sessions as is_submitted' => function ($q) use ($user) {
+                    $q->where('user_id', $user->id)->whereNotNull('submitted_at');
+                }]);
         }
-        $exams = $query->get();
+        $exams = $query->get()->map(function ($exam) use ($user) {
+            if ($user instanceof User && $user->hasRole('student')) {
+                $exam->is_submitted = (bool) ($exam->is_submitted ?? false);
+            }
+            return $exam;
+        });
 
         // Render the Index view, passing the course, unit, exams, and auth
         return Inertia::render('Courses/Units/Exams/Index', [
@@ -108,7 +128,8 @@ class ExamController extends Controller
     public function store(Request $request, Course $course, Unit $unit)
     {
         // Teachers can only store exams for units they teach
-        $user = auth()->user();
+    /** @var User|null $user */
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
@@ -159,7 +180,8 @@ class ExamController extends Controller
     public function update(Request $request, Course $course, Unit $unit, Exam $exam)
     {
         // Teachers can only update exams for units they teach
-        $user = auth()->user();
+    /** @var User|null $user */
+    $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {

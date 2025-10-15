@@ -32,12 +32,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Define an "Admin" Gate for simple checks anywhere in the app
-        // Although policies are preferred, gates are sometimes useful.
-        // Gate::define('is-admin', function (User $user) {
-        //     return $user->hasRole('admin');
-        // });
-        
-        // Note: Gate definitions go here if you decide to use them.
+        // Note: Gate definitions can be placed here if you decide to use them.
     }
 }

@@ -44,9 +44,8 @@ return Application::configure(basePath: dirname(__DIR__))
                  return Response::json(['message' => 'Forbidden'], 403);
             }
             if ($isAuthz || $isHttp403) {
-                // Non-Inertia, non-JSON web request: redirect to dashboard with flash
-                return Redirect::route('dashboard')
-                    ->with('error', 'you are not authorised, contact your admin for assistance');
+                // Non-Inertia, non-JSON web request: return a proper 403 status
+                return response('Forbidden', 403);
             }
             // Default rendering for other exceptions
         });

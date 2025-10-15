@@ -1,6 +1,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -27,6 +28,7 @@ interface Exam {
     duration_minutes: number;
     passing_score: number;
     is_published: boolean;
+    is_submitted?: boolean; // computed per-student
 }
 
 interface Unit {
@@ -66,6 +68,8 @@ export default function Index() {
 
     const [q, setQ] = useState("");
     const [status, setStatus] = useState<string>('all');
+    const [submittedDialogOpen, setSubmittedDialogOpen] = useState(false);
+    const [submittedExam, setSubmittedExam] = useState<Exam | null>(null);
 
     const filtered = useMemo(() => {
         const term = q.trim().toLowerCase();
@@ -144,6 +148,11 @@ export default function Index() {
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                     onClick={() => {
                                         if (role === 'student') {
+                                            if (exam.is_submitted) {
+                                                setSubmittedExam(exam);
+                                                setSubmittedDialogOpen(true);
+                                                return;
+                                            }
                                             window.location.href = `/exams/${exam.id}/start`;
                                         } else {
                                             window.location.href = `/exams/${exam.id}/questions`;
@@ -172,6 +181,20 @@ export default function Index() {
             ) : (
                 <div className="m-4 text-center text-gray-500">No exams found for this unit.</div>
             )}
+
+            <Dialog open={submittedDialogOpen} onOpenChange={setSubmittedDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Exam already submitted</DialogTitle>
+                        <DialogDescription>
+                            {submittedExam ? `You have already submitted the exam "${submittedExam.title}".` : 'You have already submitted this exam.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setSubmittedDialogOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }   
