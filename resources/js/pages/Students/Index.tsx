@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import FilterBar from '@/components/ui/filter-bar';
@@ -67,6 +67,11 @@ export default function Index() {
         }
     };
 
+    const handleResetPassword = (id: number, name: string) => {
+        if (!confirm(`Reset password for ${name} to 123456789?`)) return;
+        router.post(`/students/${id}/reset-password`, {}, { preserveScroll: true });
+    };
+
     // Simple implementation assuming route names map directly to paths
     function route(name: string, param?: number): string {
         const routes: Record<string, (param?: number) => string> = {
@@ -125,8 +130,9 @@ export default function Index() {
                                     <TableCell>{student.username}</TableCell>
                                     <TableCell className="text-center">
                                         <ActionMenu
-                                            items={[
+                                            items={[ 
                                                 { label: 'Edit', href: route('students.edit', student.id) },
+                                                { label: 'Reset Password', onClick: () => handleResetPassword(student.id, student.name), variant: 'default' },
                                                 { label: 'Delete', onClick: () => handleDelete(student.id, student.name), variant: 'destructive', disabled: processing },
                                             ]}
                                         />

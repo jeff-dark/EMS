@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Hash};
+use Illuminate\Support\Facades\{DB, Hash, Auth};
 use App\Models\{Course, Role, Teacher, TeacherUnitAssignment, Unit, User};
 use Inertia\Inertia;
 
@@ -15,8 +15,8 @@ class TeacherController extends Controller
         $this->middleware('auth');
         // Only admins should access teacher management screens
         $this->middleware(function ($request, $next) {
-            $user = auth()->user();
-            if (!$user || !$user->hasRole('admin')) {
+            $user = Auth::user();
+            if (!($user instanceof \App\Models\User) || !$user->hasRole('admin')) {
                 abort(403, 'Only admins can access teacher management.');
             }
             return $next($request);
@@ -134,6 +134,7 @@ class TeacherController extends Controller
                     'id' => $teacher->user->id,
                     'name' => $teacher->user->name,
                     'email' => $teacher->user->email,
+                    'username' => $teacher->user->username,
                 ],
                 'contact_phone' => $teacher->contact_phone,
                 'hire_date' => $teacher->hire_date?->toDateString(),
@@ -152,6 +153,10 @@ class TeacherController extends Controller
     {
         $unitsRule = $teacher->units()->count() === 0 ? 'array' : 'required|array|min:1';
         $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $teacher->user_id,
+            'username' => 'required|string|max:255|unique:users,username,' . $teacher->user_id,
+            'password' => 'nullable|string|min:8',
             'contact_phone' => 'nullable|string|max:50',
             'hire_date' => 'nullable|date',
             'courses' => 'required|array|min:1',
@@ -169,6 +174,16 @@ class TeacherController extends Controller
         }
 
         DB::transaction(function() use ($teacher, $data) {
+            // Update linked user details
+            $user = $teacher->user;            
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->username = $data['username'];
+            if (!empty($data['password'])) {
+                $user->password = bcrypt($data['password']);
+            }
+            $user->save();
+
             $teacher->update([
                 'contact_phone' => $data['contact_phone'] ?? null,
                 'hire_date' => $data['hire_date'] ?? null,
@@ -189,6 +204,16 @@ class TeacherController extends Controller
         });
 
         return redirect()->route('teachers.index')->with('message', 'Teacher updated successfully.');
+    }
+
+    public function resetPassword(Teacher $teacher)
+    {
+        // Only admins allowed via constructor middleware
+        $user = $teacher->user;
+        $user->password = bcrypt('123456789');
+        $user->save();
+
+        return redirect()->back()->with('message', 'Password reset to 123456789 for ' . $user->name . '.');
     }
 
     public function destroy(Teacher $teacher)

@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 interface Unit { id:number; title:string; course_id:number }
 interface Course { id:number; name:string; units: Unit[] }
 interface TeacherUnit { id:number; title:string; course_id:number }
-interface TeacherData { id:number; user:{ id:number; name:string; email:string }; contact_phone?:string; hire_date?:string; units: TeacherUnit[] }
+interface TeacherData { id:number; user:{ id:number; name:string; email:string; username?: string }; contact_phone?:string; hire_date?:string; units: TeacherUnit[] }
 interface PageProps { teacher: TeacherData; courses: Course[] }
 
 export default function Edit({ teacher, courses }: PageProps) {
@@ -20,6 +20,10 @@ export default function Edit({ teacher, courses }: PageProps) {
     }
 
     const { data, setData, put, processing, errors } = useForm({
+        name: teacher.user.name || '',
+        email: teacher.user.email || '',
+        username: teacher.user.username || '',
+        password: '',
         contact_phone: teacher.contact_phone || '',
         hire_date: teacher.hire_date || '',
         courses: Array.from(new Set(teacher.units.map(u => u.course_id))) as number[],
@@ -54,7 +58,7 @@ export default function Edit({ teacher, courses }: PageProps) {
         <AppLayout breadcrumbs={[{ title: 'Edit Teacher', href: `/teachers/${teacher.id}/edit` }]}>            
             <Head title={`Edit Teacher - ${teacher.user.name}`} />
             <div className='w-full max-w-5xl p-4 space-y-6'>
-                <h1 className='text-2xl font-semibold'>Edit Teacher Assignments - {teacher.user.name}</h1>
+                <h1 className='text-2xl font-semibold'>Edit Teacher Details - {teacher.user.name}</h1>
                 <form onSubmit={handleUpdate} className='space-y-6'>
                     {Object.keys(errors).length > 0 && (
                         <Alert variant='destructive'>
@@ -65,6 +69,29 @@ export default function Edit({ teacher, courses }: PageProps) {
                             </AlertDescription>
                         </Alert>
                     )}
+
+                    <div className='grid md:grid-cols-4 gap-4'>
+                        <div>
+                            <Label>Name</Label>
+                            <Input value={data.name} onChange={e => setData('name', e.target.value)} />
+                            {errors.name && <p className='text-red-600 text-sm'>{errors.name}</p>}
+                        </div>
+                        <div>
+                            <Label>Email</Label>
+                            <Input type='email' value={data.email} onChange={e => setData('email', e.target.value)} />
+                            {errors.email && <p className='text-red-600 text-sm'>{errors.email}</p>}
+                        </div>
+                        <div>
+                            <Label>Username</Label>
+                            <Input value={data.username} onChange={e => setData('username', e.target.value)} />
+                            {errors.username && <p className='text-red-600 text-sm'>{errors.username}</p>}
+                        </div>
+                        <div>
+                            <Label>Password <span className='text-xs'>(leave blank to keep unchanged)</span></Label>
+                            <Input type='password' value={data.password} onChange={e => setData('password', e.target.value)} autoComplete='new-password' />
+                            {errors.password && <p className='text-red-600 text-sm'>{errors.password}</p>}
+                        </div>
+                    </div>
 
                     <div className='grid md:grid-cols-3 gap-4'>
                         <div>

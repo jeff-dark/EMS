@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/students/create', [StudentsController::class, 'create'])->name('students.create');
     Route::get('/students/{student}/edit', [StudentsController::class, 'edit'])->name('students.edit');
     Route::put('/students/{student}', [StudentsController::class, 'update'])->name('students.update');
+    Route::post('/students/{student}/reset-password', [StudentsController::class, 'resetPassword'])->name('students.reset-password');
     Route::delete('/students/create', [StudentsController::class, 'create'])->name('students.create');
 
     // Teacher management (new Teacher model & assignments)
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/teachers/{teacher}/edit', [TeacherController::class, 'edit'])->name('teachers.edit');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    Route::post('/teachers/{teacher}/reset-password', [TeacherController::class, 'resetPassword'])->name('teachers.reset-password');
     // Reports
     Route::get('/teachers/{teacher}/load-report', [TeacherController::class, 'loadReport'])->name('teachers.load');
     Route::get('/courses/{course}/teacher-assignments', [TeacherController::class, 'courseAssignments'])->name('courses.teacher.assignments');
@@ -37,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admins/{admin}/edit', [App\Http\Controllers\AdminController::class, 'edit'])->name('admins.edit');
     Route::put('/admins/{admin}', [App\Http\Controllers\AdminController::class, 'update'])->name('admins.update');
     Route::delete('/admins/{admin}', [App\Http\Controllers\AdminController::class, 'destroy'])->name('admins.destroy');
+    Route::post('/admins/{admin}/reset-password', [App\Http\Controllers\AdminController::class, 'resetPassword'])->name('admins.reset-password');
 
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');

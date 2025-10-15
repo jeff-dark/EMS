@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -17,8 +18,8 @@ class StudentsController extends Controller
 
     public function index()
     {
-        $user = auth()->user();
-        if ($user && $user->hasRole('teacher')) {
+    $user = Auth::user();
+    if (($user instanceof \App\Models\User) && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if ($teacher) {
                 // Students registered under courses/units the teacher teaches
@@ -119,5 +120,18 @@ class StudentsController extends Controller
     {
         $student->delete();
         return redirect()->route('students.index')->with('message', 'Student deleted successfully.');
+    }
+
+    public function resetPassword(User $student)
+    {
+        $actor = Auth::user();
+        if (!($actor instanceof \App\Models\User) || !$actor->hasRole('admin')) {
+            abort(403);
+        }
+
+        $student->password = bcrypt('123456789');
+        $student->save();
+
+        return redirect()->back()->with('message', 'Password reset to 123456789 for ' . $student->name . '.');
     }
 }

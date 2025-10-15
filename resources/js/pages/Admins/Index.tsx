@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import ActionMenu from '@/components/ui/action-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import FilterBar from '@/components/ui/filter-bar';
@@ -77,6 +77,10 @@ export default function Index() {
         };
         return routes[name] ? routes[name](param) : '/';
     }
+    const handleResetPassword = (id: number, name: string) => {
+        if (!confirm(`Reset password for ${name} to 123456789?`)) return;
+        router.post(`/admins/${id}/reset-password`, {}, { preserveScroll: true });
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admins" />
@@ -125,8 +129,9 @@ export default function Index() {
                                     <TableCell>{admin.username}</TableCell>
                                     <TableCell className="text-center">
                                         <ActionMenu
-                                            items={[
+                                            items={[ 
                                                 { label: 'Edit', href: route('admins.edit', admin.id) },
+                                                { label: 'Reset Password', onClick: () => handleResetPassword(admin.id, admin.name), variant: 'default' },
                                                 { label: 'Delete', onClick: () => handleDelete(admin.id, admin.name), variant: 'destructive', disabled: processing },
                                             ]}
                                         />

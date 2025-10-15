@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -83,5 +84,19 @@ class AdminController extends Controller
     {
         $admin->delete();
         return redirect()->route('admins.index')->with('message', 'Admin deleted successfully.');
+    }
+
+    public function resetPassword(User $admin)
+    {
+        // Only admins can reset passwords
+        $actor = Auth::user();
+        if (!($actor instanceof \App\Models\User) || !$actor->hasRole('admin')) {
+            abort(403);
+        }
+
+        $admin->password = bcrypt('123456789');
+        $admin->save();
+
+        return redirect()->back()->with('message', 'Password reset to 123456789 for ' . $admin->name . '.');
     }
 }
