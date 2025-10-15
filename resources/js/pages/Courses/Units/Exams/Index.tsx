@@ -68,6 +68,7 @@ export default function Index() {
 
     const [q, setQ] = useState("");
     const [status, setStatus] = useState<string>('all');
+    const [submission, setSubmission] = useState<string>('all');
     const [submittedDialogOpen, setSubmittedDialogOpen] = useState(false);
     const [submittedExam, setSubmittedExam] = useState<Exam | null>(null);
 
@@ -76,9 +77,12 @@ export default function Index() {
         return exams.filter(ex => {
             const matchesText = !term || (ex.title ?? '').toLowerCase().includes(term);
             const matchesStatus = status === 'all' || (status === 'published' ? ex.is_published : !ex.is_published);
-            return matchesText && matchesStatus;
+            const matchesSubmission = role === 'student'
+                ? (submission === 'all' || (submission === 'available' ? !ex.is_submitted : !!ex.is_submitted))
+                : true;
+            return matchesText && matchesStatus && matchesSubmission;
         });
-    }, [exams, q, status]);
+    }, [exams, q, status, submission, role]);
 
     const handleDelete = (id: number, title: string) => {
         if (confirm(`Are you sure you want to delete exam ${id} - ${title}?`)) {
@@ -101,7 +105,7 @@ export default function Index() {
             <Head title="Exams" />
             <FilterBar
                 right={<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>}
-                onReset={() => { setQ(''); setStatus('all'); }}
+                onReset={() => { setQ(''); setStatus('all'); setSubmission('all'); }}
             >
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title" />
                 <Select value={status} onValueChange={setStatus}>
@@ -114,6 +118,18 @@ export default function Index() {
                         <SelectItem value="draft">Draft</SelectItem>
                     </SelectContent>
                 </Select>
+                {role === 'student' && (
+                    <Select value={submission} onValueChange={setSubmission}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Submission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All exams</SelectItem>
+                            <SelectItem value="available">Available</SelectItem>
+                            <SelectItem value="submitted">Submitted</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )}
             </FilterBar>
             <div className="m-4">
                 <div>

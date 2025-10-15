@@ -58,6 +58,7 @@ export default function Index() {
 
     const [q, setQ] = useState("");
     const [status, setStatus] = useState<string>("all");
+    const [submission, setSubmission] = useState<string>("all");
     const [submittedDialogOpen, setSubmittedDialogOpen] = useState(false);
     const [submittedExam, setSubmittedExam] = useState<BackendExam | null>(null);
 
@@ -70,9 +71,12 @@ export default function Index() {
                 exam.unit?.course?.name,
             ].some(v => (v ?? '').toLowerCase().includes(term));
             const matchesStatus = status === 'all' || (status === 'published' ? exam.is_published : !exam.is_published);
-            return matchesText && matchesStatus;
+            const matchesSubmission = role === 'student'
+                ? (submission === 'all' || (submission === 'available' ? !exam.is_submitted : !!exam.is_submitted))
+                : true;
+            return matchesText && matchesStatus && matchesSubmission;
         });
-    }, [exams, q, status]);
+    }, [exams, q, status, submission, role]);
 
     // Build nested exam route since top-level create/edit requires context (course + unit)
     function route(name: string, params: (string | number)[] = []): string {
@@ -110,7 +114,7 @@ export default function Index() {
                 </div>
             </div>
 
-            <FilterBar onReset={() => { setQ(""); setStatus('all'); }}>
+            <FilterBar onReset={() => { setQ(""); setStatus('all'); setSubmission('all'); }}>
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title, course, unit" />
                 <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger>
@@ -122,6 +126,18 @@ export default function Index() {
                         <SelectItem value="draft">Draft</SelectItem>
                     </SelectContent>
                 </Select>
+                {role === 'student' && (
+                    <Select value={submission} onValueChange={setSubmission}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Submission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All exams</SelectItem>
+                            <SelectItem value="available">Available</SelectItem>
+                            <SelectItem value="submitted">Submitted</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )}
             </FilterBar>
 
             {filtered && filtered.length > 0 ? (
