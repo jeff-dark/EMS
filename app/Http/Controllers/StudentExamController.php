@@ -35,6 +35,14 @@ class StudentExamController extends Controller
             \abort(403);
         }
 
+        // If a session already exists and was submitted, block re-entry
+        $existing = ExamSession::where('exam_id', $exam->id)
+            ->where('user_id', $user->id)
+            ->first();
+        if ($existing && $existing->submitted_at) {
+            abort(403, 'You have already submitted this exam.');
+        }
+
         $session = ExamSession::firstOrCreate(
             ['exam_id' => $exam->id, 'user_id' => $user->id],
             ['started_at' => \now()]

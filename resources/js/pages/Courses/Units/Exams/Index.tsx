@@ -27,6 +27,7 @@ interface Exam {
     duration_minutes: number;
     passing_score: number;
     is_published: boolean;
+    is_submitted?: boolean; // from backend for students
 }
 
 interface Unit {
@@ -71,10 +72,16 @@ export default function Index() {
         const term = q.trim().toLowerCase();
         return exams.filter(ex => {
             const matchesText = !term || (ex.title ?? '').toLowerCase().includes(term);
-            const matchesStatus = status === 'all' || (status === 'published' ? ex.is_published : !ex.is_published);
+            let matchesStatus = true;
+            if (role === 'student') {
+                if (status === 'available') matchesStatus = !ex.is_submitted;
+                else if (status === 'submitted') matchesStatus = !!ex.is_submitted;
+            } else {
+                matchesStatus = status === 'all' || (status === 'published' ? ex.is_published : !ex.is_published);
+            }
             return matchesText && matchesStatus;
         });
-    }, [exams, q, status]);
+    }, [exams, q, status, role]);
 
     const handleDelete = (id: number, title: string) => {
         if (confirm(`Are you sure you want to delete exam ${id} - ${title}?`)) {
@@ -96,7 +103,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Exams" />
             <FilterBar
-                right={<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>}
+                right={role !== 'student' ? (<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>) : undefined}
                 onReset={() => { setQ(''); setStatus('all'); }}
             >
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title" />
@@ -105,9 +112,19 @@ export default function Index() {
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All statuses</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
+                        {role === 'student' ? (
+                            <>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="available">Available</SelectItem>
+                                <SelectItem value="submitted">Submitted</SelectItem>
+                            </>
+                        ) : (
+                            <>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="published">Published</SelectItem>
+                                <SelectItem value="draft">Draft</SelectItem>
+                            </>
+                        )}
                     </SelectContent>
                 </Select>
             </FilterBar>
@@ -144,6 +161,10 @@ export default function Index() {
                                     className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                     onClick={() => {
                                         if (role === 'student') {
+                                            if (exam.is_submitted) {
+                                                window.alert(`You have already submitted this exam: "${exam.title}".`);
+                                                return;
+                                            }
                                             window.location.href = `/exams/${exam.id}/start`;
                                         } else {
                                             window.location.href = `/exams/${exam.id}/questions`;
@@ -153,7 +174,7 @@ export default function Index() {
                                     <TableCell>{exam.title}</TableCell>
                                     <TableCell>{exam.duration_minutes}</TableCell>
                                     <TableCell>{exam.passing_score}</TableCell>
-                                    <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
+                                    <TableCell>{role === 'student' ? (exam.is_submitted ? 'Submitted' : 'Available') : (exam.is_published ? 'Published' : 'Draft')}</TableCell>
                                     <TableCell>
                                         {role !== 'student' && (
                                             <ActionMenu

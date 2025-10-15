@@ -20,6 +20,7 @@ class Exam extends Model
         'duration_minutes',
         'passing_score',
         'is_published',
+        'is_submitted',
         'start_time',
         'end_time',
     ];
@@ -57,6 +58,7 @@ class Exam extends Model
     {
         return [
             'is_published' => 'boolean',
+            'is_submitted' => 'boolean',
             'passing_score' => 'float',
             'start_time' => 'datetime',
             'end_time' => 'datetime',
