@@ -36,8 +36,6 @@ interface BackendExam {
     duration_minutes: number;
     passing_score: number;
     is_published: boolean;
-    // For student role only (computed on backend)
-    is_submitted?: boolean;
     unit?: BackendExamRelationUnit;
 }
 
@@ -53,7 +51,6 @@ export default function Index() {
     const exams: BackendExam[] = page.exams || [];
     const flash = page.flash || {};
     const role: string | undefined = page.auth?.role || page.authUser?.role;
-    const studentName: string | undefined = page.auth?.name || page.authUser?.name || page.auth?.user?.name;
 
     const { processing, delete: destroy } = useForm();
 
@@ -68,15 +65,7 @@ export default function Index() {
                 exam.unit?.title,
                 exam.unit?.course?.name,
             ].some(v => (v ?? '').toLowerCase().includes(term));
-            let matchesStatus = true;
-            if (role === 'student') {
-                // Student-specific filtering: available vs submitted
-                if (status === 'available') matchesStatus = !exam.is_submitted;
-                else if (status === 'submitted') matchesStatus = !!exam.is_submitted;
-            } else {
-                // Admin/teacher: published vs draft
-                matchesStatus = status === 'all' || (status === 'published' ? exam.is_published : !exam.is_published);
-            }
+            const matchesStatus = status === 'all' || (status === 'published' ? exam.is_published : !exam.is_published);
             return matchesText && matchesStatus;
         });
     }, [exams, q, status]);
@@ -124,19 +113,9 @@ export default function Index() {
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        {role === 'student' ? (
-                            <>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="available">Available</SelectItem>
-                                <SelectItem value="submitted">Submitted</SelectItem>
-                            </>
-                        ) : (
-                            <>
-                                <SelectItem value="all">All statuses</SelectItem>
-                                <SelectItem value="published">Published</SelectItem>
-                                <SelectItem value="draft">Draft</SelectItem>
-                            </>
-                        )}
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
                     </SelectContent>
                 </Select>
             </FilterBar>
@@ -166,24 +145,19 @@ export default function Index() {
                                         className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                                         onClick={() => {
                                             if (role === 'student') {
-                                                if (exam.is_submitted) {
-                                                    const name = studentName ?? 'You';
-                                                    window.alert(`${name}, you have already submitted this exam: "${exam.title}".`);
-                                                    return;
-                                                }
                                                 router.get(`/exams/${exam.id}/start`);
                                             } else {
                                                 router.get(`/exams/${exam.id}/questions`);
                                             }
                                         }}
-                                        title={role === 'student' ? (exam.is_submitted ? 'Already submitted' : 'Start exam') : 'View questions'}
+                                        title={role === 'student' ? 'Start exam' : 'View questions'}
                                     >
                                         <TableCell>{exam.title}</TableCell>
                                         <TableCell>{course?.name ?? '—'}</TableCell>
                                         <TableCell>{unit?.title ?? '—'}</TableCell>
                                         <TableCell>{exam.duration_minutes}</TableCell>
                                         <TableCell>{exam.passing_score}</TableCell>
-                                        <TableCell>{role === 'student' ? (exam.is_submitted ? 'Submitted' : 'Available') : (exam.is_published ? 'Published' : 'Draft')}</TableCell>
+                                        <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
                                         <TableCell className="text-center">
                                             {role !== 'student' && course && unit && (
                                                 <ActionMenu

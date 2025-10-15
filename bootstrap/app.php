@@ -29,14 +29,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle 403 consistently for Inertia requests with a flash + redirect
         $exceptions->render(function (\Throwable $e, $request) {
-              // In testing, prefer returning proper HTTP status codes so tests can assert them
-              if (app()->environment('testing')) {
-                  $isAuthz = $e instanceof AuthorizationException;
-                  $isHttp403 = ($e instanceof HttpExceptionInterface && $e->getStatusCode() === 403);
-                  if ($isAuthz || $isHttp403) {
-                      return Response::json(['message' => 'Forbidden'], 403);
-                  }
-              }
               $isInertia = (bool) $request->headers->get('X-Inertia');
               $isAuthz = $e instanceof AuthorizationException;
               $isHttp403 = ($e instanceof HttpExceptionInterface && $e->getStatusCode() === 403);

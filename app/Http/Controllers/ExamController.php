@@ -43,33 +43,6 @@ class ExamController extends Controller
                 ->where('is_published', true)
                 ->with(['unit', 'unit.course'])
                 ->get();
-
-            // Attach per-student submission status (is_submitted)
-            $submittedExamIds = \App\Models\ExamSession::where('user_id', $user->id)
-                ->whereNotNull('submitted_at')
-                ->pluck('exam_id')
-                ->all();
-
-            // Map to lightweight array including nested unit & course names
-            $exams = $exams->map(function ($e) use ($submittedExamIds) {
-                return [
-                    'id' => $e->id,
-                    'unit_id' => $e->unit_id,
-                    'title' => $e->title,
-                    'duration_minutes' => $e->duration_minutes,
-                    'passing_score' => $e->passing_score,
-                    'is_published' => (bool)$e->is_published,
-                    'is_submitted' => in_array($e->id, $submittedExamIds, true),
-                    'unit' => $e->unit ? [
-                        'id' => $e->unit->id,
-                        'title' => $e->unit->title,
-                        'course' => $e->unit->course ? [
-                            'id' => $e->unit->course->id,
-                            'name' => $e->unit->course->name,
-                        ] : null,
-                    ] : null,
-                ];
-            });
         }
 
         return Inertia::render('Exams/Index', [
@@ -102,34 +75,7 @@ class ExamController extends Controller
         if ($user && $user->hasRole('student')) {
             $query->where('is_published', true);
         }
-        $exams = $query->with(['unit', 'unit.course'])->get();
-
-        // For students, enrich exams with per-student submission flag
-        if ($user && $user->hasRole('student')) {
-            $submittedExamIds = \App\Models\ExamSession::where('user_id', $user->id)
-                ->whereNotNull('submitted_at')
-                ->pluck('exam_id')
-                ->all();
-            $exams = $exams->map(function ($e) use ($submittedExamIds) {
-                return [
-                    'id' => $e->id,
-                    'unit_id' => $e->unit_id,
-                    'title' => $e->title,
-                    'duration_minutes' => $e->duration_minutes,
-                    'passing_score' => $e->passing_score,
-                    'is_published' => (bool)$e->is_published,
-                    'is_submitted' => in_array($e->id, $submittedExamIds, true),
-                    'unit' => $e->unit ? [
-                        'id' => $e->unit->id,
-                        'title' => $e->unit->title,
-                        'course' => $e->unit->course ? [
-                            'id' => $e->unit->course->id,
-                            'name' => $e->unit->course->name,
-                        ] : null,
-                    ] : null,
-                ];
-            });
-        }
+        $exams = $query->get();
 
         // Render the Index view, passing the course, unit, exams, and auth
         return Inertia::render('Courses/Units/Exams/Index', [
