@@ -31,7 +31,8 @@ class UnitPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        // Only admins can create units
+        return $user->hasRole('admin');
     }
 
     public function update(User $user, Unit $unit): bool

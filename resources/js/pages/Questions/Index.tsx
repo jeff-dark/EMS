@@ -47,6 +47,8 @@ interface PageProps {
 
 export default function Index() {
   const { exam, unit, course, questions, flash } = usePage<PageProps>().props;
+  const page: any = usePage();
+  const role: string | undefined = page?.props?.auth?.role || page?.props?.authUser?.role;
 
   const { processing, delete: destroy } = useForm();
 
@@ -98,7 +100,9 @@ export default function Index() {
       <Head title={`Questions • ${exam.title}`} />
       <div className="m-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Questions - {exam.title}</h1>
-        <Link href={route('exams.questions.create')}><Button>Create Question</Button></Link>
+        {role && role !== 'student' ? (
+          <Link href={route('exams.questions.create')}><Button>Create Question</Button></Link>
+        ) : null}
       </div>
       <FilterBar onReset={() => { setQ(""); setMinPoints(""); setMaxPoints(""); }}>
         <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search prompt" />

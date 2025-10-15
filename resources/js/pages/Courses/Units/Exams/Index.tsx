@@ -104,7 +104,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Exams" />
             <FilterBar
-                right={<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>}
+                right={role !== 'student' ? (<Link href={route('courses.units.exams.create', [course.id, unit.id])}><Button>Create Exam</Button></Link>) : undefined}
                 onReset={() => { setQ(''); setStatus('all'); setSubmission('all'); }}
             >
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title" />

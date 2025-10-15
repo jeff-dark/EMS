@@ -36,7 +36,8 @@ class CoursePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        // Only admins can create courses
+        return $user->hasRole('admin');
     }
 
     public function update(User $user, Course $course): bool

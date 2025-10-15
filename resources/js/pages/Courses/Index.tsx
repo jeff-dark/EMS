@@ -41,6 +41,7 @@ interface PageProps {
 export default function Index() {
 
     const page = usePage().props as unknown as Partial<PageProps> & { [key:string]: any };
+    const role: string | undefined = (page as any)?.auth?.role || (page as any)?.authUser?.role;
     const courses = page.courses || [];
     const flash = page.flash || {};
 
@@ -80,7 +81,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="courses" />
             <FilterBar
-                right={<Link href={route('courses.create')}><Button>Create course</Button></Link>}
+                right={role === 'admin' ? (<Link href={route('courses.create')}><Button>Create course</Button></Link>) : undefined}
                 onReset={() => setQ("")}
             >
                 <Input

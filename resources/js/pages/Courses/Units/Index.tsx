@@ -40,6 +40,8 @@ interface PageProps {
 
 export default function Index() {
     const { course, units, flash } = usePage<PageProps>().props;
+    const page: any = usePage();
+    const role: string | undefined = page?.props?.auth?.role || page?.props?.authUser?.role;
     const { processing, delete: destroy } = useForm();
 
     const [q, setQ] = useState("");
@@ -80,7 +82,7 @@ export default function Index() {
         ]}>
             <Head title={`Units for ${course.name}`} />
             <FilterBar
-                right={<Link href={route("units.create", course.id)}><Button>Create Unit</Button></Link>}
+                right={role === 'admin' ? (<Link href={route("units.create", course.id)}><Button>Create Unit</Button></Link>) : undefined}
                 onReset={() => { setQ(""); setOrderSort("none"); }}
             >
                 <Input
