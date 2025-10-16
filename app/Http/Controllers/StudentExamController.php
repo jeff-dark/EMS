@@ -86,4 +86,18 @@ class StudentExamController extends Controller
 
         return redirect()->route('dashboard')->with('status', 'Exam submitted');
     }
+
+    public function results()
+    {
+        $user = Auth::user();
+        if (!$user) abort(401);
+        // Student can see their own sessions (submitted) and grading status
+        $sessions = ExamSession::where('user_id', $user->id)
+            ->whereNotNull('submitted_at')
+            ->with(['exam:id,title'])
+            ->orderByDesc('submitted_at')
+            ->get(['id','exam_id','user_id','submitted_at','is_graded','score']);
+
+        return Inertia::render('Student/Results', [ 'sessions' => $sessions ]);
+    }
 }

@@ -34,6 +34,10 @@ function buildMainNavItems(role?: string): NavItem[] {
     if (role === 'teacher') {
         items.push({ title: 'Submitted Exams', href: '/grading/exams/submitted', icon: ClipboardList });
     }
+    // Student-specific: My Results page
+    if (role === 'student') {
+        items.push({ title: 'My Results', href: '/student/results', icon: ClipboardList });
+    }
     return items;
 }
 

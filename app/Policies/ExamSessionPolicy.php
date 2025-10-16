@@ -29,10 +29,11 @@ class ExamSessionPolicy
         if ($user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$teacher) return false;
-            $session->loadMissing('exam.unit');
+            $session->loadMissing('exam.unit', 'exam.teacher');
             $unitId = $session->exam?->unit?->id;
-            if (!$unitId) return false;
-            return $teacher->units()->where('units.id', $unitId)->exists();
+            $isUnitTeacher = $unitId && $teacher->units()->where('units.id', $unitId)->exists();
+            $isExamOwner = $session->exam?->teacher?->id === $teacher->id;
+            return (bool) ($isUnitTeacher || $isExamOwner);
         }
 
         return false;

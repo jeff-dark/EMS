@@ -45,6 +45,20 @@ class GradingController extends Controller
     public function grade(Request $request, ExamSession $session)
     {
         $this->authorize('view', $session);
+        // Additional server-side guard: only assigned unit teachers or exam owner can grade
+        $user = Auth::user();
+        if ($user?->hasRole('teacher')) {
+            $teacher = $user->teacher;
+            $session->loadMissing('exam.unit', 'exam.teacher');
+            $allowed = false;
+            if ($teacher) {
+                $allowed = ($session->exam?->teacher?->id === $teacher->id)
+                    || ($session->exam?->unit && $teacher->units()->where('units.id', $session->exam->unit->id)->exists());
+            }
+            if (!$allowed) {
+                abort(403);
+            }
+        }
 
         $data = $request->validate([
             'answers' => 'required|array',
@@ -63,7 +77,8 @@ class GradingController extends Controller
             $total += floatval($sa->points_awarded ?? 0);
         }
 
-        $session->update(['score' => $total, 'is_graded' => true]);
+        $graderId = optional(Auth::user()?->teacher)->id;
+        $session->update(['score' => $total, 'is_graded' => true, 'graded_by_teacher_id' => $graderId]);
 
         return redirect()->route('grading.index')->with('status', 'Grading saved');
     }

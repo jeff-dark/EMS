@@ -145,12 +145,16 @@ class ExamController extends Controller
         ]);
 
         // Use the unit relationship to create and automatically set the unit_id
-        $unit->exams()->create([
+        $payload = [
             'title' => $request->title,
             'duration_minutes' => $request->duration_minutes,
             'passing_score' => $request->passing_score,
             'is_published' => $request->is_published ?? false,
-        ]);
+        ];
+        if ($user instanceof User && $user->hasRole('teacher')) {
+            $payload['teacher_id'] = optional($user->teacher)->id;
+        }
+        $unit->exams()->create($payload);
 
         // Redirect back to the list of exams for this specific unit
         return \redirect()->route('courses.units.exams.index', [$course, $unit])
@@ -196,12 +200,16 @@ class ExamController extends Controller
             'is_published' => 'boolean',
         ]);
 
-        $exam->update([
+        $update = [
             'title' => $request->title,
             'duration_minutes' => $request->duration_minutes,
             'passing_score' => $request->passing_score,
             'is_published' => $request->is_published ?? false,
-        ]);
+        ];
+        if ($user instanceof User && $user->hasRole('teacher')) {
+            $update['teacher_id'] = optional($user->teacher)->id;
+        }
+        $exam->update($update);
 
         return \redirect()->route('courses.units.exams.index', [$course, $unit])
             ->with('message', 'Exam updated successfully.');

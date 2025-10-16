@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/exams/{exam}/start', [App\Http\Controllers\StudentExamController::class, 'start'])->name('student.exams.start');
     Route::post('/sessions/{session}/answer', [App\Http\Controllers\StudentExamController::class, 'answer'])->name('student.sessions.answer');
     Route::post('/sessions/{session}/submit', [App\Http\Controllers\StudentExamController::class, 'submit'])->name('student.sessions.submit');
+    Route::get('/student/results', [App\Http\Controllers\StudentExamController::class, 'results'])->name('student.results');
 
     // Grading routes (teachers)
     Route::get('/grading/exams/submitted', [App\Http\Controllers\GradingController::class, 'index'])->name('grading.index');

@@ -16,6 +16,7 @@ class ExamSession extends Model
         'submitted_at',
         'score',
         'is_graded',
+        'graded_by_teacher_id',
     ];
 
     protected $casts = [
@@ -33,6 +34,11 @@ class ExamSession extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function gradedBy()
+    {
+        return $this->belongsTo(Teacher::class, 'graded_by_teacher_id');
     }
 
     public function studentAnswers()

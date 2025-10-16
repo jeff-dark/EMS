@@ -16,6 +16,7 @@ class Exam extends Model
      */
     protected $fillable = [
         'unit_id', // The foreign key
+        'teacher_id',
         'title',
         'duration_minutes',
         'passing_score',
@@ -30,6 +31,11 @@ class Exam extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 
     /**
