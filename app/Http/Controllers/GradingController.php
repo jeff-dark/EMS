@@ -38,7 +38,27 @@ class GradingController extends Controller
     public function session(ExamSession $session)
     {
         $this->authorize('view', $session);
-        $session->load('studentAnswers.question', 'user', 'exam.unit');
+        // Ensure every question in the exam has a corresponding StudentAnswer row
+        $session->load('user');
+        $exam = $session->exam()->with(['unit', 'questions' => function ($q) {
+            $q->orderBy('order');
+        }])->first();
+
+        foreach ($exam->questions as $question) {
+            StudentAnswer::firstOrCreate([
+                'exam_session_id' => $session->id,
+                'question_id' => $question->id,
+            ]);
+        }
+
+        // Reload answers with question and order by question.order
+        $answers = $session->studentAnswers()->with('question')->get()
+            ->sortBy(function ($sa) {
+                return $sa->question->order ?? PHP_INT_MAX;
+            })->values();
+
+        $session->setRelation('studentAnswers', $answers);
+        $session->setRelation('exam', $exam);
         return inertia('Grading/Session', compact('session'));
     }
 
