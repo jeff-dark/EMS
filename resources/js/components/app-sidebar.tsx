@@ -13,42 +13,29 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText, ClipboardList } from 'lucide-react';
 import AppLogo from './app-logo';
+import { usePage } from '@inertiajs/react';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Exams',
-        href: '/exams',
-        icon: BookOpen,
-    },
-        {
-        title: 'Students',
-        href: '/students',
-        icon: BookUser,
-    },
-    {
-        title: 'Teachers',
-        href: '/teachers',
-        icon: ContactRound,
-    },
-    {
-        title: 'Admins',
-        href: '/admins',
-        icon: NotepadText,
-    },
-    {
-        title: 'Courses',
-        href: '/courses',
-        icon: ShieldBan,
-    },
-    
-];
+function buildMainNavItems(role?: string): NavItem[] {
+    const items: NavItem[] = [
+        { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+        { title: 'Exams', href: '/exams', icon: BookOpen },
+    ];
+    if (role === 'teacher' || role === 'admin') {
+        items.push({ title: 'Students', href: '/students', icon: BookUser });
+    }
+    if (role === 'admin') {
+        items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
+        items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
+        items.push({ title: 'Courses', href: '/courses', icon: ShieldBan });
+    }
+    // Teacher-specific: Submitted Exams link for grading
+    if (role === 'teacher') {
+        items.push({ title: 'Submitted Exams', href: '/grading/exams/submitted', icon: ClipboardList });
+    }
+    return items;
+}
 
 const footerNavItems: NavItem[] = [
     {
@@ -64,6 +51,8 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const page = usePage();
+    const role = (page?.props as any)?.auth?.role as string | undefined;
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -79,7 +68,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={buildMainNavItems(role)} />
             </SidebarContent>
 
             <SidebarFooter>

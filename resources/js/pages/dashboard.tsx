@@ -15,7 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface User { id: number; name: string; email: string; role: string; }
 
-interface StudentExamStats { total: number; available: number; upcoming: number; completed: number; }
+interface StudentExamStats { total: number; available: number; upcoming: number; completed: number; resultsTotal?: number; }
 interface StudentCourse { id: number; name: string; description?: string | null; }
 interface StudentUnit { id: number; course_id: number; course_name?: string; title: string; order: number; }
 interface ExamDistributionItem { status: string; value: number; }
@@ -73,7 +73,7 @@ export default function Dashboard() {
                 <div className="flex h-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4">
                     {/* Stat cards */}
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        <Card><CardHeader><CardTitle>Total Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.total}</span></CardContent></Card>
+                        <Card><CardHeader><CardTitle>My Results</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.resultsTotal ?? 0}</span></CardContent></Card>
                         <Card><CardHeader><CardTitle>Available Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.available}</span></CardContent></Card>
                         <Card><CardHeader><CardTitle>Upcoming Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.upcoming}</span></CardContent></Card>
                         <Card><CardHeader><CardTitle>Completed Exams</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{examStats.completed}</span></CardContent></Card>

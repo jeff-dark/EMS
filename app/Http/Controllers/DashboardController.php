@@ -69,6 +69,8 @@ class DashboardController extends Controller
 
             // Completed exams: sessions the student has submitted
             $completedExams = ExamSession::where('user_id', $authUser->id)->whereNotNull('submitted_at')->count();
+            // Results: sessions graded by a teacher
+            $resultsTotal = ExamSession::where('user_id', $authUser->id)->where('is_graded', true)->count();
 
             // Provide list of student's courses & units (basic fields)
             $courses = Course::whereIn('id', $courseIds)->get(['id','name','description']);
@@ -80,6 +82,7 @@ class DashboardController extends Controller
                     'available' => $availableExams,
                     'upcoming' => $upcomingExams,
                     'completed' => $completedExams,
+                    'resultsTotal' => $resultsTotal,
                 ],
                 'courses' => $courses,
                 'units' => $units->map(fn($u) => [
