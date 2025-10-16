@@ -17,6 +17,7 @@ class ExamSession extends Model
         'score',
         'is_graded',
         'graded_by_teacher_id',
+        'teacher_comment',
     ];
 
     protected $casts = [

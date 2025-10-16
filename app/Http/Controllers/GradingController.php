@@ -64,7 +64,7 @@ class GradingController extends Controller
             'answers' => 'required|array',
             'answers.*.id' => 'required|exists:student_answers,id',
             'answers.*.points_awarded' => 'nullable|numeric',
-            'answers.*.comments' => 'nullable|string',
+            'teacher_comment' => 'nullable|string',
         ]);
 
         $total = 0;
@@ -72,13 +72,19 @@ class GradingController extends Controller
             $sa = StudentAnswer::find($a['id']);
             $sa->update([
                 'points_awarded' => $a['points_awarded'] ?? null,
-                'comments' => $a['comments'] ?? null,
+                // Clear per-question comments now that we use overall comment
+                'comments' => null,
             ]);
             $total += floatval($sa->points_awarded ?? 0);
         }
 
         $graderId = optional(Auth::user()?->teacher)->id;
-        $session->update(['score' => $total, 'is_graded' => true, 'graded_by_teacher_id' => $graderId]);
+        $session->update([
+            'score' => $total,
+            'is_graded' => true,
+            'graded_by_teacher_id' => $graderId,
+            'teacher_comment' => $data['teacher_comment'] ?? null,
+        ]);
 
         return redirect()->route('grading.index')->with('status', 'Grading saved');
     }

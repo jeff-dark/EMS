@@ -2,7 +2,6 @@ import React from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ export default function GradingSession() {
   const answers = (session as any).student_answers ?? (session as any).studentAnswers ?? [];
   const [rows, setRows] = React.useState<AnswerRow[]>(answers);
   const [saving, setSaving] = React.useState(false);
+  const [overallComment, setOverallComment] = React.useState('');
 
   const handleChange = (id: number, field: 'points_awarded' | 'comments', value: string) => {
     setRows(prev => prev.map(r => r.id === id ? { ...r, [field]: field === 'points_awarded' ? Number(value) : value } : r));
@@ -27,7 +27,7 @@ export default function GradingSession() {
 
   const handleSubmit = () => {
     setSaving(true);
-    router.post(grading.grade(session.id).url, { answers: rows.map(r => ({ id: r.id, points_awarded: r.points_awarded, comments: r.comments })) }, {
+    router.post(grading.grade(session.id).url, { answers: rows.map(r => ({ id: r.id, points_awarded: r.points_awarded })), teacher_comment: overallComment }, {
       onFinish: () => setSaving(false)
     });
   };
@@ -40,35 +40,26 @@ export default function GradingSession() {
           <CardHeader>
             <CardTitle>Grade: {session.exam.title} — {session.user.name}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="relative overflow-hidden rounded-xl border bg-card">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/2">Question</TableHead>
-                    <TableHead>Student Answer</TableHead>
-                    <TableHead className="w-28">Points</TableHead>
-                    <TableHead>Comments</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map(r => (
-                    <TableRow key={r.id}>
-                      <TableCell className="whitespace-pre-wrap text-sm">{r.question?.prompt}</TableCell>
-                      <TableCell className="whitespace-pre-wrap text-xs text-muted-foreground max-w-[400px]">{r.answer_text ?? '—'}</TableCell>
-                      <TableCell>
-                        <Input type="number" min={0} step={0.01} value={r.points_awarded ?? ''} onChange={e => handleChange(r.id, 'points_awarded', e.target.value)} />
-                      </TableCell>
-                      <TableCell>
-                        <Textarea rows={2} value={r.comments ?? ''} onChange={e => handleChange(r.id, 'comments', e.target.value)} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+          <CardContent className="space-y-4">
+            <div className="space-y-4">
+              {rows.map((r, idx) => (
+                <div key={r.id} className="rounded-lg border p-4 bg-muted/30">
+                  <div className="text-sm font-medium mb-2">Question {idx + 1}</div>
+                  <div className="whitespace-pre-wrap text-sm mb-2">{r.question?.prompt}</div>
+                  <div className="text-xs text-muted-foreground whitespace-pre-wrap mb-3">Student Answer: {r.answer_text ?? '—'}</div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm w-32" htmlFor={`points-${r.id}`}>Points awarded</label>
+                    <Input id={`points-${r.id}`} type="number" min={0} step={0.01} value={r.points_awarded ?? ''} onChange={e => handleChange(r.id, 'points_awarded', e.target.value)} />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm">Total Score: <span className="font-mono font-semibold">{total.toFixed(2)}</span></div>
+            <div className="pt-2">
+              <div className="text-sm mb-2">Total Score: <span className="font-mono font-semibold">{total.toFixed(2)}</span></div>
+              <label className="text-sm font-medium" htmlFor="overall-comment">Overall comment</label>
+              <Textarea id="overall-comment" rows={4} placeholder="Write feedback for the whole exam..." value={overallComment} onChange={e => setOverallComment(e.target.value)} />
+            </div>
+            <div className="flex items-center justify-end">
               <Button onClick={handleSubmit} disabled={saving}>Save Grading</Button>
             </div>
           </CardContent>
