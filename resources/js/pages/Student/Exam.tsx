@@ -69,7 +69,17 @@ export default function StudentExam() {
 
   const handleSubmit = () => {
     if (!confirm('Submit your exam? You will not be able to change answers after submission.')) return;
-    router.post(`/sessions/${session.id}/submit`);
+    // First persist all answers in one request, then submit the session
+    const payload = {
+      answers: Object.entries(answers).map(([question_id, answer_text]) => ({ question_id: Number(question_id), answer_text })),
+    };
+    router.post(`/sessions/${session.id}/answers/bulk`, payload, {
+      preserveScroll: true,
+      preserveState: true,
+      onFinish: () => {
+        router.post(`/sessions/${session.id}/submit`);
+      }
+    });
   };
 
   return (

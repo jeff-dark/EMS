@@ -75,6 +75,29 @@ class StudentExamController extends Controller
         return response()->json(['status' => 'saved']);
     }
 
+    public function bulkAnswer(Request $request, ExamSession $session)
+    {
+        $this->authorize('view', $session);
+        if (!is_null($session->submitted_at)) {
+            return response()->json(['status' => 'forbidden', 'message' => 'Exam already submitted.'], 403);
+        }
+
+        $data = $request->validate([
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|exists:questions,id',
+            'answers.*.answer_text' => 'nullable|string',
+        ]);
+
+        foreach ($data['answers'] as $ans) {
+            StudentAnswer::updateOrCreate(
+                ['exam_session_id' => $session->id, 'question_id' => $ans['question_id']],
+                ['answer_text' => $ans['answer_text'] ?? null]
+            );
+        }
+
+        return response()->json(['status' => 'saved']);
+    }
+
     public function submit(ExamSession $session)
     {
         $this->authorize('view', $session);
@@ -83,6 +106,8 @@ class StudentExamController extends Controller
         }
 
         $session->update(['submitted_at' => \now()]);
+
+        // Student answers remain in student_answers; teachers access them during grading.
 
         return redirect()->route('dashboard')->with('status', 'Exam submitted');
     }

@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Student exam flow
     Route::get('/exams/{exam}/start', [App\Http\Controllers\StudentExamController::class, 'start'])->name('student.exams.start');
     Route::post('/sessions/{session}/answer', [App\Http\Controllers\StudentExamController::class, 'answer'])->name('student.sessions.answer');
+    Route::post('/sessions/{session}/answers/bulk', [App\Http\Controllers\StudentExamController::class, 'bulkAnswer'])->name('student.sessions.answers.bulk');
     Route::post('/sessions/{session}/submit', [App\Http\Controllers\StudentExamController::class, 'submit'])->name('student.sessions.submit');
     Route::get('/student/results', [App\Http\Controllers\StudentExamController::class, 'results'])->name('student.results');
 
