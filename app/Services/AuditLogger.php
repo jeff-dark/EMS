@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Jobs\WriteAuditLog;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +52,22 @@ class AuditLogger
             'metadata' => $sanitize($context['metadata'] ?? null),
         ];
 
-        WriteAuditLog::dispatch($payload);
+        // If configured to force sync, or queue connection is sync, write immediately.
+        try {
+            $forceSync = (bool) config('audit.force_sync', false);
+            $queueIsSync = config('queue.default') === 'sync';
+            if ($forceSync || $queueIsSync) {
+                AuditLog::create($payload);
+                return;
+            }
+            WriteAuditLog::dispatch($payload);
+        } catch (\Throwable $e) {
+            // Never break the request due to audit logging; record to app log instead
+            Log::error('AuditLog write failed', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'payload' => array_diff_key($payload, ['before'=>1,'after'=>1,'metadata'=>1]),
+            ]);
+        }
     }
 }
