@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Validated;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\App;
 
@@ -57,6 +58,14 @@ class LogAuthEvents
     {
         $this->logger->log('authentication', 'Password reset', [
             'user_id' => $event->user?->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onRegistered(Registered $event): void
+    {
+        $this->logger->log('authentication', 'User registered', [
+            'user_id' => method_exists($event->user, 'getAuthIdentifier') ? $event->user->getAuthIdentifier() : null,
             'status' => 'success',
         ], request());
     }

@@ -8,25 +8,25 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
-    protected $listen = [
-        Login::class => [
-            [LogAuthEvents::class, 'onLogin'],
-        ],
-        Logout::class => [
-            [LogAuthEvents::class, 'onLogout'],
-        ],
-        Failed::class => [
-            [LogAuthEvents::class, 'onFailed'],
-        ],
-        Lockout::class => [
-            [LogAuthEvents::class, 'onLockout'],
-        ],
-        PasswordReset::class => [
-            [LogAuthEvents::class, 'onPasswordReset'],
-        ],
-    ];
+    /**
+     * We register listeners imperatively in boot to call specific methods on the subscriber class.
+     * Leaving $listen empty avoids accidental duplicate handling across Laravel versions.
+     */
+    protected $listen = [];
+
+    public function boot(): void
+    {
+        Event::listen(Login::class, [LogAuthEvents::class, 'onLogin']);
+        Event::listen(Logout::class, [LogAuthEvents::class, 'onLogout']);
+        Event::listen(Failed::class, [LogAuthEvents::class, 'onFailed']);
+        Event::listen(Lockout::class, [LogAuthEvents::class, 'onLockout']);
+        Event::listen(PasswordReset::class, [LogAuthEvents::class, 'onPasswordReset']);
+        Event::listen(Registered::class, [LogAuthEvents::class, 'onRegistered']);
+    }
 }
