@@ -79,7 +79,7 @@ export default function LogsIndex({ logs, filters }: PageProps) {
 
       <form onSubmit={submit}>
         <FilterBar
-          right={<a href={exportUrl}><Button>Export CSV</Button></a>}
+          right={<Button asChild><a href={exportUrl}>Export CSV</a></Button>}
           onReset={() => setForm({ from:'', to:'', user:'', type:'', status:'', target_type:'', target_id:'', search:'' })}
         >
           <Input type="date" value={form.from} onChange={e=>setForm({...form, from:e.target.value})} />

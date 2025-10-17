@@ -11,6 +11,14 @@ use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\App;
+use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
+use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
+use Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed;
+use Laravel\Fortify\Events\TwoFactorAuthenticationChallenged;
+use Laravel\Fortify\Events\TwoFactorAuthenticationFailed;
+use Laravel\Fortify\Events\ValidTwoFactorAuthenticationCodeProvided;
+use Laravel\Fortify\Events\RecoveryCodesGenerated;
+use Laravel\Fortify\Events\RecoveryCodeReplaced;
 
 class LogAuthEvents
 {
@@ -66,6 +74,71 @@ class LogAuthEvents
     {
         $this->logger->log('authentication', 'User registered', [
             'user_id' => method_exists($event->user, 'getAuthIdentifier') ? $event->user->getAuthIdentifier() : null,
+            'status' => 'success',
+        ], request());
+    }
+
+    // Fortify two-factor events
+    public function onTwoFactorEnabled(TwoFactorAuthenticationEnabled $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor enabled', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorDisabled(TwoFactorAuthenticationDisabled $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor disabled', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorConfirmed(TwoFactorAuthenticationConfirmed $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor confirmed', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorChallenged(TwoFactorAuthenticationChallenged $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor challenged', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorFailed(TwoFactorAuthenticationFailed $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor failed', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'failed',
+        ], request());
+    }
+
+    public function onTwoFactorVerified(ValidTwoFactorAuthenticationCodeProvided $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor verified', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorRecoveryCodesGenerated(RecoveryCodesGenerated $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor recovery codes generated', [
+            'user_id' => $event->user->getAuthIdentifier(),
+            'status' => 'success',
+        ], request());
+    }
+
+    public function onTwoFactorRecoveryCodeReplaced(RecoveryCodeReplaced $event): void
+    {
+        $this->logger->log('authentication', 'Two-factor recovery code replaced', [
+            'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'success',
         ], request());
     }
