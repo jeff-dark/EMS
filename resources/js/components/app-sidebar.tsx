@@ -33,6 +33,8 @@ function buildMainNavItems(role?: string): NavItem[] {
         items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
         items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
         items.push({ title: 'Courses', href: '/courses', icon: ShieldBan });
+        // Admin-only: Audit Logs
+        items.push({ title: 'Logs', href: '/admin/logs', icon: NotepadText });
     }
     // Teacher-specific: Submitted Exams link for grading
     if (role === 'teacher') {

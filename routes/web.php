@@ -56,10 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/courses/{course}/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/courses/{course}/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
     
-    Route::get('/courses/{course}/units/{unit}/exams', [ExamController::class, 'index'])->name('courses.units.exams.index');
+    Route::get('/courses/{course}/units/{unit}/exams', [ExamController::class, 'index'])->middleware('audit.view:view')->name('courses.units.exams.index');
     Route::get('/courses/{course}/units/{unit}/exams/create', [ExamController::class, 'create'])->name('courses.units.exams.create');
     Route::post('/courses/{course}/units/{unit}/exams', [ExamController::class, 'store'])->name('courses.units.exams.store');
-    Route::get('/courses/{course}/units/{unit}/exams/{exam}/edit', [ExamController::class, 'edit'])->name('courses.units.exams.edit');
+    Route::get('/courses/{course}/units/{unit}/exams/{exam}/edit', [ExamController::class, 'edit'])->middleware('audit.view:view')->name('courses.units.exams.edit');
     Route::put('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'update'])->name('courses.units.exams.update');
     Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
 
@@ -84,10 +84,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
 
     // Top-level exams listing (all exams across units/courses)
-    Route::get('/exams', [ExamController::class, 'allExamsIndex'])->name('exams.index');
+    Route::get('/exams', [ExamController::class, 'allExamsIndex'])->middleware('audit.view:view')->name('exams.index');
     Route::get('/exams/{exam}/create', [ExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
-    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->middleware('audit.view:view')->name('exams.edit');
     Route::put('/exams/{exam}', [ExamController::class, 'update'])->name('exams.update');
     Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('exams.destroy');
     // Admin logs viewer
