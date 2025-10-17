@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import FilterBar from '@/components/ui/filter-bar';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type BreadcrumbItem } from '@/types';
 import {
   Table,
@@ -81,17 +82,37 @@ export default function LogsIndex({ logs, filters }: PageProps) {
           right={<a href={exportUrl}><Button>Export CSV</Button></a>}
           onReset={() => setForm({ from:'', to:'', user:'', type:'', status:'', target_type:'', target_id:'', search:'' })}
         >
-          <Input type="date" value={form.from} onChange={e=>setForm({...form, from:e.target.value})} placeholder="From" />
-          <Input type="date" value={form.to} onChange={e=>setForm({...form, to:e.target.value})} placeholder="To" />
+          <Input type="date" value={form.from} onChange={e=>setForm({...form, from:e.target.value})} />
+          <Input type="date" value={form.to} onChange={e=>setForm({...form, to:e.target.value})} />
           <Input value={form.user} onChange={e=>setForm({...form, user:e.target.value})} placeholder="User ID" />
-          <select value={form.type} onChange={e=>setForm({...form, type:e.target.value})} className="border rounded px-3 py-2">
-            <option value="">Any Type</option>
-            {['authentication','create','update','delete','view','config','import','export'].map(t=> <option key={t} value={t}>{t}</option>)}
-          </select>
-          <select value={form.status} onChange={e=>setForm({...form, status:e.target.value})} className="border rounded px-3 py-2">
-            <option value="">Any Status</option>
-            {['success','failed','denied'].map(s=> <option key={s} value={s}>{s}</option>)}
-          </select>
+          <Select
+            value={form.type || 'any'}
+            onValueChange={(v)=>setForm({...form, type: v === 'any' ? '' : v})}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any type</SelectItem>
+              {['authentication','create','update','delete','view','config','import','export'].map(t=> (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={form.status || 'any'}
+            onValueChange={(v)=>setForm({...form, status: v === 'any' ? '' : v})}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any status</SelectItem>
+              {['success','failed','denied'].map(s=> (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input value={form.target_type} onChange={e=>setForm({...form, target_type:e.target.value})} placeholder="Target Type" />
           <Input value={form.target_id} onChange={e=>setForm({...form, target_id:e.target.value})} placeholder="Target ID" />
           <Input value={form.search} onChange={e=>setForm({...form, search:e.target.value})} placeholder="Search..." />
