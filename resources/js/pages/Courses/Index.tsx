@@ -18,12 +18,8 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Courses',
-        href: '/courses',
-    },
-];
+// Note: We'll compute the breadcrumb dynamically below to show "My Courses" for teachers
+const baseBreadcrumb: BreadcrumbItem = { title: 'Courses', href: '/courses' };
 
 interface Courses {
     id: number;
@@ -77,11 +73,17 @@ export default function Index() {
         };
         return routes[name] ? routes[name](param) : '/';
     }
+    const isTeacher = role === 'teacher';
+    const isAdmin = role === 'admin';
+    const breadcrumb: BreadcrumbItem[] = [
+        { title: isTeacher ? 'My Courses' : 'Courses', href: '/courses' },
+    ];
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="courses" />
+        <AppLayout breadcrumbs={breadcrumb}>
+            <Head title={isTeacher ? 'My Courses' : 'Courses'} />
             <FilterBar
-                right={role === 'admin' ? (<Link href={route('courses.create')}><Button>Create course</Button></Link>) : undefined}
+                right={isAdmin ? (<Link href={route('courses.create')}><Button>Create course</Button></Link>) : undefined}
                 onReset={() => setQ("")}
             >
                 <Input
@@ -119,18 +121,20 @@ export default function Index() {
                             <CardContent>
                                 <div className="text-sm text-muted-foreground">Course ID: {course.id}</div>
                             </CardContent>
-                            <CardFooter className="justify-end flex space-x-2">
-                                <Link href={route('courses.edit', course.id)}>
-                                    <Button className="bg-slate-500 hover:bg-slate-700">Edit</Button>
-                                </Link>
-                                <Button
-                                    disabled={processing}
-                                    onClick={e => { e.stopPropagation(); handleDelete(course.id, course.name); }}
-                                    className="bg-red-500 hover:bg-red-700"
-                                >
-                                    Delete
-                                </Button>
-                            </CardFooter>
+                            {isAdmin && (
+                                <CardFooter className="justify-end flex space-x-2">
+                                    <Link href={route('courses.edit', course.id)}>
+                                        <Button className="bg-slate-500 hover:bg-slate-700">Edit</Button>
+                                    </Link>
+                                    <Button
+                                        disabled={processing}
+                                        onClick={e => { e.stopPropagation(); handleDelete(course.id, course.name); }}
+                                        className="bg-red-500 hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </Button>
+                                </CardFooter>
+                            )}
                         </Card>
                     ))}
                 </div>

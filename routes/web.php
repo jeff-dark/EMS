@@ -18,7 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/students/{student}/edit', [StudentsController::class, 'edit'])->name('students.edit');
     Route::put('/students/{student}', [StudentsController::class, 'update'])->name('students.update');
     Route::post('/students/{student}/reset-password', [StudentsController::class, 'resetPassword'])->name('students.reset-password');
-    Route::delete('/students/create', [StudentsController::class, 'create'])->name('students.create');
+    // Correct destroy route for students
+    Route::delete('/students/{student}', [StudentsController::class, 'destroy'])->name('students.destroy');
 
     // Teacher management (new Teacher model & assignments)
     Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');

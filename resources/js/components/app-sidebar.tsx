@@ -25,6 +25,10 @@ function buildMainNavItems(role?: string): NavItem[] {
     if (role === 'teacher' || role === 'admin') {
         items.push({ title: 'Students', href: '/students', icon: BookUser });
     }
+    // Teacher-specific: My Courses list (courses the teacher is assigned to)
+    if (role === 'teacher') {
+        items.push({ title: 'My Courses', href: '/courses', icon: BookOpen });
+    }
     if (role === 'admin') {
         items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
         items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
