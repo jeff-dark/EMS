@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/courses/{course}/units/{unit}/exams/{exam}', [ExamController::class, 'destroy'])->name('courses.units.exams.destroy');
 
     // Question management (teachers/admins)
-    Route::get('/exams/{exam}/questions', [App\Http\Controllers\QuestionController::class, 'index'])->name('exams.questions.index');
+    Route::get('/exams/{exam}/questions', [App\Http\Controllers\QuestionController::class, 'index'])->middleware('audit.view:view')->name('exams.questions.index');
     Route::get('/exams/{exam}/questions/create', [App\Http\Controllers\QuestionController::class, 'create'])->name('exams.questions.create');
     Route::post('/exams/{exam}/questions', [App\Http\Controllers\QuestionController::class, 'store'])->name('exams.questions.store');
     Route::get('/exams/{exam}/questions/{question}/edit', [App\Http\Controllers\QuestionController::class, 'edit'])->name('exams.questions.edit');
@@ -80,7 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Grading routes (teachers)
     Route::get('/grading/exams/submitted', [App\Http\Controllers\GradingController::class, 'index'])->name('grading.index');
-    Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->name('grading.session');
+    Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->middleware('audit.view:view')->name('grading.session');
     Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
 
     // Top-level exams listing (all exams across units/courses)
@@ -90,6 +90,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
     Route::put('/exams/{exam}', [ExamController::class, 'update'])->name('exams.update');
     Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('exams.destroy');
+    // Admin logs viewer
+    Route::get('/admin/logs', [App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
+    Route::get('/admin/logs/export', [App\Http\Controllers\Admin\LogController::class, 'export'])->name('admin.logs.export');
 
 
 });
