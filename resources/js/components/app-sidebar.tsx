@@ -62,7 +62,8 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const page = usePage();
-    const role = (page?.props as any)?.auth?.role as string | undefined;
+    const roleRaw = (page?.props as any)?.auth?.role as string | undefined;
+    const role = roleRaw ? roleRaw.toLowerCase() : undefined;
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

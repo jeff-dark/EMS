@@ -66,8 +66,32 @@ class User extends Authenticatable
 
     public function hasRole(string $roleName): bool
     {
-        // Check if the role relationship is loaded and the name matches
-        return $this->role && $this->role->name === $roleName;
+        if (!$this->role || !$this->role->name) {
+            return false;
+        }
+        // Normalize both strings: lowercase, trim, remove spaces and dashes
+        $normalize = function (string $name) {
+            return strtolower(str_replace([' ', '-'], '', trim($name)));
+        };
+        $userRole = $normalize($this->role->name);
+        $target = $normalize($roleName);
+        if ($userRole === $target) {
+            return true;
+        }
+        // Accept common admin synonyms
+        $adminAliases = ['admin', 'administrator', 'superadmin', 'superadministrator'];
+        if (in_array($userRole, $adminAliases, true) && in_array($target, ['admin', 'administrator'], true)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function hasAnyRole(string ...$roleNames): bool
+    {
+        foreach ($roleNames as $name) {
+            if ($this->hasRole($name)) return true;
+        }
+        return false;
     }
 
     public function teacher()
