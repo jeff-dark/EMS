@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\{Exam, ExamSession, Question, StudentAnswer};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\ExamSubmittedMail;
 use Inertia\Inertia;
 
 class StudentExamController extends Controller
@@ -108,6 +111,24 @@ class StudentExamController extends Controller
         $session->update(['submitted_at' => \now()]);
 
         // Student answers remain in student_answers; teachers access them during grading.
+
+        // Notify the student (submission confirmation)
+        try {
+            $student = $session->user()->first();
+            if ($student && $student->email) {
+                if (config('queue.default') === 'sync') {
+                    Mail::to($student->email)->send(new ExamSubmittedMail($session));
+                } else {
+                    Mail::to($student->email)->queue(new ExamSubmittedMail($session));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Swallow mail errors so submission flow is not blocked
+            Log::warning('Exam submission email failed', [
+                'session_id' => $session->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()->route('dashboard')->with('status', 'Exam submitted');
     }
