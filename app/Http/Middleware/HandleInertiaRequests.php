@@ -57,6 +57,18 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'proctoring' => [
+                'enabled' => (bool) config('proctoring.enabled'),
+                'fullscreen_required' => (bool) config('proctoring.fullscreen_required'),
+                'block_contextmenu' => (bool) config('proctoring.block_contextmenu'),
+                'block_clipboard' => (bool) config('proctoring.block_clipboard'),
+                'block_shortcuts' => (bool) config('proctoring.block_shortcuts'),
+                'warn_on_violation' => (bool) config('proctoring.warn_on_violation'),
+                'violation_threshold' => (int) config('proctoring.violation_threshold'),
+                'disable_devtool' => (bool) config('proctoring.disable_devtool'),
+                'nosleep' => (bool) config('proctoring.nosleep'),
+                'env' => app()->environment(),
+            ],
         ];
     }
 }

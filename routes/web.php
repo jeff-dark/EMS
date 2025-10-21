@@ -73,11 +73,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/exams/{exam}/questions/{question}', [App\Http\Controllers\QuestionController::class, 'update'])->name('exams.questions.update');
     Route::delete('/exams/{exam}/questions/{question}', [App\Http\Controllers\QuestionController::class, 'destroy'])->name('exams.questions.destroy');
 
-    // Student exam flow
-    Route::get('/exams/{exam}/start', [App\Http\Controllers\StudentExamController::class, 'start'])->name('student.exams.start');
-    Route::post('/sessions/{session}/answer', [App\Http\Controllers\StudentExamController::class, 'answer'])->name('student.sessions.answer');
-    Route::post('/sessions/{session}/answers/bulk', [App\Http\Controllers\StudentExamController::class, 'bulkAnswer'])->name('student.sessions.answers.bulk');
-    Route::post('/sessions/{session}/submit', [App\Http\Controllers\StudentExamController::class, 'submit'])->name('student.sessions.submit');
+    // Student exam flow (with additional security headers)
+    Route::get('/exams/{exam}/start', [App\Http\Controllers\StudentExamController::class, 'start'])
+        ->middleware('exam.security')
+        ->name('student.exams.start');
+    Route::post('/sessions/{session}/answer', [App\Http\Controllers\StudentExamController::class, 'answer'])
+        ->middleware('exam.security')
+        ->name('student.sessions.answer');
+    Route::post('/sessions/{session}/answers/bulk', [App\Http\Controllers\StudentExamController::class, 'bulkAnswer'])
+        ->middleware('exam.security')
+        ->name('student.sessions.answers.bulk');
+    Route::post('/sessions/{session}/submit', [App\Http\Controllers\StudentExamController::class, 'submit'])
+        ->middleware('exam.security')
+        ->name('student.sessions.submit');
+
+    // Proctoring events (client-side signals)
+    Route::post('/sessions/{session}/proctor-events', [App\Http\Controllers\ProctorEventController::class, 'store'])
+        ->middleware('exam.security')
+        ->name('student.sessions.proctor-events.store');
     Route::get('/student/results', [App\Http\Controllers\StudentExamController::class, 'results'])->name('student.results');
 
     // Grading routes (teachers)

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useProctoring } from '@/hooks/useProctoring';
 
 interface Exam {
   id: number;
@@ -31,13 +32,39 @@ interface PageProps {
   exam: Exam;
   session: Session;
   questions: Question[];
+  proctoring?: {
+    enabled: boolean;
+    fullscreen_required: boolean;
+    block_contextmenu: boolean;
+    block_clipboard: boolean;
+    block_shortcuts: boolean;
+    warn_on_violation: boolean;
+    violation_threshold: number;
+    disable_devtool: boolean;
+    nosleep: boolean;
+    env: string;
+  };
 }
 
 export default function StudentExam() {
-  const { exam, session, questions } = usePage().props as unknown as PageProps;
+  const { exam, session, questions, proctoring } = usePage().props as unknown as PageProps;
   const [answers, setAnswers] = React.useState<Record<number, string>>({});
   const [activeIndex, setActiveIndex] = React.useState<number>(0);
   const [saving, setSaving] = React.useState<boolean>(false);
+
+  // Initialize client-side proctoring with config-driven behavior
+  const p = proctoring ?? ({} as NonNullable<PageProps['proctoring']>);
+  useProctoring({
+    sessionId: session.id,
+    enableFullscreen: p.fullscreen_required ?? true,
+    blockContextMenu: p.block_contextmenu ?? true,
+    blockClipboard: p.block_clipboard ?? true,
+    blockShortcuts: p.block_shortcuts ?? true,
+    warnOnViolation: p.warn_on_violation ?? true,
+    violationThreshold: p.violation_threshold ?? 2,
+    enableDisableDevtool: (p.disable_devtool ?? true) && p.env === 'production',
+    enableNoSleep: p.nosleep ?? true,
+  });
 
   const activeQuestion = questions[activeIndex];
 
