@@ -4,12 +4,39 @@ namespace App\Observers;
 
 use App\Mail\AccountDeletedMail;
 use App\Mail\UserRegisteredMail;
+use App\Mail\RoleChangedMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
 class UserObserver
 {
+    public function updating(User $user): void
+    {
+        if ($user->isDirty('role_id')) {
+            $original = $user->getOriginal('role_id');
+            // defer sending until after save in updated()
+            $user->setAttribute('_old_role_id', $original);
+        }
+    }
+
+    public function updated(User $user): void
+    {
+        if ($user->wasChanged('role_id')) {
+            $oldRoleId = $user->getAttribute('_old_role_id');
+            $oldRole = optional(\App\Models\Role::find($oldRoleId))->name ?? 'previous role';
+            $newRole = optional($user->role)->name ?? 'new role';
+            if ($user->email) {
+                try {
+                    $m = new RoleChangedMail($user, $oldRole, $newRole);
+                    if (config('queue.default') === 'sync') { Mail::to($user->email)->send($m); }
+                    else { Mail::to($user->email)->queue($m); }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed to dispatch role changed email', [ 'user_id' => $user->id, 'error' => $e->getMessage() ]);
+                }
+            }
+        }
+    }
     public function created(User $user): void
     {
         if (!$user->email) return;

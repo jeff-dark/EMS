@@ -19,6 +19,8 @@ use Laravel\Fortify\Events\TwoFactorAuthenticationFailed;
 use Laravel\Fortify\Events\ValidTwoFactorAuthenticationCodeProvided;
 use Laravel\Fortify\Events\RecoveryCodesGenerated;
 use Laravel\Fortify\Events\RecoveryCodeReplaced;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TwoFactorStatusMail;
 
 class LogAuthEvents
 {
@@ -85,6 +87,7 @@ class LogAuthEvents
             'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'success',
         ], request());
+        try { if ($event->user->email) Mail::to($event->user->email)->queue(new TwoFactorStatusMail($event->user, 'enabled')); } catch (\Throwable $e) {}
     }
 
     public function onTwoFactorDisabled(TwoFactorAuthenticationDisabled $event): void
@@ -93,6 +96,7 @@ class LogAuthEvents
             'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'success',
         ], request());
+        try { if ($event->user->email) Mail::to($event->user->email)->queue(new TwoFactorStatusMail($event->user, 'disabled')); } catch (\Throwable $e) {}
     }
 
     public function onTwoFactorConfirmed(TwoFactorAuthenticationConfirmed $event): void
@@ -101,6 +105,7 @@ class LogAuthEvents
             'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'success',
         ], request());
+        try { if ($event->user->email) Mail::to($event->user->email)->queue(new TwoFactorStatusMail($event->user, 'confirmed')); } catch (\Throwable $e) {}
     }
 
     public function onTwoFactorChallenged(TwoFactorAuthenticationChallenged $event): void
@@ -117,6 +122,7 @@ class LogAuthEvents
             'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'failed',
         ], request());
+        try { if ($event->user->email) Mail::to($event->user->email)->queue(new TwoFactorStatusMail($event->user, 'failed')); } catch (\Throwable $e) {}
     }
 
     public function onTwoFactorVerified(ValidTwoFactorAuthenticationCodeProvided $event): void
@@ -125,6 +131,7 @@ class LogAuthEvents
             'user_id' => $event->user->getAuthIdentifier(),
             'status' => 'success',
         ], request());
+        try { if ($event->user->email) Mail::to($event->user->email)->queue(new TwoFactorStatusMail($event->user, 'verified')); } catch (\Throwable $e) {}
     }
 
     public function onTwoFactorRecoveryCodesGenerated(RecoveryCodesGenerated $event): void

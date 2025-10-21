@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EnrollmentChangedMail;
 
 class StudentsController extends Controller
 {
@@ -72,6 +74,12 @@ class StudentsController extends Controller
 
         // Attach selected courses
         $student->courses()->sync($request->courses);
+        try {
+            if ($student->email) {
+                $m = new EnrollmentChangedMail($student, coursesAdded: \App\Models\Course::whereIn('id', $request->courses)->pluck('name')->toArray(), coursesRemoved: []);
+                if (config('queue.default') === 'sync') { Mail::to($student->email)->send($m); } else { Mail::to($student->email)->queue($m); }
+            }
+        } catch (\Throwable $e) { /* ignore */ }
 
         // Assign units from selected courses
         $unitIds = \App\Models\Unit::whereIn('course_id', $request->courses)->pluck('id')->toArray();
@@ -107,7 +115,18 @@ class StudentsController extends Controller
         $student->save();
 
         // Sync selected courses
+        $existing = $student->courses()->pluck('courses.id')->toArray();
         $student->courses()->sync($request->courses);
+        $added = array_values(array_diff($request->courses, $existing));
+        $removed = array_values(array_diff($existing, $request->courses));
+        try {
+            if ($student->email && (!empty($added) || !empty($removed))) {
+                $addedNames = empty($added) ? [] : \App\Models\Course::whereIn('id', $added)->pluck('name')->toArray();
+                $removedNames = empty($removed) ? [] : \App\Models\Course::whereIn('id', $removed)->pluck('name')->toArray();
+                $m = new EnrollmentChangedMail($student, $addedNames, $removedNames);
+                if (config('queue.default') === 'sync') { Mail::to($student->email)->send($m); } else { Mail::to($student->email)->queue($m); }
+            }
+        } catch (\Throwable $e) { /* ignore */ }
 
         // Sync units from selected courses
         $unitIds = \App\Models\Unit::whereIn('course_id', $request->courses)->pluck('id')->toArray();

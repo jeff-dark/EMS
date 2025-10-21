@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Mail\ExamResultsSubmittedMail;
+use App\Mail\ResultsUpdatedMail;
 use App\Models\ExamSession;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +24,26 @@ class ExamSessionObserver
                     }
                 } catch (\Throwable $e) {
                     Log::warning('Failed to dispatch exam result email', [
+                        'session_id' => $session->id,
+                        'student_id' => $student->id,
+                        'email' => $student->email,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+        // Detect results updated after initial grading (score or teacher_comment changed)
+        if ($session->is_graded && ($session->wasChanged('score') || $session->wasChanged('teacher_comment'))) {
+            $student = $session->user;
+            if ($student && $student->email) {
+                try {
+                    if (config('queue.default') === 'sync') {
+                        Mail::to($student->email)->send(new ResultsUpdatedMail($session));
+                    } else {
+                        Mail::to($student->email)->queue(new ResultsUpdatedMail($session));
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed to dispatch results updated email', [
                         'session_id' => $session->id,
                         'student_id' => $student->id,
                         'email' => $student->email,
