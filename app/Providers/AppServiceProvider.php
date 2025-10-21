@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureTwoFactorFeatureEnabled;
 use App\Http\Middleware\LogSensitiveView;
 use App\Models\{Course, Exam, Unit, User, Question, ExamSession, Role, Teacher, TeacherUnitAssignment, StudentAnswer, QuestionAnswer};
-use App\Observers\GenericCrudObserver;
+use App\Observers\{GenericCrudObserver, UserObserver, ExamSessionObserver};
 use App\Policies\{CoursePolicy, ExamPolicy, UnitPolicy, UserPolicy};
 
 class AppServiceProvider extends ServiceProvider
@@ -34,7 +34,10 @@ class AppServiceProvider extends ServiceProvider
         Unit::observe(GenericCrudObserver::class);
         Exam::observe(GenericCrudObserver::class);
         Question::observe(GenericCrudObserver::class);
-        ExamSession::observe(GenericCrudObserver::class);
+    ExamSession::observe(GenericCrudObserver::class);
+    // Email triggers
+    User::observe(UserObserver::class);
+    ExamSession::observe(ExamSessionObserver::class);
         User::observe(GenericCrudObserver::class);
         if (class_exists(Role::class)) {
             Role::observe(GenericCrudObserver::class);
