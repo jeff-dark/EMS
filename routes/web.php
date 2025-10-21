@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, ExamController, StudentsController, TeacherController, UnitController};
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -80,6 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Grading routes (teachers)
     Route::get('/grading/exams/submitted', [App\Http\Controllers\GradingController::class, 'index'])->name('grading.index');
+
     Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->middleware('audit.view:view')->name('grading.session');
     Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
 
@@ -99,3 +102,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
+    Route::get('/test-email', function (Request $request) {
+        $to = $request->user()->email;
+        try {
+            if (config('queue.default') === 'sync') {
+                Mail::raw('This is a test email from '.config('app.name').'.', function ($m) use ($to) {
+                    $m->to($to)->subject('Test Email');
+                });
+            } else {
+                Mail::to($to)->queue(new class extends \Illuminate\Mail\Mailable implements \Illuminate\Contracts\Queue\ShouldQueue {
+                    public function build(): self { return $this->subject('Test Email')->text('emails.plain_test'); }
+                });
+            }
+            return response()->json(['status' => 'ok', 'to' => $to, 'mailer' => config('mail.default')]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    })->name('test-email');
