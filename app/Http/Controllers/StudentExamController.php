@@ -105,7 +105,7 @@ class StudentExamController extends Controller
     {
         $this->authorize('view', $session);
         if (!is_null($session->submitted_at)) {
-            return redirect()->route('dashboard')->with('status', 'You have already submitted this exam.');
+            return redirect()->route('exams.index')->with('status', 'You have already submitted this exam.');
         }
 
         $session->update(['submitted_at' => \now()]);
@@ -130,7 +130,7 @@ class StudentExamController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('status', 'Exam submitted');
+        return redirect()->route('exams.index')->with('status', 'Exam submitted');
     }
 
     public function results()
