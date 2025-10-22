@@ -69,12 +69,14 @@ export function useProctoring({
       if (!blockContextMenu) return;
       e.preventDefault();
       postEvent(sessionId, { type: 'contextmenu_blocked' });
+      recordViolation('contextmenu_blocked');
     };
 
     const onCopyCutPaste = (e: ClipboardEvent) => {
       if (!blockClipboard) return;
       e.preventDefault();
       postEvent(sessionId, { type: 'clipboard_blocked', details: { action: e.type } });
+      recordViolation('clipboard_blocked');
     };
 
     const forbiddenCombos = new Set([
@@ -94,6 +96,7 @@ export function useProctoring({
       if (forbiddenCombos.has(combo)) {
         e.preventDefault();
         postEvent(sessionId, { type: 'shortcut_blocked', details: { combo } });
+        recordViolation('shortcut_blocked');
         if (warnOnViolation) {
           // Light, non-blocking warning
           console.warn('Prohibited shortcut blocked');
