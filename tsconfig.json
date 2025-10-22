@@ -107,7 +107,8 @@
         /* Completeness */
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-        "baseUrl": ".",
+        // Silence baseUrl deprecation by removing it; Vite provides '@' alias, and TS resolves via paths with bundler resolution
+        // "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"]
         },
