@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText, ClipboardList } from 'lucide-react';
+import { BookOpen, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText, ClipboardList } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePage } from '@inertiajs/react';
 
@@ -33,6 +33,8 @@ function buildMainNavItems(role?: string): NavItem[] {
         items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
         items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
         items.push({ title: 'Courses', href: '/courses', icon: ShieldBan });
+        // Admin-only: Proctoring Events (violations overview)
+        items.push({ title: 'Proctoring Events', href: '/admin/proctor/events', icon: ShieldBan });
         // Admin-only: Audit Logs
         items.push({ title: 'Logs', href: '/admin/logs', icon: NotepadText });
     }
@@ -47,18 +49,8 @@ function buildMainNavItems(role?: string): NavItem[] {
     return items;
 }
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Documentation',
-        href: '/dashboard',
-        icon: Folder,
-    },
-    {
-        title: 'Repository',
-        href: '/dashboard',
-        icon: BookOpen,
-    },
-];
+// Footer links removed per request; keep component for layout consistency
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     const page = usePage();
