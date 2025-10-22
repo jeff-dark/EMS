@@ -31,4 +31,17 @@ class Unit extends Model
             ->withPivot(['assignment_status', 'start_date', 'end_date'])
             ->withTimestamps();
     }
+
+    /**
+     * Students enrolled in this unit.
+     *
+     * The application already uses a pivot table named "student_unit" linking
+     * users (students) to units (see User::units()). Define the inverse here so
+     * code like `$unit->students` and eager loading `unit.students` works.
+     */
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'student_unit', 'unit_id', 'student_id')
+            ->withTimestamps();
+    }
 }
