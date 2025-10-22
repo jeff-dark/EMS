@@ -14,6 +14,10 @@ return [
     // Auto-submit after N violations (0 to disable)
     'violation_threshold' => (int) env('PROCTORING_VIOLATION_THRESHOLD', 2),
 
+    // Which violation event types count toward the threshold
+    // Example values emitted by the client: exited_fullscreen, tab_hidden, window_blur, devtool_open
+    'counting_types' => explode(',', env('PROCTORING_COUNTING_TYPES', 'exited_fullscreen,tab_hidden')),
+
     // Optional integrations
     'disable_devtool' => env('PROCTORING_DISABLE_DEVTOOL', true),
     'nosleep' => env('PROCTORING_NOSLEEP', true),

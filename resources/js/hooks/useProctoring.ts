@@ -16,6 +16,7 @@ interface Options {
   violationThreshold?: number; // auto-submit when reached (>0)
   enableDisableDevtool?: boolean;
   enableNoSleep?: boolean;
+  countingTypes?: string[]; // which event types count toward threshold
 }
 
 function postEvent(sessionId: number, payload: ProctorEvent) {
@@ -41,6 +42,7 @@ export function useProctoring({
   violationThreshold = 0,
   enableDisableDevtool = false,
   enableNoSleep = false,
+  countingTypes = [],
 }: Options) {
   const violationCount = useRef(0);
   const fsRequested = useRef(false);
@@ -53,6 +55,13 @@ export function useProctoring({
       if (violationThreshold > 0 && violationCount.current >= violationThreshold) {
         postEvent(sessionId, { type: 'auto_submit_threshold', details: { reason, violations: violationCount.current } });
         router.post(`/sessions/${sessionId}/submit`);
+      }
+    };
+
+    const recordViolation = (type: string) => {
+      if (countingTypes.length === 0 || countingTypes.includes(type)) {
+        violationCount.current += 1;
+        maybeAutoSubmit(type);
       }
     };
 
@@ -107,7 +116,7 @@ export function useProctoring({
     const onFullscreenChange = () => {
       const isFs = !!document.fullscreenElement;
       if (!isFs) {
-        violationCount.current += 1;
+        recordViolation('exited_fullscreen');
         postEvent(sessionId, { type: 'exited_fullscreen', details: { violations: violationCount.current } });
         if (warnOnViolation) {
           // eslint-disable-next-line no-alert
@@ -115,26 +124,23 @@ export function useProctoring({
         }
         // Attempt to restore fullscreen
         void tryRequestFullscreen();
-        maybeAutoSubmit('fullscreen_exit');
       }
     };
 
     const onVisibility = () => {
       if (document.hidden) {
-        violationCount.current += 1;
+        recordViolation('tab_hidden');
         postEvent(sessionId, { type: 'tab_hidden', details: { violations: violationCount.current } });
         if (warnOnViolation) {
           // eslint-disable-next-line no-alert
           alert('Tab change detected. Please remain on the exam page.');
         }
-        maybeAutoSubmit('tab_hidden');
       }
     };
 
     const onBlur = () => {
-      violationCount.current += 1;
+      recordViolation('window_blur');
       postEvent(sessionId, { type: 'window_blur', details: { violations: violationCount.current } });
-      maybeAutoSubmit('window_blur');
     };
 
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -192,10 +198,9 @@ export function useProctoring({
       try {
         const { default: disableDevtool } = await import('disable-devtool');
         disableDevtool({ clearIntervalWhenDevtoolClosed: false, ondevtoolopen: () => {
-          violationCount.current += 1;
+          recordViolation('devtool_open');
           postEvent(sessionId, { type: 'devtool_open', details: { violations: violationCount.current } });
           if (warnOnViolation) alert('Developer tools are not allowed during the exam.');
-          maybeAutoSubmit('devtool_open');
         }});
         devtoolDisabled.current = true;
         postEvent(sessionId, { type: 'devtool_protection_enabled' });
@@ -227,5 +232,5 @@ export function useProctoring({
         // ignore
       }
     };
-  }, [sessionId, enableFullscreen, blockContextMenu, blockClipboard, blockShortcuts, warnOnViolation, violationThreshold, enableDisableDevtool, enableNoSleep]);
+  }, [sessionId, enableFullscreen, blockContextMenu, blockClipboard, blockShortcuts, warnOnViolation, violationThreshold, enableDisableDevtool, enableNoSleep, countingTypes]);
 }

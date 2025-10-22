@@ -65,6 +65,7 @@ class HandleInertiaRequests extends Middleware
                 'block_shortcuts' => (bool) config('proctoring.block_shortcuts'),
                 'warn_on_violation' => (bool) config('proctoring.warn_on_violation'),
                 'violation_threshold' => (int) config('proctoring.violation_threshold'),
+                'counting_types' => (array) config('proctoring.counting_types'),
                 'disable_devtool' => (bool) config('proctoring.disable_devtool'),
                 'nosleep' => (bool) config('proctoring.nosleep'),
                 'env' => app()->environment(),

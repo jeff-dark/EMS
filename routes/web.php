@@ -110,6 +110,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/logs', [App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
     Route::get('/admin/logs/export', [App\Http\Controllers\Admin\LogController::class, 'export'])->name('admin.logs.export');
 
+    // Admin proctoring events dashboard
+    Route::get('/admin/proctor/events', [App\Http\Controllers\Admin\ProctoringEventController::class, 'index'])
+        ->name('admin.proctor.events');
+
 
 });
 

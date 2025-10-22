@@ -40,6 +40,7 @@ interface PageProps {
     block_shortcuts: boolean;
     warn_on_violation: boolean;
     violation_threshold: number;
+    counting_types: string[];
     disable_devtool: boolean;
     nosleep: boolean;
     env: string;
@@ -62,6 +63,7 @@ export default function StudentExam() {
     blockShortcuts: p.block_shortcuts ?? true,
     warnOnViolation: p.warn_on_violation ?? true,
     violationThreshold: p.violation_threshold ?? 2,
+    countingTypes: p.counting_types ?? ['exited_fullscreen','tab_hidden'],
     enableDisableDevtool: (p.disable_devtool ?? true) && p.env === 'production',
     enableNoSleep: p.nosleep ?? true,
   });
