@@ -8,6 +8,7 @@ type ProctorEvent = {
 
 interface Options {
   sessionId: number;
+  disabled?: boolean; // when true, suppress all handlers and alerts
   enableFullscreen?: boolean;
   blockContextMenu?: boolean;
   blockClipboard?: boolean;
@@ -34,6 +35,7 @@ function postEvent(sessionId: number, payload: ProctorEvent) {
 
 export function useProctoring({
   sessionId,
+  disabled = false,
   enableFullscreen = true,
   blockContextMenu = true,
   blockClipboard = true,
@@ -50,6 +52,8 @@ export function useProctoring({
   const enabledNoSleep = useRef(false);
   const devtoolDisabled = useRef(false);
   const autoSubmitting = useRef(false);
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
 
   const friendlyViolation = (type: string): string => {
     switch (type) {
@@ -74,11 +78,12 @@ export function useProctoring({
 
   useEffect(() => {
     const maybeAutoSubmit = (reason: string) => {
+      if (disabledRef.current) return;
       if (violationThreshold > 0 && violationCount.current >= violationThreshold && !autoSubmitting.current) {
         autoSubmitting.current = true;
         // Inform the student of the final violation and that auto-submission will occur now.
         // eslint-disable-next-line no-alert
-        alert(
+        if (!disabledRef.current) alert(
           `${friendlyViolation(reason)}\n\nThe exam has reached the violation limit (${violationCount.current}/${violationThreshold}). It will be submitted now.`
         );
         postEvent(sessionId, { type: 'auto_submit_threshold', details: { reason, violations: violationCount.current } });
@@ -87,6 +92,7 @@ export function useProctoring({
     };
 
     const recordViolation = (type: string) => {
+      if (disabledRef.current) return;
       if (countingTypes.length === 0 || countingTypes.includes(type)) {
         violationCount.current += 1;
         maybeAutoSubmit(type);
@@ -94,14 +100,14 @@ export function useProctoring({
     };
 
     const onContextMenu = (e: MouseEvent) => {
-      if (!blockContextMenu) return;
+      if (disabledRef.current || !blockContextMenu) return;
       e.preventDefault();
       postEvent(sessionId, { type: 'contextmenu_blocked' });
       recordViolation('contextmenu_blocked');
     };
 
     const onCopyCutPaste = (e: ClipboardEvent) => {
-      if (!blockClipboard) return;
+      if (disabledRef.current || !blockClipboard) return;
       e.preventDefault();
       postEvent(sessionId, { type: 'clipboard_blocked', details: { action: e.type } });
       recordViolation('clipboard_blocked');
@@ -119,13 +125,13 @@ export function useProctoring({
     ]);
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!blockShortcuts) return;
+      if (disabledRef.current || !blockShortcuts) return;
       const combo = `${e.ctrlKey ? 'Control+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.key}`;
       if (forbiddenCombos.has(combo)) {
         e.preventDefault();
         postEvent(sessionId, { type: 'shortcut_blocked', details: { combo } });
         recordViolation('shortcut_blocked');
-        if (warnOnViolation) {
+        if (!disabledRef.current && warnOnViolation) {
           // Light, non-blocking warning
           console.warn('Prohibited shortcut blocked');
         }
@@ -145,11 +151,12 @@ export function useProctoring({
     };
 
     const onFullscreenChange = () => {
+      if (disabledRef.current) return;
       const isFs = !!document.fullscreenElement;
       if (!isFs) {
         recordViolation('exited_fullscreen');
         postEvent(sessionId, { type: 'exited_fullscreen', details: { violations: violationCount.current } });
-        if (warnOnViolation) {
+        if (!disabledRef.current && warnOnViolation) {
           // eslint-disable-next-line no-alert
           alert('Fullscreen is required for the exam. Please do not exit fullscreen.');
         }
@@ -159,10 +166,11 @@ export function useProctoring({
     };
 
     const onVisibility = () => {
+      if (disabledRef.current) return;
       if (document.hidden) {
         recordViolation('tab_hidden');
         postEvent(sessionId, { type: 'tab_hidden', details: { violations: violationCount.current } });
-        if (warnOnViolation) {
+        if (!disabledRef.current && warnOnViolation) {
           // eslint-disable-next-line no-alert
           alert('Tab change detected. Please remain on the exam page.');
         }
@@ -170,11 +178,13 @@ export function useProctoring({
     };
 
     const onBlur = () => {
+      if (disabledRef.current) return;
       recordViolation('window_blur');
       postEvent(sessionId, { type: 'window_blur', details: { violations: violationCount.current } });
     };
 
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (disabledRef.current) return;
       // Warn before accidental refresh/close
       e.preventDefault();
       e.returnValue = '';
@@ -229,9 +239,11 @@ export function useProctoring({
       try {
         const { default: disableDevtool } = await import('disable-devtool');
         disableDevtool({ clearIntervalWhenDevtoolClosed: false, ondevtoolopen: () => {
-          recordViolation('devtool_open');
-          postEvent(sessionId, { type: 'devtool_open', details: { violations: violationCount.current } });
-          if (warnOnViolation) alert('Developer tools are not allowed during the exam.');
+          if (!disabledRef.current) {
+            recordViolation('devtool_open');
+            postEvent(sessionId, { type: 'devtool_open', details: { violations: violationCount.current } });
+            if (warnOnViolation) alert('Developer tools are not allowed during the exam.');
+          }
         }});
         devtoolDisabled.current = true;
         postEvent(sessionId, { type: 'devtool_protection_enabled' });
@@ -263,5 +275,5 @@ export function useProctoring({
         // ignore
       }
     };
-  }, [sessionId, enableFullscreen, blockContextMenu, blockClipboard, blockShortcuts, warnOnViolation, violationThreshold, enableDisableDevtool, enableNoSleep, countingTypes]);
+  }, [sessionId, disabled, enableFullscreen, blockContextMenu, blockClipboard, blockShortcuts, warnOnViolation, violationThreshold, enableDisableDevtool, enableNoSleep, countingTypes]);
 }

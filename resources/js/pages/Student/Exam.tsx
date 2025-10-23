@@ -60,6 +60,7 @@ export default function StudentExam() {
   const p = proctoring ?? ({} as NonNullable<PageProps['proctoring']>);
   useProctoring({
     sessionId: session.id,
+    disabled: submitting || !!session.submitted_at,
     enableFullscreen: p.fullscreen_required ?? true,
     blockContextMenu: p.block_contextmenu ?? true,
     blockClipboard: p.block_clipboard ?? true,

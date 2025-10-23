@@ -27,6 +27,7 @@ it('blocks starting an exam before the scheduled time with a friendly message', 
         'start_time' => Carbon::now()->addHour(),
     ]);
 
+    /** @var \App\Models\User $student */
     actingAs($student);
     $resp = get(route('student.exams.start', $exam));
     $resp->assertRedirect(route('exams.index'));
@@ -50,6 +51,7 @@ it('blocks starting an exam after the scheduled time with a missed message', fun
         'start_time' => Carbon::now()->subHour(),
     ]);
 
+    /** @var \App\Models\User $student */
     actingAs($student);
     $resp = get(route('student.exams.start', $exam));
     $resp->assertRedirect(route('exams.index'));
@@ -79,6 +81,7 @@ it('allows starting only at the exact scheduled minute', function () {
         'start_time' => $now,
     ]);
 
+    /** @var \App\Models\User $student */
     actingAs($student);
     $resp = get(route('student.exams.start', $exam));
     $resp->assertOk();
