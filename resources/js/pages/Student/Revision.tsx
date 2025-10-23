@@ -42,7 +42,9 @@ export default function StudentRevision({ documents = [] }: { documents: Doc[] }
                       <TableCell>{fmtSize(doc.size)}</TableCell>
                       <TableCell>{new Date(doc.created_at).toLocaleString()}</TableCell>
                       <TableCell>
-                        <Button asChild variant="link" size="sm"><a href={`/revision/${doc.id}/download`}>Download</a></Button>
+                        <Button asChild variant="link" size="sm">
+                          <a href={`/revision/${doc.id}/view`} target="_blank" rel="noopener noreferrer">Open</a>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -123,6 +123,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/student/revision', [RevisionDocumentController::class, 'studentIndex'])->name('student.revision.index');
     // Authorized download for both students and teachers
     Route::get('/revision/{document}/download', [RevisionDocumentController::class, 'download'])->name('revision.download');
+    // Inline view (open in browser)
+    Route::get('/revision/{document}/view', [RevisionDocumentController::class, 'view'])->name('revision.view');
 
 
 });

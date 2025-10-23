@@ -169,4 +169,33 @@ class RevisionDocumentController extends Controller
         $absolutePath = Storage::disk('public')->path($document->file_path);
         return response()->download($absolutePath, $document->original_name);
     }
+
+    // Inline view in browser (PDF)
+    public function view(RevisionDocument $document)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user) abort(403);
+
+        $authorized = false;
+        if ($user->hasRole('admin')) {
+            $authorized = true;
+        } elseif ($user->hasRole('teacher')) {
+            $authorized = $user->teacher?->units()->where('units.id', $document->unit_id)->exists();
+        } elseif ($user->hasRole('student')) {
+            $authorized = $user->units()->where('units.id', $document->unit_id)->exists();
+        }
+        if (!$authorized) abort(403);
+
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'File not found.');
+        }
+
+        $absolutePath = Storage::disk('public')->path($document->file_path);
+        // Let the browser render inline
+        return response()->file($absolutePath, [
+            'Content-Type' => $document->mime ?? 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.addslashes($document->original_name).'"',
+        ]);
+    }
 }

@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FormEvent } from 'react'
 
 interface Unit { id: number; title: string }
@@ -10,7 +11,7 @@ interface Doc { id: number; title: string; description?: string | null; unit: Un
 
 export default function TeacherRevisionIndex({ units = [], documents = [] }: { units: Unit[]; documents: Doc[] }) {
   const { data, setData, post, processing, errors, reset } = useForm({
-    unit_id: units[0]?.id ?? '',
+    unit_id: units[0]?.id ? String(units[0].id) : '',
     title: '',
     description: '',
     file: null as File | null,
@@ -39,17 +40,16 @@ export default function TeacherRevisionIndex({ units = [], documents = [] }: { u
           <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-1">Unit</label>
-              <select
-                value={data.unit_id}
-                onChange={(e) => setData('unit_id', Number(e.target.value))}
-                className="border rounded px-3 py-2"
-                required
-              >
-                <option value="" disabled>Select unit</option>
-                {units.map(u => (
-                  <option key={u.id} value={u.id}>{u.title}</option>
-                ))}
-              </select>
+              <Select value={data.unit_id} onValueChange={(val) => setData('unit_id', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {units.map(u => (
+                    <SelectItem key={u.id} value={String(u.id)}>{u.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.unit_id && <div className="text-red-600 text-sm mt-1">{errors.unit_id}</div>}
             </div>
             <div className="flex flex-col">
