@@ -16,7 +16,7 @@ class RevisionDocumentController extends Controller
     }
 
     // Teacher manage page
-    public function index(Request $request)
+    public function index()
     {
         /** @var User $user */
         $user = Auth::user();
@@ -28,45 +28,12 @@ class RevisionDocumentController extends Controller
 
         $units = $teacher?->units()->get(['units.id','units.title']) ?? collect();
 
-        $query = RevisionDocument::query()
+        $documents = RevisionDocument::query()
             ->with('unit:id,title')
-            ->when(!$user->hasRole('admin'), fn($q) => $q->where('teacher_id', optional($teacher)->id));
-
-        $filters = [
-            'q' => (string) $request->query('q', ''),
-            'unit_id' => $request->query('unit_id'),
-            'category' => (string) $request->query('category', ''),
-            'per_page' => (int) $request->query('per_page', 10),
-        ];
-
-        if (!empty($filters['q'])) {
-            $q = $filters['q'];
-            $query->where(function($qq) use ($q) {
-                $qq->where('title','like',"%{$q}%")
-                   ->orWhere('description','like',"%{$q}%")
-                   ->orWhere('original_name','like',"%{$q}%");
-            });
-        }
-        if (!empty($filters['unit_id'])) {
-            $query->where('unit_id', $filters['unit_id']);
-        }
-        if (!empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        $documents = $query->orderByDesc('created_at')->paginate($filters['per_page'])->withQueryString();
-
-        $categories = RevisionDocument::query()
             ->when(!$user->hasRole('admin'), fn($q) => $q->where('teacher_id', optional($teacher)->id))
-            ->select('category')
-            ->whereNotNull('category')
-            ->distinct()
-            ->pluck('category')
-            ->values();
-
-        return Inertia::render('Teachers/Revision/Index', [
-            'units' => $units,
-            'documents' => $documents->through(function($doc){
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function($doc){
                 return [
                     'id' => $doc->id,
                     'title' => $doc->title,
@@ -75,12 +42,12 @@ class RevisionDocumentController extends Controller
                     'created_at' => $doc->created_at->toDateTimeString(),
                     'size' => $doc->file_size,
                     'mime' => $doc->mime,
-                    'category' => $doc->category,
-                    'tags' => $doc->tags,
                 ];
-            }),
-            'filters' => $filters,
-            'categories' => $categories,
+            });
+
+        return Inertia::render('Teachers/Revision/Index', [
+            'units' => $units,
+            'documents' => $documents,
         ]);
     }
 
@@ -95,8 +62,6 @@ class RevisionDocumentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'file' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:20480', // 20MB
-            'category' => 'nullable|string|max:255',
-            'tags' => 'nullable|string', // comma-separated on UI
         ]);
 
         // Authorization: teacher must be assigned to the selected unit (unless admin)
@@ -123,10 +88,6 @@ class RevisionDocumentController extends Controller
             'original_name' => $file->getClientOriginalName(),
             'file_size' => $file->getSize(),
             'mime' => $file->getMimeType() ?? 'application/pdf',
-            'category' => $data['category'] ?? null,
-            'tags' => isset($data['tags']) && $data['tags'] !== ''
-                ? collect(explode(',', $data['tags']))->map(fn($s) => trim($s))->filter()->values()
-                : null,
         ]);
 
         return redirect()->route('revision.index')->with('message', 'Revision document uploaded.');
@@ -146,7 +107,7 @@ class RevisionDocumentController extends Controller
     }
 
     // Student list page
-    public function studentIndex(Request $request)
+    public function studentIndex()
     {
         /** @var User $user */
         $user = Auth::user();
@@ -156,56 +117,21 @@ class RevisionDocumentController extends Controller
             ? $user->units()->pluck('units.id')
             : ($user->hasRole('teacher') ? $user->teacher?->units()->pluck('units.id') : collect());
 
-        $filters = [
-            'q' => (string) $request->query('q', ''),
-            'unit_id' => $request->query('unit_id'),
-            'category' => (string) $request->query('category', ''),
-            'per_page' => (int) $request->query('per_page', 10),
-        ];
-
-        $query = RevisionDocument::with('unit:id,title')
-            ->whereIn('unit_id', $unitIds);
-
-        if (!empty($filters['q'])) {
-            $q = $filters['q'];
-            $query->where(function($qq) use ($q) {
-                $qq->where('title','like',"%{$q}%")
-                   ->orWhere('description','like',"%{$q}%")
-                   ->orWhere('original_name','like',"%{$q}%");
-            });
-        }
-        if (!empty($filters['unit_id'])) {
-            $query->where('unit_id', $filters['unit_id']);
-        }
-        if (!empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        $documents = $query->orderByDesc('created_at')->paginate($filters['per_page'])->withQueryString()->through(fn($d) => [
-            'id' => $d->id,
-            'title' => $d->title,
-            'description' => $d->description,
-            'unit' => [ 'id' => $d->unit->id, 'title' => $d->unit->title ],
-            'created_at' => $d->created_at->toDateTimeString(),
-            'size' => $d->file_size,
-            'category' => $d->category,
-            'tags' => $d->tags,
-        ]);
-
-        $units = Unit::whereIn('id', $unitIds)->get(['id','title']);
-        $categories = RevisionDocument::query()
+        $documents = RevisionDocument::with('unit:id,title')
             ->whereIn('unit_id', $unitIds)
-            ->select('category')
-            ->whereNotNull('category')
-            ->distinct()
-            ->pluck('category')
-            ->values();
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($d) => [
+                'id' => $d->id,
+                'title' => $d->title,
+                'description' => $d->description,
+                'unit' => [ 'id' => $d->unit->id, 'title' => $d->unit->title ],
+                'created_at' => $d->created_at->toDateTimeString(),
+                'size' => $d->file_size,
+            ]);
 
         return Inertia::render('Student/Revision', [
             'documents' => $documents,
-            'filters' => $filters,
-            'units' => $units,
-            'categories' => $categories,
         ]);
     }
 
