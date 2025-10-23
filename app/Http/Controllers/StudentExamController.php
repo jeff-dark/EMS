@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\{Exam, ExamSession, Question, StudentAnswer};
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -51,15 +52,39 @@ class StudentExamController extends Controller
             ['exam_id' => $exam->id, 'user_id' => $user->id],
             ['started_at' => \now()]
         );
+        if (is_null($session->started_at)) {
+            $session->update(['started_at' => \now()]);
+            $session->refresh();
+        }
 
         $questions = $exam->questions()->orderBy('order')->get();
+        $sessionEndAt = optional($session->started_at instanceof Carbon ? $session->started_at : Carbon::parse($session->started_at))
+            ->copy()
+            ->addMinutes((int) $exam->duration_minutes);
 
-        return Inertia::render('Student/Exam', compact('exam', 'session', 'questions'));
+        return Inertia::render('Student/Exam', [
+            'exam' => $exam,
+            'session' => $session,
+            'questions' => $questions,
+            'sessionEndAt' => $sessionEndAt?->toIso8601String(),
+        ]);
     }
 
     public function answer(Request $request, ExamSession $session)
     {
     $this->authorize('view', $session);
+
+        // Block answering if time has expired (auto-submit if not already)
+        $exam = $session->exam()->first();
+        if ($exam && $session->started_at) {
+            $endAt = Carbon::parse($session->started_at)->addMinutes((int) $exam->duration_minutes);
+            if (Carbon::now()->greaterThanOrEqualTo($endAt)) {
+                if (is_null($session->submitted_at)) {
+                    $session->update(['submitted_at' => Carbon::now()]);
+                }
+                return response()->json(['status' => 'forbidden', 'message' => 'Time expired. Exam auto-submitted.'], 403);
+            }
+        }
 
         if (!is_null($session->submitted_at)) {
             return response()->json(['status' => 'forbidden', 'message' => 'Exam already submitted.'], 403);
@@ -81,6 +106,17 @@ class StudentExamController extends Controller
     public function bulkAnswer(Request $request, ExamSession $session)
     {
         $this->authorize('view', $session);
+        // Block answering if time has expired (auto-submit if not already)
+        $exam = $session->exam()->first();
+        if ($exam && $session->started_at) {
+            $endAt = Carbon::parse($session->started_at)->addMinutes((int) $exam->duration_minutes);
+            if (Carbon::now()->greaterThanOrEqualTo($endAt)) {
+                if (is_null($session->submitted_at)) {
+                    $session->update(['submitted_at' => Carbon::now()]);
+                }
+                return response()->json(['status' => 'forbidden', 'message' => 'Time expired. Exam auto-submitted.'], 403);
+            }
+        }
         if (!is_null($session->submitted_at)) {
             return response()->json(['status' => 'forbidden', 'message' => 'Exam already submitted.'], 403);
         }

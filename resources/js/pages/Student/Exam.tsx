@@ -32,6 +32,7 @@ interface PageProps {
   exam: Exam;
   session: Session;
   questions: Question[];
+  sessionEndAt?: string;
   proctoring?: {
     enabled: boolean;
     fullscreen_required: boolean;
@@ -48,10 +49,12 @@ interface PageProps {
 }
 
 export default function StudentExam() {
-  const { exam, session, questions, proctoring } = usePage().props as unknown as PageProps;
+  const { exam, session, questions, sessionEndAt, proctoring } = usePage().props as unknown as PageProps;
   const [answers, setAnswers] = React.useState<Record<number, string>>({});
   const [saving, setSaving] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
+  const [nowMs, setNowMs] = React.useState<number>(Date.now());
+  const autoSubmitRef = React.useRef(false);
 
   // Initialize client-side proctoring with config-driven behavior
   const p = proctoring ?? ({} as NonNullable<PageProps['proctoring']>);
@@ -131,6 +134,46 @@ export default function StudentExam() {
     });
   };
 
+  // Countdown clock based on server-provided end time
+  const endAtMs = React.useMemo(() => (sessionEndAt ? new Date(sessionEndAt).getTime() : null), [sessionEndAt]);
+  const remainingMs = endAtMs ? Math.max(0, endAtMs - nowMs) : null;
+  const remainingSec = remainingMs !== null ? Math.ceil(remainingMs / 1000) : null;
+  const fmt = (sec: number) => {
+    const s = Math.max(0, sec);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const ss = s % 60;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
+  };
+
+  // Tick every second
+  React.useEffect(() => {
+    if (!endAtMs) return;
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [endAtMs]);
+
+  // Auto-submit when timer hits zero (once)
+  React.useEffect(() => {
+    if (!endAtMs) return;
+    if (remainingSec !== null && remainingSec <= 0 && !autoSubmitRef.current) {
+      autoSubmitRef.current = true;
+      setSubmitting(true);
+      const payload = {
+        answers: Object.entries(answers).map(([question_id, answer_text]) => ({ question_id: Number(question_id), answer_text })),
+      };
+      // Save then submit
+      router.post(`/sessions/${session.id}/answers/bulk`, payload, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => {
+          router.post(`/sessions/${session.id}/submit`, {}, { preserveScroll: true, preserveState: false });
+        }
+      });
+    }
+  }, [endAtMs, remainingSec]);
+
   return (
     <ExamLayout>
       <Head title={`Exam • ${exam.title}`} />
@@ -159,8 +202,20 @@ export default function StudentExam() {
           </CardContent>
         </Card>
 
-        {/* Submit exam card only */}
+        {/* Countdown then Submit exam card */}
         <div className="order-1 md:order-2 space-y-4">
+          {endAtMs && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Time Remaining</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-mono ${remainingSec !== null && remainingSec <= 60 ? 'text-destructive' : ''}`}>
+                  {remainingSec !== null ? fmt(remainingSec) : '—'}
+                </div>
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Submit Exam</CardTitle>
@@ -170,7 +225,7 @@ export default function StudentExam() {
               <div className="text-sm">Duration: {exam.duration_minutes} minutes</div>
               <div className="text-xs text-muted-foreground">Session ID: {session.id}</div>
               <div className="pt-2">
-                <Button className="w-full" variant="destructive" onClick={handleSubmit} disabled={submitting || saving}>
+                <Button className="w-full" variant="destructive" onClick={handleSubmit} disabled={submitting || saving || (remainingSec !== null && remainingSec <= 0)}>
                   {submitting ? 'Submitting…' : 'Submit Exam'}
                 </Button>
               </div>
