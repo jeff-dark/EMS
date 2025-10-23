@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText, ClipboardList } from 'lucide-react';
+import { BookOpen, LayoutGrid, BookUser, ContactRound, ShieldBan, NotepadText, ClipboardList, FileText } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePage } from '@inertiajs/react';
 
@@ -28,6 +28,8 @@ function buildMainNavItems(role?: string): NavItem[] {
     // Teacher-specific: My Courses list (courses the teacher is assigned to)
     if (role === 'teacher') {
         items.push({ title: 'My Courses', href: '/courses', icon: BookOpen });
+        // Teacher Revision Bank management
+        items.push({ title: 'Revision Bank', href: '/revision', icon: FileText });
     }
     if (role === 'admin') {
         items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
@@ -45,6 +47,8 @@ function buildMainNavItems(role?: string): NavItem[] {
     // Student-specific: My Results page
     if (role === 'student') {
         items.push({ title: 'My Results', href: '/student/results', icon: ClipboardList });
+        // Student Revision access
+        items.push({ title: 'Revise', href: '/student/revision', icon: FileText });
     }
     return items;
 }

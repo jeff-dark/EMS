@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{AdminController, Controller, CourseController, DashboardController, ExamController, StudentsController, TeacherController, UnitController};
+use App\Http\Controllers\RevisionDocumentController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -113,6 +114,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin proctoring events dashboard
     Route::get('/admin/proctor/events', [App\Http\Controllers\Admin\ProctoringEventController::class, 'index'])
         ->name('admin.proctor.events');
+
+    // Revision documents (teachers manage)
+    Route::get('/revision', [RevisionDocumentController::class, 'index'])->name('revision.index');
+    Route::post('/revision', [RevisionDocumentController::class, 'store'])->name('revision.store');
+    Route::delete('/revision/{document}', [RevisionDocumentController::class, 'destroy'])->name('revision.destroy');
+    // Student access to revision list
+    Route::get('/student/revision', [RevisionDocumentController::class, 'studentIndex'])->name('student.revision.index');
+    // Authorized download for both students and teachers
+    Route::get('/revision/{document}/download', [RevisionDocumentController::class, 'download'])->name('revision.download');
 
 
 });
