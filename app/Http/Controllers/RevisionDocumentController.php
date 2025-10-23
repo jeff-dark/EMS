@@ -16,13 +16,11 @@ class RevisionDocumentController extends Controller
     }
 
     // Teacher manage page
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user || !$user->hasAnyRole('teacher','admin')) {
-            abort(403);
-        }
+        $this->authorize('viewAny', \App\Models\RevisionDocument::class);
 
         $teacher = $user->hasRole('admin')
             ? Teacher::with('units:id,title')->first() // fallback for admin with no teacher profile
@@ -30,12 +28,45 @@ class RevisionDocumentController extends Controller
 
         $units = $teacher?->units()->get(['units.id','units.title']) ?? collect();
 
-        $documents = RevisionDocument::query()
+        $query = RevisionDocument::query()
             ->with('unit:id,title')
+            ->when(!$user->hasRole('admin'), fn($q) => $q->where('teacher_id', optional($teacher)->id));
+
+        $filters = [
+            'q' => (string) $request->query('q', ''),
+            'unit_id' => $request->query('unit_id'),
+            'category' => (string) $request->query('category', ''),
+            'per_page' => (int) $request->query('per_page', 10),
+        ];
+
+        if (!empty($filters['q'])) {
+            $q = $filters['q'];
+            $query->where(function($qq) use ($q) {
+                $qq->where('title','like',"%{$q}%")
+                   ->orWhere('description','like',"%{$q}%")
+                   ->orWhere('original_name','like',"%{$q}%");
+            });
+        }
+        if (!empty($filters['unit_id'])) {
+            $query->where('unit_id', $filters['unit_id']);
+        }
+        if (!empty($filters['category'])) {
+            $query->where('category', $filters['category']);
+        }
+
+        $documents = $query->orderByDesc('created_at')->paginate($filters['per_page'])->withQueryString();
+
+        $categories = RevisionDocument::query()
             ->when(!$user->hasRole('admin'), fn($q) => $q->where('teacher_id', optional($teacher)->id))
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function($doc){
+            ->select('category')
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category')
+            ->values();
+
+        return Inertia::render('Teachers/Revision/Index', [
+            'units' => $units,
+            'documents' => $documents->through(function($doc){
                 return [
                     'id' => $doc->id,
                     'title' => $doc->title,
@@ -44,26 +75,28 @@ class RevisionDocumentController extends Controller
                     'created_at' => $doc->created_at->toDateTimeString(),
                     'size' => $doc->file_size,
                     'mime' => $doc->mime,
+                    'category' => $doc->category,
+                    'tags' => $doc->tags,
                 ];
-            });
-
-        return Inertia::render('Teachers/Revision/Index', [
-            'units' => $units,
-            'documents' => $documents,
+            }),
+            'filters' => $filters,
+            'categories' => $categories,
         ]);
     }
 
     public function store(Request $request)
     {
-        /** @var User $user */
-        $user = Auth::user();
-        if (!$user || !$user->hasAnyRole('teacher','admin')) abort(403);
+    /** @var User $user */
+    $user = Auth::user();
+    $this->authorize('create', \App\Models\RevisionDocument::class);
 
         $data = $request->validate([
             'unit_id' => 'required|integer|exists:units,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'file' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:20480', // 20MB
+            'category' => 'nullable|string|max:255',
+            'tags' => 'nullable|string', // comma-separated on UI
         ]);
 
         // Authorization: teacher must be assigned to the selected unit (unless admin)
@@ -90,6 +123,10 @@ class RevisionDocumentController extends Controller
             'original_name' => $file->getClientOriginalName(),
             'file_size' => $file->getSize(),
             'mime' => $file->getMimeType() ?? 'application/pdf',
+            'category' => $data['category'] ?? null,
+            'tags' => isset($data['tags']) && $data['tags'] !== ''
+                ? collect(explode(',', $data['tags']))->map(fn($s) => trim($s))->filter()->values()
+                : null,
         ]);
 
         return redirect()->route('revision.index')->with('message', 'Revision document uploaded.');
@@ -97,15 +134,7 @@ class RevisionDocumentController extends Controller
 
     public function destroy(RevisionDocument $document)
     {
-        /** @var User $user */
-        $user = Auth::user();
-        if (!$user) abort(403);
-
-        $isOwnerTeacher = $user->hasRole('teacher') && $user->teacher && $document->teacher_id === $user->teacher->id;
-        $isAdmin = $user->hasRole('admin');
-        if (!($isOwnerTeacher || $isAdmin)) {
-            abort(403);
-        }
+        $this->authorize('delete', $document);
 
         // Delete file from storage if exists
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
@@ -117,50 +146,72 @@ class RevisionDocumentController extends Controller
     }
 
     // Student list page
-    public function studentIndex()
+    public function studentIndex(Request $request)
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user || !$user->hasAnyRole('student','admin','teacher')) abort(403);
+        $this->authorize('viewAny', \App\Models\RevisionDocument::class);
 
         $unitIds = $user->hasRole('student')
             ? $user->units()->pluck('units.id')
             : ($user->hasRole('teacher') ? $user->teacher?->units()->pluck('units.id') : collect());
 
-        $documents = RevisionDocument::with('unit:id,title')
+        $filters = [
+            'q' => (string) $request->query('q', ''),
+            'unit_id' => $request->query('unit_id'),
+            'category' => (string) $request->query('category', ''),
+            'per_page' => (int) $request->query('per_page', 10),
+        ];
+
+        $query = RevisionDocument::with('unit:id,title')
+            ->whereIn('unit_id', $unitIds);
+
+        if (!empty($filters['q'])) {
+            $q = $filters['q'];
+            $query->where(function($qq) use ($q) {
+                $qq->where('title','like',"%{$q}%")
+                   ->orWhere('description','like',"%{$q}%")
+                   ->orWhere('original_name','like',"%{$q}%");
+            });
+        }
+        if (!empty($filters['unit_id'])) {
+            $query->where('unit_id', $filters['unit_id']);
+        }
+        if (!empty($filters['category'])) {
+            $query->where('category', $filters['category']);
+        }
+
+        $documents = $query->orderByDesc('created_at')->paginate($filters['per_page'])->withQueryString()->through(fn($d) => [
+            'id' => $d->id,
+            'title' => $d->title,
+            'description' => $d->description,
+            'unit' => [ 'id' => $d->unit->id, 'title' => $d->unit->title ],
+            'created_at' => $d->created_at->toDateTimeString(),
+            'size' => $d->file_size,
+            'category' => $d->category,
+            'tags' => $d->tags,
+        ]);
+
+        $units = Unit::whereIn('id', $unitIds)->get(['id','title']);
+        $categories = RevisionDocument::query()
             ->whereIn('unit_id', $unitIds)
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(fn($d) => [
-                'id' => $d->id,
-                'title' => $d->title,
-                'description' => $d->description,
-                'unit' => [ 'id' => $d->unit->id, 'title' => $d->unit->title ],
-                'created_at' => $d->created_at->toDateTimeString(),
-                'size' => $d->file_size,
-            ]);
+            ->select('category')
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category')
+            ->values();
 
         return Inertia::render('Student/Revision', [
             'documents' => $documents,
+            'filters' => $filters,
+            'units' => $units,
+            'categories' => $categories,
         ]);
     }
 
     public function download(RevisionDocument $document)
     {
-        /** @var User $user */
-        $user = Auth::user();
-        if (!$user) abort(403);
-
-        $authorized = false;
-        if ($user->hasRole('admin')) {
-            $authorized = true;
-        } elseif ($user->hasRole('teacher')) {
-            $authorized = $user->teacher?->units()->where('units.id', $document->unit_id)->exists();
-        } elseif ($user->hasRole('student')) {
-            $authorized = $user->units()->where('units.id', $document->unit_id)->exists();
-        }
-
-        if (!$authorized) abort(403);
+        $this->authorize('view', $document);
 
         if (!Storage::disk('public')->exists($document->file_path)) {
             abort(404, 'File not found.');
@@ -173,19 +224,7 @@ class RevisionDocumentController extends Controller
     // Inline view in browser (PDF)
     public function view(RevisionDocument $document)
     {
-        /** @var User $user */
-        $user = Auth::user();
-        if (!$user) abort(403);
-
-        $authorized = false;
-        if ($user->hasRole('admin')) {
-            $authorized = true;
-        } elseif ($user->hasRole('teacher')) {
-            $authorized = $user->teacher?->units()->where('units.id', $document->unit_id)->exists();
-        } elseif ($user->hasRole('student')) {
-            $authorized = $user->units()->where('units.id', $document->unit_id)->exists();
-        }
-        if (!$authorized) abort(403);
+        $this->authorize('view', $document);
 
         if (!Storage::disk('public')->exists($document->file_path)) {
             abort(404, 'File not found.');

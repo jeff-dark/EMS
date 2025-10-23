@@ -18,6 +18,13 @@ class RevisionDocument extends Model
         'original_name',
         'file_size',
         'mime',
+        'category',
+        'tags',
+    ];
+
+    protected $casts = [
+        'file_size' => 'integer',
+        'tags' => 'array',
     ];
 
     public function unit()

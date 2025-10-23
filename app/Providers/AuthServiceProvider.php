@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\{Course, Exam, Unit, User, Question, ExamSession, AuditLog};
-use App\Policies\{CoursePolicy, ExamPolicy, UnitPolicy, UserPolicy, QuestionPolicy, ExamSessionPolicy, AuditLogPolicy};
+use App\Models\{Course, Exam, Unit, User, Question, ExamSession, AuditLog, RevisionDocument};
+use App\Policies\{CoursePolicy, ExamPolicy, UnitPolicy, UserPolicy, QuestionPolicy, ExamSessionPolicy, AuditLogPolicy, RevisionDocumentPolicy};
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -26,6 +26,7 @@ class AuthServiceProvider extends ServiceProvider
         // --- USER MANAGEMENT POLICY ---
         // Admins and Teachers can manage users. Students are restricted to self-management.
         User::class => UserPolicy::class,
+        RevisionDocument::class => RevisionDocumentPolicy::class,
     ];
 
     /**
