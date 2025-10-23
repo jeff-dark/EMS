@@ -68,25 +68,46 @@ export default function StudentExam() {
     enableNoSleep: p.nosleep ?? true,
   });
 
-  // Navigation guard: prevent leaving the exam page within the SPA and warn on unload
+  // Navigation guards:
+  // - Use useProctoring's beforeunload for refresh/close
+  // - Intercept browser back/forward (popstate) and anchor clicks to confirm
   React.useEffect(() => {
-    const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (submitting) return; // allow unload during submit redirect
-      e.preventDefault();
-      e.returnValue = '';
+    // Push a history state so initial Back triggers popstate we can intercept
+    const pushStateOnce = () => {
+      try { history.pushState(null, '', window.location.href); } catch {}
     };
-    window.addEventListener('beforeunload', beforeUnload);
+    pushStateOnce();
 
-    const off = router.on('before', () => {
-      // Return false cancels the navigation in Inertia
-      if (submitting) return; // allow navigation when submitting
-      const ok = window.confirm('You are in an active exam. Leaving this page may cause loss of answers. Stay on page?');
-      return ok ? undefined : false;
-    });
+    const onPopState = () => {
+      if (submitting) return; // allow during submit
+      const proceed = window.confirm('You are in an active exam. Leaving this page may cause loss of answers. Continue?');
+      if (!proceed) {
+        // Re-push current state to neutralize back navigation
+        try { history.pushState(null, '', window.location.href); } catch {}
+      }
+    };
 
+    const onDocumentClick = (e: MouseEvent) => {
+      if (submitting) return;
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest?.('a');
+      if (anchor && (anchor as HTMLAnchorElement).href) {
+        const allow = (anchor as HTMLElement).dataset.allowLeave === 'true';
+        if (!allow) {
+          const proceed = window.confirm('You are in an active exam. Leaving this page may cause loss of answers. Continue?');
+          if (!proceed) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('popstate', onPopState);
+    document.addEventListener('click', onDocumentClick, true);
     return () => {
-      window.removeEventListener('beforeunload', beforeUnload);
-      if (typeof off === 'function') off();
+      window.removeEventListener('popstate', onPopState);
+      document.removeEventListener('click', onDocumentClick, true);
     };
   }, [submitting]);
 
