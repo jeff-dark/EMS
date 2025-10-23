@@ -2,7 +2,6 @@ import AppLayout from '@/layouts/app-layout'
 import { Head } from '@inertiajs/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 
 interface Unit { id: number; title: string }
 interface Doc { id: number; title: string; description?: string | null; unit: Unit; created_at: string; size: number }
@@ -31,26 +30,24 @@ export default function StudentRevision({ documents = [] }: { documents: Doc[] }
                     <TableHead>Unit</TableHead>
                     <TableHead>Size</TableHead>
                     <TableHead>Uploaded</TableHead>
-                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {documents.map(doc => (
-                    <TableRow key={doc.id}>
+                    <TableRow
+                      key={doc.id}
+                      className="cursor-pointer transition hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+                      onClick={() => window.open(`/revision/${doc.id}/view`, '_blank', 'noopener,noreferrer')}
+                    >
                       <TableCell>{doc.title}</TableCell>
                       <TableCell>{doc.unit.title}</TableCell>
                       <TableCell>{fmtSize(doc.size)}</TableCell>
                       <TableCell>{new Date(doc.created_at).toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Button asChild variant="link" size="sm">
-                          <a href={`/revision/${doc.id}/view`} target="_blank" rel="noopener noreferrer">Open</a>
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))}
                   {documents.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-muted-foreground">No revision materials available yet.</TableCell>
+                      <TableCell colSpan={4} className="text-muted-foreground">No revision materials available yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
