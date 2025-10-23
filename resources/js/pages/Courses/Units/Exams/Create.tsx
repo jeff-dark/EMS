@@ -47,6 +47,7 @@ export default function Index() {
         duration_minutes: 60,
         passing_score: 70,
         is_published: false,
+        start_time: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -82,6 +83,11 @@ export default function Index() {
                     <div className='gap-2'>
                         <Label htmlFor="exam-passing-score">Passing Score</Label>
                         <Input type='number' min={0} max={100} step={0.01} placeholder="Enter passing score" value={data.passing_score} onChange={e => setData('passing_score', Number(e.target.value))} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="exam-start-time">Start Date & Time</Label>
+                        <Input id="exam-start-time" type='datetime-local' value={data.start_time}
+                               onChange={e => setData('start_time', e.target.value)} />
                     </div>
                     <div className='gap-2'>
                         <Label htmlFor="exam-published">Published</Label>

@@ -29,6 +29,7 @@ interface Exam {
     passing_score: number;
     is_published: boolean;
     is_submitted?: boolean; // computed per-student
+    start_time?: string | null;
 }
 
 interface Unit {
@@ -71,6 +72,22 @@ export default function Index() {
     const [submission, setSubmission] = useState<string>('all');
     const [submittedDialogOpen, setSubmittedDialogOpen] = useState(false);
     const [submittedExam, setSubmittedExam] = useState<Exam | null>(null);
+    const [timingDialogOpen, setTimingDialogOpen] = useState(false);
+    const [timingTitle, setTimingTitle] = useState<string>('');
+    const [timingDescription, setTimingDescription] = useState<string>('');
+
+    function checkExamTiming(exam: Exam): 'ok' | 'future' | 'past' {
+        if (!exam.start_time) return 'ok';
+        const start = new Date(exam.start_time);
+        const now = new Date();
+        const sameMinute = now.getFullYear() === start.getFullYear()
+            && now.getMonth() === start.getMonth()
+            && now.getDate() === start.getDate()
+            && now.getHours() === start.getHours()
+            && now.getMinutes() === start.getMinutes();
+        if (sameMinute) return 'ok';
+        return now < start ? 'future' : 'past';
+    }
 
     const filtered = useMemo(() => {
         const term = q.trim().toLowerCase();
@@ -169,6 +186,22 @@ export default function Index() {
                                                 setSubmittedDialogOpen(true);
                                                 return;
                                             }
+                                            const status = checkExamTiming(exam);
+                                            if (status === 'future') {
+                                                setTimingTitle("Exam not yet available");
+                                                setTimingDescription("The exam time hasn't reached yet.");
+                                                setTimingDialogOpen(true);
+                                                return;
+                                            }
+                                            if (status === 'past') {
+                                                setTimingTitle('Exam already passed');
+                                                setTimingDescription(exam.is_submitted
+                                                    ? 'The exam has already passed. You have already submitted this exam.'
+                                                    : 'The exam has already passed. You missed the exam.'
+                                                );
+                                                setTimingDialogOpen(true);
+                                                return;
+                                            }
                                             window.location.href = `/exams/${exam.id}/start`;
                                         } else {
                                             window.location.href = `/exams/${exam.id}/questions`;
@@ -208,6 +241,18 @@ export default function Index() {
                     </DialogHeader>
                     <DialogFooter>
                         <Button onClick={() => setSubmittedDialogOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={timingDialogOpen} onOpenChange={setTimingDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{timingTitle}</DialogTitle>
+                        <DialogDescription>{timingDescription}</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setTimingDialogOpen(false)}>Close</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -27,16 +27,32 @@ class StudentExamController extends Controller
             \abort(403);
         }
 
-        // Ensure the exam is published and within availability window (if set)
-        $now = \now();
+        // Ensure the exam is published and only accessible at the exact scheduled start time (to the minute)
+        $now = Carbon::now();
         if (!$exam->is_published) {
-            \abort(403);
+            return redirect()->route('exams.index')->with('message', 'This exam is not available yet.');
         }
-        if (!is_null($exam->start_time) && $exam->start_time->gt($now)) {
-            \abort(403);
-        }
-        if (!is_null($exam->end_time) && $exam->end_time->lt($now)) {
-            \abort(403);
+
+        if (!is_null($exam->start_time)) {
+            $start = $exam->start_time instanceof Carbon ? $exam->start_time : Carbon::parse($exam->start_time);
+            $sameMinute = $now->isSameDay($start)
+                && $now->format('H:i') === $start->format('H:i');
+
+            if (!$sameMinute) {
+                // Before start time
+                if ($now->lt($start)) {
+                    return redirect()->route('exams.index')->with('message', "The exam time hasn't reached yet.");
+                }
+                // After start time
+                $alreadySubmitted = ExamSession::where('exam_id', $exam->id)
+                    ->where('user_id', $user->id)
+                    ->whereNotNull('submitted_at')
+                    ->exists();
+
+                $base = 'The exam has already passed.';
+                $suffix = $alreadySubmitted ? ' You have already submitted this exam.' : ' You missed the exam.';
+                return redirect()->route('exams.index')->with('message', $base . $suffix);
+            }
         }
 
         // If the student already submitted this exam, block access

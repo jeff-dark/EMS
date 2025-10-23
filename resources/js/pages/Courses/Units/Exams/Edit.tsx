@@ -15,6 +15,7 @@ interface Exam {
     duration_minutes: number;
     passing_score: number;
     is_published: boolean;
+    start_time?: string | null;
 }
 interface Unit {
     id: number;
@@ -44,11 +45,25 @@ export default function Edit({ exam }: PageProps) {
         return '/';
     }
 
+    // helper to format ISO datetime (UTC) into datetime-local value (local timezone, no seconds)
+    const formatForDatetimeLocal = (iso?: string | null) => {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const mm = pad(d.getMonth() + 1);
+        const dd = pad(d.getDate());
+        const hh = pad(d.getHours());
+        const mi = pad(d.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    };
+
     const { data, setData, put, processing, errors } = useForm({
         title: exam.title,
         duration_minutes: exam.duration_minutes,
         passing_score: exam.passing_score,
         is_published: exam.is_published,
+        start_time: formatForDatetimeLocal(exam.start_time ?? undefined),
     });
 
     const handleUpdate = (e: React.FormEvent) => {
@@ -94,6 +109,11 @@ export default function Edit({ exam }: PageProps) {
                     <div className='gap-2'>
                         <Label htmlFor="exam-passing-score">Passing Score</Label>
                         <Input type='number' min={0} max={100} step={0.01} placeholder="Enter passing score" value={data.passing_score} onChange={e => setData('passing_score', Number(e.target.value))} />
+                    </div>
+                    <div className='gap-2'>
+                        <Label htmlFor="exam-start-time">Start Date & Time</Label>
+                        <Input id="exam-start-time" type='datetime-local' value={data.start_time as unknown as string}
+                               onChange={e => setData('start_time', e.target.value)} />
                     </div>
                     <div className='gap-2'>
                         <Label htmlFor="exam-published">Published</Label>
