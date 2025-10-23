@@ -158,9 +158,11 @@ class RevisionDocumentController extends Controller
 
         $absolutePath = Storage::disk('public')->path($document->file_path);
         // Let the browser render inline
+        // Force a neutral inline filename so the browser tab doesn't show unwanted titles
+        $inlineName = 'revision.pdf';
         return response()->file($absolutePath, [
             'Content-Type' => $document->mime ?? 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.addslashes($document->original_name).'"',
+            'Content-Disposition' => 'inline; filename="'.addslashes($inlineName).'"',
         ]);
     }
 }
