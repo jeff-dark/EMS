@@ -49,10 +49,38 @@ export function useProctoring({
   const noSleepRef = useRef<null | { enable: () => Promise<void> | void; disable: () => void }>(null);
   const enabledNoSleep = useRef(false);
   const devtoolDisabled = useRef(false);
+  const autoSubmitting = useRef(false);
+
+  const friendlyViolation = (type: string): string => {
+    switch (type) {
+      case 'exited_fullscreen':
+        return 'You exited fullscreen which is required during the exam.';
+      case 'tab_hidden':
+        return 'You switched tabs or minimized the window during the exam.';
+      case 'contextmenu_blocked':
+        return 'Right-click/context menu is not allowed during the exam.';
+      case 'clipboard_blocked':
+        return 'Copy/Cut/Paste actions are not allowed during the exam.';
+      case 'shortcut_blocked':
+        return 'A restricted keyboard shortcut was used during the exam.';
+      case 'devtool_open':
+        return 'Developer tools were opened during the exam.';
+      case 'window_blur':
+        return 'The exam window lost focus.';
+      default:
+        return 'A proctoring violation was detected.';
+    }
+  };
 
   useEffect(() => {
     const maybeAutoSubmit = (reason: string) => {
-      if (violationThreshold > 0 && violationCount.current >= violationThreshold) {
+      if (violationThreshold > 0 && violationCount.current >= violationThreshold && !autoSubmitting.current) {
+        autoSubmitting.current = true;
+        // Inform the student of the final violation and that auto-submission will occur now.
+        // eslint-disable-next-line no-alert
+        alert(
+          `${friendlyViolation(reason)}\n\nThe exam has reached the violation limit (${violationCount.current}/${violationThreshold}). It will be submitted now.`
+        );
         postEvent(sessionId, { type: 'auto_submit_threshold', details: { reason, violations: violationCount.current } });
         router.post(`/sessions/${sessionId}/submit`);
       }
