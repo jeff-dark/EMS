@@ -72,6 +72,10 @@ export default function Index() {
     const [submission, setSubmission] = useState<string>('all');
     const [submittedDialogOpen, setSubmittedDialogOpen] = useState(false);
     const [submittedExam, setSubmittedExam] = useState<Exam | null>(null);
+    const fmtDateTime = (s?: string | null) => {
+        if (!s) return '—';
+        try { return new Date(s).toLocaleString(); } catch { return String(s); }
+    };
     const [timingDialogOpen, setTimingDialogOpen] = useState(false);
     const [timingTitle, setTimingTitle] = useState<string>('');
     const [timingDescription, setTimingDescription] = useState<string>('');
@@ -168,10 +172,11 @@ export default function Index() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Title</TableHead>
+                                {role === 'student' && <TableHead>Start Time</TableHead>}
                                 <TableHead>Duration (min)</TableHead>
                                 <TableHead>Passing Score</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Actions</TableHead>
+                                {role !== 'student' && <TableHead>Status</TableHead>}
+                                {role !== 'student' && <TableHead>Actions</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -209,19 +214,22 @@ export default function Index() {
                                     }}
                                 >
                                     <TableCell>{exam.title}</TableCell>
+                                    {role === 'student' && <TableCell>{fmtDateTime(exam.start_time)}</TableCell>}
                                     <TableCell>{exam.duration_minutes}</TableCell>
                                     <TableCell>{exam.passing_score}</TableCell>
-                                    <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
-                                    <TableCell>
-                                        {role !== 'student' && (
-                                            <ActionMenu
-                                                items={[
-                                                    { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
-                                                    { label: 'Delete', onClick: () => handleDelete(exam.id, exam.title), variant: 'destructive', disabled: processing },
-                                                ]}
-                                            />
-                                        )}
-                                    </TableCell>
+                                    {role !== 'student' && (
+                                        <>
+                                            <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
+                                            <TableCell>
+                                                <ActionMenu
+                                                    items={[
+                                                        { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
+                                                        { label: 'Delete', onClick: () => handleDelete(exam.id, exam.title), variant: 'destructive', disabled: processing },
+                                                    ]}
+                                                />
+                                            </TableCell>
+                                        </>
+                                    )}
                                 </TableRow>
                             ))}
                         </TableBody>

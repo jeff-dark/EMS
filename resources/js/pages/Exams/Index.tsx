@@ -79,6 +79,11 @@ export default function Index() {
         return now < start ? 'future' : 'past';
     }
 
+    const fmtDateTime = (s?: string | null) => {
+        if (!s) return '—';
+        try { return new Date(s).toLocaleString(); } catch { return String(s); }
+    };
+
     const filtered = useMemo(() => {
         const term = q.trim().toLowerCase();
         return (exams || []).filter(exam => {
@@ -166,10 +171,11 @@ export default function Index() {
                                 <TableHead>Title</TableHead>
                                 <TableHead>Course</TableHead>
                                 <TableHead>Unit</TableHead>
+                                <TableHead>Start Time</TableHead>
                                 <TableHead>Duration (min)</TableHead>
                                 <TableHead>Passing Score</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-center">Actions</TableHead>
+                                {role !== 'student' && <TableHead>Status</TableHead>}
+                                {role !== 'student' && <TableHead className="text-center">Actions</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -213,19 +219,24 @@ export default function Index() {
                                         <TableCell>{exam.title}</TableCell>
                                         <TableCell>{course?.name ?? '—'}</TableCell>
                                         <TableCell>{unit?.title ?? '—'}</TableCell>
+                                        <TableCell>{fmtDateTime(exam.start_time)}</TableCell>
                                         <TableCell>{exam.duration_minutes}</TableCell>
                                         <TableCell>{exam.passing_score}</TableCell>
-                                        <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
-                                        <TableCell className="text-center">
-                                            {role !== 'student' && course && unit && (
-                                                <ActionMenu
-                                                    items={[
-                                                        { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
-                                                        { label: 'Delete', onClick: () => handleDelete(exam), variant: 'destructive', disabled: processing },
-                                                    ]}
-                                                />
-                                            )}
-                                        </TableCell>
+                                        {role !== 'student' && (
+                                            <>
+                                                <TableCell>{exam.is_published ? 'Published' : 'Draft'}</TableCell>
+                                                <TableCell className="text-center">
+                                                    {course && unit && (
+                                                        <ActionMenu
+                                                            items={[
+                                                                { label: 'Edit', href: route('courses.units.exams.edit', [course.id, unit.id, exam.id]) },
+                                                                { label: 'Delete', onClick: () => handleDelete(exam), variant: 'destructive', disabled: processing },
+                                                            ]}
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                            </>
+                                        )}
                                     </TableRow>
                                 );
                             })}
