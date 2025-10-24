@@ -3,59 +3,76 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{ProctorEvent, ExamSession, Exam, User};
+use App\Models\{Exam, ProctorEvent};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProctoringEventController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+        if (!$user || !$user->hasRole('admin')) {
+            abort(403);
+        }
+
         $filters = [
-            'exam_id' => $request->integer('exam_id'),
-            'session_id' => $request->integer('session_id'),
-            'user_id' => $request->integer('user_id'),
+            'exam_id' => $request->integer('exam_id') ?: null,
+            'session_id' => $request->integer('session_id') ?: null,
+            'user_id' => $request->integer('user_id') ?: null,
             'type' => $request->string('type')->toString() ?: null,
-            'from' => $request->date('from'),
-            'to' => $request->date('to'),
+            'from' => $request->string('from')->toString() ?: null,
+            'to' => $request->string('to')->toString() ?: null,
         ];
 
         $query = ProctorEvent::query()
-            ->with(['session.exam:id,title', 'user:id,name,email'])
-            ->when($filters['exam_id'], fn($q, $v) => $q->whereHas('session', fn($qq) => $qq->where('exam_id', $v)))
-            ->when($filters['session_id'], fn($q, $v) => $q->where('exam_session_id', $v))
-            ->when($filters['user_id'], fn($q, $v) => $q->where('user_id', $v))
-            ->when($filters['type'], fn($q, $v) => $q->where('type', $v))
-            ->when($filters['from'], fn($q, $v) => $q->where('created_at', '>=', $v))
-            ->when($filters['to'], fn($q, $v) => $q->where('created_at', '<=', $v))
-            ->orderByDesc('created_at');
+            ->with(['user:id,name,email', 'session.exam:id,title']);
 
-        $events = $query->paginate(50)->withQueryString();
+        if ($filters['exam_id']) {
+            $examId = $filters['exam_id'];
+            $query->whereHas('session.exam', fn($q) => $q->where('exams.id', $examId));
+        }
+        if ($filters['session_id']) {
+            $query->where('exam_session_id', $filters['session_id']);
+        }
+        if ($filters['user_id']) {
+            $query->where('user_id', $filters['user_id']);
+        }
+        if ($filters['type']) {
+            $query->where('type', $filters['type']);
+        }
+        if ($filters['from']) {
+            $query->whereDate('created_at', '>=', $filters['from']);
+        }
+        if ($filters['to']) {
+            $query->whereDate('created_at', '<=', $filters['to']);
+        }
 
-        // Summary counts by type and by session
-        $summaryByType = ProctorEvent::selectRaw('type, COUNT(*) as count')
-            ->when($filters['exam_id'], fn($q, $v) => $q->whereHas('session', fn($qq) => $qq->where('exam_id', $v)))
-            ->when($filters['session_id'], fn($q, $v) => $q->where('exam_session_id', $v))
-            ->when($filters['user_id'], fn($q, $v) => $q->where('user_id', $v))
-            ->when($filters['from'], fn($q, $v) => $q->where('created_at', '>=', $v))
-            ->when($filters['to'], fn($q, $v) => $q->where('created_at', '<=', $v))
-            ->groupBy('type')->orderByDesc('count')->get();
+        $events = $query->orderByDesc('created_at')->paginate(25)->withQueryString();
 
-        $summaryBySession = ProctorEvent::selectRaw('exam_session_id, COUNT(*) as count')
-            ->when($filters['exam_id'], fn($q, $v) => $q->whereHas('session', fn($qq) => $qq->where('exam_id', $v)))
-            ->when($filters['user_id'], fn($q, $v) => $q->where('user_id', $v))
-            ->when($filters['from'], fn($q, $v) => $q->where('created_at', '>=', $v))
-            ->when($filters['to'], fn($q, $v) => $q->where('created_at', '<=', $v))
-            ->groupBy('exam_session_id')->orderByDesc('count')->limit(50)->get();
+        $summaryByType = (clone $query)
+            ->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
 
-        $exams = Exam::select('id','title')->orderBy('title')->get();
+        $summaryBySession = (clone $query)
+            ->selectRaw('exam_session_id, COUNT(*) as count')
+            ->groupBy('exam_session_id')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        $exams = Exam::query()->select('id','title')->orderBy('title')->get();
 
         return Inertia::render('Admins/Proctoring/Events/Index', [
             'events' => $events,
             'filters' => $filters,
+            'exams' => $exams,
             'summaryByType' => $summaryByType,
             'summaryBySession' => $summaryBySession,
-            'exams' => $exams,
         ]);
     }
 }

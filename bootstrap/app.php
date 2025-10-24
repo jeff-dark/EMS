@@ -27,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Alias custom middleware used in routes
+        $middleware->alias([
+            'exam.security' => \App\Http\Middleware\ExamSecurity::class,
+        ]);
+
         // Route middleware aliases
         $middleware->alias([
             'exam.security' => ExamSecurityHeaders::class,
