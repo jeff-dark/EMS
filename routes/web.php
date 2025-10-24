@@ -89,8 +89,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('student.sessions.submit');
 
     // Proctoring events (client-side signals)
+    // Note: allow posting even if email is not verified to avoid blocking telemetry during exams
     Route::post('/sessions/{session}/proctor-events', [App\Http\Controllers\ProctorEventController::class, 'store'])
         ->middleware('exam.security')
+        ->withoutMiddleware('verified')
         ->name('student.sessions.proctor-events.store');
     Route::get('/student/results', [App\Http\Controllers\StudentExamController::class, 'results'])->name('student.results');
 
