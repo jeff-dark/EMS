@@ -36,7 +36,7 @@ function buildMainNavItems(role?: string): NavItem[] {
         items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
         items.push({ title: 'Courses', href: '/courses', icon: ShieldBan });
         // Admin-only: Proctoring Events (violations overview)
-        items.push({ title: 'Proctoring Events', href: '/admin/proctor/events', icon: ShieldBan });
+        // items.push({ title: 'Proctoring Events', href: '/admin/proctor/events', icon: ShieldBan });
         // Admin-only: Audit Logs
         items.push({ title: 'Logs', href: '/admin/logs', icon: NotepadText });
     }
