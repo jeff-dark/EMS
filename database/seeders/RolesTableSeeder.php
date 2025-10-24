@@ -13,10 +13,9 @@ class RolesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::insert([
-            ['name' => 'admin'],
-            ['name' => 'teacher'],
-            ['name' => 'student'],
-        ]);
+        // Idempotent seeding: avoid UNIQUE constraint violations on repeated runs
+        foreach (['admin', 'teacher', 'student'] as $roleName) {
+            Role::firstOrCreate(['name' => $roleName]);
+        }
     }
 }
