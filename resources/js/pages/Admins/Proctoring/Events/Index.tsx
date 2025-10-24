@@ -44,6 +44,21 @@ export default function ProctorEventsIndex() {
     router.get('/admin/proctor/events', local, { preserveState: true, preserveScroll: true });
   };
 
+  const renderDetails = (val: EventRow['details']) => {
+    if (val == null) return '-';
+    try {
+      // Pretty-print JSON and allow wrapping in cell
+      return (
+        <pre className="text-xs font-mono whitespace-pre-wrap break-words max-w-[480px]">
+          {JSON.stringify(val, null, 2)}
+        </pre>
+      );
+    } catch {
+      // Fallback if value is not serializable
+      return String(val);
+    }
+  };
+
   return (
   <AppLayout breadcrumbs={[{ title: 'Admin', href: '/admins' }, { title: 'Proctoring', href: '/admin/proctor/events' }]}>
       <Head title="Proctoring Events" />
@@ -136,7 +151,7 @@ export default function ProctorEventsIndex() {
                       <td>{ev.session?.exam?.title ?? '-'}</td>
                       <td>{ev.user?.name ?? '-'}<div className="text-xs text-muted-foreground">{ev.user?.email}</div></td>
                       <td><span className="font-mono">{ev.type}</span></td>
-                      <td className="max-w-[320px] truncate" title={JSON.stringify(ev.details)}>{ev.details ? JSON.stringify(ev.details) : '-'}</td>
+                      <td>{renderDetails(ev.details)}</td>
                     </tr>
                   ))}
                   {events.data.length === 0 && (
