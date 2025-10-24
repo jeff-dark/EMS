@@ -22,9 +22,9 @@ export default function Welcome() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
-                                <span className="text-sm font-bold">OE</span>
+                                <span className="text-sm font-bold">EMS</span>
                             </div>
-                            <span className="text-base font-semibold tracking-tight">EMS</span>
+                            <span className="text-base font-semibold tracking-tight">Exam Management System</span>
                         </div>
 
                         <nav className="flex items-center gap-3">
