@@ -20,13 +20,20 @@ interface Options {
   countingTypes?: string[]; // which event types count toward threshold
 }
 
+function getCsrfToken(): string | undefined {
+  const meta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
+  return meta?.content || undefined;
+}
+
 function postEvent(sessionId: number, payload: ProctorEvent) {
-  // Use fetch to POST; CSRF cookie is managed by Laravel Sanctum/session
+  // Include CSRF header to satisfy Laravel's VerifyCsrfToken middleware
+  const csrf = getCsrfToken();
   return fetch(`/sessions/${sessionId}/proctor-events`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
+      ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
     },
     credentials: 'same-origin',
     body: JSON.stringify(payload),
