@@ -95,6 +95,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->withoutMiddleware('verified')
         ->name('student.sessions.proctor-events.store');
     Route::get('/student/results', [App\Http\Controllers\StudentExamController::class, 'results'])->name('student.results');
+    // Student result PDF (inline)
+    Route::get('/student/results/{session}/pdf', [App\Http\Controllers\StudentExamController::class, 'resultPdf'])->name('student.results.pdf');
 
     // Grading routes (teachers)
     Route::get('/grading/exams/submitted', [App\Http\Controllers\GradingController::class, 'index'])->name('grading.index');
@@ -130,6 +132,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 });
+
+// Public verification endpoint (no auth required)
+Route::get('/results/verify', [App\Http\Controllers\StudentExamController::class, 'verify'])->name('results.verify');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface ResultItem {
   id: number;
@@ -34,7 +35,14 @@ export default function StudentResults() {
                 <div className="flex flex-col gap-1">
                   <div>Submitted: {s.submitted_at ? new Date(s.submitted_at).toLocaleString() : '—'}</div>
                   {s.is_graded && (
-                    <div>Score: <span className="font-mono font-semibold">{(s.score ?? 0).toFixed(2)}</span></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        Score: <span className="font-mono font-semibold">{(s.score ?? 0).toFixed(2)}</span>
+                      </div>
+                      <Button asChild variant="subtle" size="sm">
+                        <a href={`/student/results/${s.id}/pdf`} target="_blank" rel="noopener noreferrer">View PDF</a>
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardContent>

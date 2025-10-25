@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ExamSubmittedMail;
 use Inertia\Inertia;
+use Dompdf\Dompdf;
+use Dompdf\Options as DompdfOptions;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\View;
 
 class StudentExamController extends Controller
 {
@@ -197,5 +205,127 @@ class StudentExamController extends Controller
             ->get(['id','exam_id','user_id','submitted_at','is_graded','score']);
 
         return Inertia::render('Student/Results', [ 'sessions' => $sessions ]);
+    }
+
+    /**
+     * Render the student's graded exam result as a PDF (inline display in browser).
+     */
+    public function resultPdf(ExamSession $session)
+    {
+        $this->authorize('view', $session);
+
+        // Ensure the result exists and is graded
+        if (!$session->is_graded) {
+            abort(404, 'Result not available yet.');
+        }
+
+        // Load full context
+        $session->load(['user', 'exam.unit.course', 'exam.teacher.user', 'studentAnswers.question']);
+        $exam = $session->exam;
+
+        // Compute aggregates
+        $totalPossible = $exam->questions->sum(fn($q) => floatval($q->points ?? 0));
+        $totalObtained = floatval($session->score ?? 0);
+        $percentage = $totalPossible > 0 ? round(($totalObtained / $totalPossible) * 100, 2) : null;
+        $letter = null;
+        if ($percentage !== null) {
+            $p = $percentage;
+            $letter = $p >= 90 ? 'A' : ($p >= 85 ? 'A-' : ($p >= 80 ? 'B+' : ($p >= 75 ? 'B' : ($p >= 70 ? 'B-' : ($p >= 65 ? 'C+' : ($p >= 60 ? 'C' : ($p >= 55 ? 'D+' : ($p >= 50 ? 'D' : 'F'))))))));
+        }
+        $passing = isset($exam->passing_score) ? floatval($exam->passing_score) : null; // absolute score
+        $isPass = $passing !== null ? ($totalObtained >= $passing) : null;
+
+        // Time taken
+        $timeTakenMinutes = null;
+        if ($session->started_at && $session->submitted_at) {
+            $timeTakenMinutes = $session->started_at->diffInMinutes($session->submitted_at);
+        }
+
+        // Stable verification code per session
+        if (!$session->verification_code) {
+            $session->verification_code = Str::upper(Str::random(10));
+            $session->save();
+        }
+
+        // Build a verification URL (simple placeholder endpoint for now)
+        $verifyUrl = route('results.verify', ['code' => $session->verification_code]);
+
+        // Generate QR PNG as data URI
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->data($verifyUrl)
+            ->encoding(new Encoding('UTF-8'))
+            ->size(180)
+            ->margin(0)
+            ->build();
+        $qrDataUri = 'data:image/png;base64,' . base64_encode($result->getString());
+
+        // Optional institution logo from public/logo.png as data URI
+        $logoDataUri = null;
+        $logoPath = public_path('logo.png');
+        if (is_file($logoPath)) {
+            $logoDataUri = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Prepare view data
+        $viewHtml = View::make('pdf.exam_result', [
+            'appName' => config('app.name'),
+            'appUrl' => config('app.url'),
+            'logoDataUri' => $logoDataUri,
+            'session' => $session,
+            'exam' => $exam,
+            'student' => $session->user,
+            'teacher' => $exam->teacher?->user,
+            'course' => $exam->unit?->course,
+            'unit' => $exam->unit,
+            'answers' => $session->studentAnswers->sortBy(fn($a) => $a->question?->order ?? PHP_INT_MAX)->values(),
+            'totalPossible' => $totalPossible,
+            'totalObtained' => $totalObtained,
+            'percentage' => $percentage,
+            'letter' => $letter,
+            'passing' => $passing,
+            'isPass' => $isPass,
+            'timeTakenMinutes' => $timeTakenMinutes,
+            'generatedAt' => now(),
+            'verifyUrl' => $verifyUrl,
+            'qrDataUri' => $qrDataUri,
+        ])->render();
+
+        // Configure Dompdf
+        $options = new DompdfOptions();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($viewHtml);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'Exam_Result_'.$session->id.'.pdf';
+        return response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            // Inline so it opens in a new tab; user can download from viewer
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * Public verification endpoint by code.
+     */
+    public function verify(Request $request)
+    {
+        $code = (string) $request->query('code');
+        $session = null;
+        if ($code !== '') {
+            $session = ExamSession::with(['user:id,name,username', 'exam:id,title,passing_score', 'exam.unit.course'])
+                ->where('verification_code', $code)
+                ->first();
+        }
+
+        return view('public.result_verify', [
+            'session' => $session,
+            'appName' => config('app.name'),
+        ]);
     }
 }
