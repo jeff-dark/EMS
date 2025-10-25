@@ -108,4 +108,22 @@ class GradingController extends Controller
 
         return redirect()->route('grading.index')->with('status', 'Grading saved');
     }
+
+    /**
+     * Preview the result PDF without publishing (grading flag not required).
+     * Teachers and admins only, constrained to their units/exams via policy checks above.
+     */
+    public function previewPdf(ExamSession $session)
+    {
+        $this->authorize('view', $session);
+        // Reuse student PDF view but allow preview when not graded.
+        // We will temporarily set is_graded=true in memory for rendering computations only.
+        $original = $session->is_graded;
+        $session->is_graded = true;
+        try {
+            return app(\App\Http\Controllers\StudentExamController::class)->resultPdf($session);
+        } finally {
+            $session->is_graded = $original;
+        }
+    }
 }

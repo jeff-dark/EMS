@@ -49,9 +49,21 @@
     .sig{height:64px; border:1px dashed var(--border); border-radius:8px;}
     .qr{display:flex; align-items:center; gap:12px}
     .text-right{text-align:right}
+    .watermark{
+      position: fixed;
+      top: 35%; left: 10%; right:10%;
+      text-align:center;
+      transform: rotate(-25deg);
+      opacity: 0.07;
+      font-size: 64px;
+      font-weight: 900;
+      color:#0f172a;
+      z-index: 0;
+    }
   </style>
 </head>
 <body>
+  <div class="watermark">{{ $appName }} • Official</div>
   <div class="container">
     <div class="header">
       @if(!empty($logoDataUri))
@@ -172,7 +184,10 @@
       <div class="box">
         <h3>Official signatory</h3>
         <div class="sig"></div>
-        <div class="small muted">Signature & Title</div>
+        <div class="small muted">Signature</div>
+        @if(!empty($signatoryName) || !empty($signatoryTitle))
+          <div class="small" style="margin-top:6px"><strong>{{ $signatoryName ?? '' }}</strong>@if(!empty($signatoryTitle)) — {{ $signatoryTitle }} @endif</div>
+        @endif
       </div>
       <div class="box">
         <h3>Notes</h3>

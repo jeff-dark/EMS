@@ -260,18 +260,31 @@ class StudentExamController extends Controller
             ->build();
         $qrDataUri = 'data:image/png;base64,' . base64_encode($result->getString());
 
-        // Optional institution logo from public/logo.png as data URI
+        // Institution settings
+        $settings = \App\Models\SystemSetting::query()->first();
+        $institutionName = trim((string) ($settings->institution_name ?? config('app.name')));
+        // Optional institution logo: prefer uploaded settings logo, fallback to public/logo.png
         $logoDataUri = null;
-        $logoPath = public_path('logo.png');
-        if (is_file($logoPath)) {
-            $logoDataUri = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        if ($settings?->institution_logo_path) {
+            $file = storage_path('app/public/' . $settings->institution_logo_path);
+            if (is_file($file)) {
+                $logoDataUri = 'data:image/png;base64,' . base64_encode(@file_get_contents($file));
+            }
+        }
+        if (!$logoDataUri) {
+            $logoPath = public_path('logo.png');
+            if (is_file($logoPath)) {
+                $logoDataUri = 'data:image/png;base64,' . base64_encode(@file_get_contents($logoPath));
+            }
         }
 
         // Prepare view data
         $viewHtml = View::make('pdf.exam_result', [
-            'appName' => config('app.name'),
+            'appName' => $institutionName,
             'appUrl' => config('app.url'),
             'logoDataUri' => $logoDataUri,
+            'signatoryName' => $settings->signatory_name ?? null,
+            'signatoryTitle' => $settings->signatory_title ?? null,
             'session' => $session,
             'exam' => $exam,
             'student' => $session->user,

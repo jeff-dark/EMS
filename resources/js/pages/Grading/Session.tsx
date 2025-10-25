@@ -59,7 +59,10 @@ export default function GradingSession() {
               <label className="text-sm font-medium" htmlFor="overall-comment">Overall comment</label>
               <Textarea id="overall-comment" rows={4} placeholder="Write feedback for the whole exam..." value={overallComment} onChange={e => setOverallComment(e.target.value)} />
             </div>
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-between">
+              <Button asChild variant="subtle">
+                <a href={`/grading/session/${session.id}/preview-pdf`} target="_blank" rel="noopener noreferrer">Preview Result PDF</a>
+              </Button>
               <Button onClick={handleSubmit} disabled={saving}>Save Grading</Button>
             </div>
           </CardContent>

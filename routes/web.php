@@ -103,6 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/grading/session/{session}', [App\Http\Controllers\GradingController::class, 'session'])->middleware('audit.view:view')->name('grading.session');
     Route::post('/grading/session/{session}/grade', [App\Http\Controllers\GradingController::class, 'grade'])->name('grading.grade');
+    Route::get('/grading/session/{session}/preview-pdf', [App\Http\Controllers\GradingController::class, 'previewPdf'])->name('grading.preview-pdf');
 
     // Top-level exams listing (all exams across units/courses)
     Route::get('/exams', [ExamController::class, 'allExamsIndex'])->middleware('audit.view:view')->name('exams.index');
@@ -114,6 +115,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin logs viewer
     Route::get('/admin/logs', [App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
     Route::get('/admin/logs/export', [App\Http\Controllers\Admin\LogController::class, 'export'])->name('admin.logs.export');
+    // Admin System Settings
+    Route::get('/admin/system-settings', [App\Http\Controllers\Admin\SystemSettingsController::class, 'edit'])->name('admin.system-settings.edit');
+    Route::post('/admin/system-settings', [App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('admin.system-settings.update');
 
     // Admin proctoring events dashboard
     Route::get('/admin/proctor/events', [App\Http\Controllers\Admin\ProctoringEventController::class, 'index'])
