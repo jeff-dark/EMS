@@ -127,37 +127,7 @@ export default function Welcome() {
                         </section>
 
                         {/* Centered mockup card under hero */}
-                        <section className="relative mt-10 w-full">
-                            <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/80 p-6 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-[#141414]/80">
-                                {/* Monitor mock */}
-                                <div className="mx-auto h-[280px] w-full max-w-3xl rounded-md bg-gradient-to-b from-[#e7ecff] to-[#f4f6ff] p-5 dark:from-[#1a1f2e] dark:to-[#111525]">
-                                    <div className="grid grid-cols-[1fr_auto] gap-4">
-                                        <div>
-                                            <div className="mb-3 h-4 w-28 rounded bg-[#c4cbe8] dark:bg-[#2b3350]" />
-                                            <ul className="space-y-2">
-                                                {Array.from({ length: 6 }).map((_, i) => (
-                                                    <li key={i} className="flex items-center gap-3">
-                                                        <span className="grid h-5 w-5 place-items-center rounded border border-[#a0a8cc] bg-white text-emerald-600 dark:border-[#3a4368] dark:bg-[#0f1323]">
-                                                            {i % 2 === 0 ? (
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                                                                    <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3-3a1 1 0 111.42-1.42l2.29 2.29 6.79-6.79a1 1 0 011.42 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            ) : (
-                                                                <span className="block h-3 w-3 rounded bg-[#68a1ff]" />
-                                                            )}
-                                                        </span>
-                                                        <div className="h-2.5 flex-1 rounded bg-[#cfd5ef] dark:bg-[#2b3350]" />
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <div className="hidden h-full w-28 rounded-md bg-[#dbe2ff] dark:bg-[#1b2137] lg:block" />
-                                    </div>
-                                </div>
-                                <div className="mx-auto mt-3 h-2 w-40 rounded bg-black/15 dark:bg-white/15" />
-                                <div className="mx-auto mt-2 h-1.5 w-24 rounded bg-black/10 dark:bg-white/10" />
-                            </div>
-                        </section>
+                        
                     </div>
 
                     {/* Role highlights */}
