@@ -65,11 +65,14 @@ export default function Welcome() {
                     </div>
                 </header>
 
-                {/* Hero section */}
-                <main className="mx-auto w-full max-w-screen-2xl px-6 py-12 lg:py-16 flex-1">
-                    <div className="grid items-center gap-10 lg:grid-cols-2">
-                        {/* Left copy */}
-                        <section id="home" className="text-center">
+                {/* Hero section with gradient background and centered content */}
+                <main className="relative flex-1">
+                    <div className="pointer-events-none absolute inset-0 select-none" aria-hidden>
+                        <div className="mx-auto h-[420px] w-full max-w-screen-2xl bg-gradient-to-b from-[#eaf0ff] to-transparent dark:from-[#0f1326]" />
+                        <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#cfe0ff] opacity-40 blur-3xl dark:bg-[#1a2348]" />
+                    </div>
+                    <div className="relative mx-auto w-full max-w-screen-2xl px-6 py-12 lg:py-16">
+                        <section id="home" className="text-center mx-auto max-w-4xl">
                             <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
                                 {isAuthed ? 'Welcome back' : 'Welcome to'}
                             </p>
@@ -89,7 +92,7 @@ export default function Welcome() {
                                     </>
                                 )}
                             </h1>
-                            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
+                            <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
                                 The smarter way to create, take, and manage exams. Manage courses, units, and sessions
                                 in one place — secure, fast, and accessible.
                             </p>
@@ -123,26 +126,21 @@ export default function Welcome() {
                             </div>
                         </section>
 
-                        {/* Right illustration */}
-                        <section className="relative mx-auto w-full max-w-[720px]">
-                            <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
-                                {/* Monitor */}
-                                <div className="mx-auto h-[260px] w-full max-w-[460px] rounded-md bg-gradient-to-b from-[#e7ecff] to-[#f4f6ff] p-5 dark:from-[#1a1f2e] dark:to-[#111525]">
+                        {/* Centered mockup card under hero */}
+                        <section className="relative mx-auto mt-10 w-full max-w-5xl">
+                            <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/80 p-6 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-[#141414]/80">
+                                {/* Monitor mock */}
+                                <div className="mx-auto h-[280px] w-full max-w-3xl rounded-md bg-gradient-to-b from-[#e7ecff] to-[#f4f6ff] p-5 dark:from-[#1a1f2e] dark:to-[#111525]">
                                     <div className="grid grid-cols-[1fr_auto] gap-4">
                                         <div>
                                             <div className="mb-3 h-4 w-28 rounded bg-[#c4cbe8] dark:bg-[#2b3350]" />
-                                            {/* checklist */}
                                             <ul className="space-y-2">
                                                 {Array.from({ length: 6 }).map((_, i) => (
                                                     <li key={i} className="flex items-center gap-3">
                                                         <span className="grid h-5 w-5 place-items-center rounded border border-[#a0a8cc] bg-white text-emerald-600 dark:border-[#3a4368] dark:bg-[#0f1323]">
                                                             {i % 2 === 0 ? (
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3-3a1 1 0 111.42-1.42l2.29 2.29 6.79-6.79a1 1 0 011.42 0z"
-                                                                        clipRule="evenodd"
-                                                                    />
+                                                                    <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3-3a1 1 0 111.42-1.42l2.29 2.29 6.79-6.79a1 1 0 011.42 0z" clipRule="evenodd" />
                                                                 </svg>
                                                             ) : (
                                                                 <span className="block h-3 w-3 rounded bg-[#68a1ff]" />
@@ -153,29 +151,20 @@ export default function Welcome() {
                                                 ))}
                                             </ul>
                                         </div>
-                                        {/* Side panel */}
                                         <div className="hidden h-full w-28 rounded-md bg-[#dbe2ff] dark:bg-[#1b2137] lg:block" />
                                     </div>
                                 </div>
-                                {/* Base stand */}
                                 <div className="mx-auto mt-3 h-2 w-40 rounded bg-black/15 dark:bg-white/15" />
                                 <div className="mx-auto mt-2 h-1.5 w-24 rounded bg-black/10 dark:bg-white/10" />
-
-                                {/* Floating clock */}
-                                <div className="absolute -right-3 -top-3 hidden rounded-full bg-white p-2 shadow-sm ring-1 ring-black/10 dark:bg-[#141414] dark:ring-white/10 md:block">
-                                    <div className="grid h-14 w-14 place-items-center rounded-full bg-[#e1e7ff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7">
-                                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm.75 5a.75.75 0 00-1.5 0v5.19l4.12 2.38a.75.75 0 10.74-1.3L12.75 11V7z" />
-                                        </svg>
-                                    </div>
-                                </div>
                             </div>
                         </section>
                     </div>
 
                     {/* Role highlights */}
-                    <section id="about" className="mt-16 grid gap-6 md:grid-cols-2">
-                        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                    {/* Feature/role grid resembling modern landing card layout */}
+                    <section id="about" className="mx-auto mt-20 w-full max-w-screen-2xl px-6">
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                             <div className="mb-3 flex items-center gap-2">
                                 <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
                                     {/* teacher icon */}
@@ -224,9 +213,8 @@ export default function Welcome() {
                                 “This platform cut our grading time in half and gave us real insights into student
                                 performance.” — A. Mensah, Senior Lecturer
                             </blockquote>
-                        </div>
-
-                        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                            </div>
+                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                             <div className="mb-3 flex items-center gap-2">
                                 <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
                                     {/* student icon */}
@@ -279,11 +267,47 @@ export default function Welcome() {
                                 <Arrow className="hidden sm:block" />
                                 <HowStep index={3} label="Start Test" />
                             </div>
+                            </div>
+                            {/* Third card for layout balance */}
+                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                                <div className="mb-3 flex items-center gap-2">
+                                    <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 6a4 4 0 110 8 4 4 0 010-8z" />
+                                        </svg>
+                                    </span>
+                                    <h2 className="text-lg font-semibold">Secure & Reliable</h2>
+                                </div>
+                                <h3 className="text-sm font-medium text-[#3b3b35] dark:text-[#D9D8D2]">Built for Trust</h3>
+                                <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
+                                    Robust proctoring options, session integrity checks, and modern infrastructure keep
+                                    exams fair and data protected.
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <FeaturePill icon="🛡️">Proctoring</FeaturePill>
+                                    <FeaturePill icon="🔐">Privacy</FeaturePill>
+                                    <FeaturePill icon="⚙️">Performance</FeaturePill>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Call-to-action band */}
+                    <section className="mx-auto mt-16 w-full max-w-screen-2xl px-6">
+                        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-[#eaf0ff] px-6 py-8 text-center shadow-sm dark:bg-[#12172a] md:flex-row md:text-left">
+                            <div>
+                                <h3 className="text-lg font-semibold text-[#2a2a26] dark:text-[#EDEDEC]">Ready to get started?</h3>
+                                <p className="text-sm text-[#6f6f6b] dark:text-[#B9B8B3]">Log in as a student or teacher and start your next exam journey.</p>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                                <Link href="/login?as=student" className="inline-flex items-center rounded-full bg-[#3b4aa1] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2f3c85]">Student Login</Link>
+                                <Link href="/login?as=teacher" className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6]">Teacher Login</Link>
+                            </div>
                         </div>
                     </section>
 
                     {/* FAQ */}
-                    <section id="faq" className="mt-16">
+                    <section id="faq" className="mx-auto mt-20 w-full max-w-screen-2xl px-6">
                         <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
                         <div className="mt-6 grid gap-4 md:grid-cols-2">
                             <FaqItem q="What are the system requirements?" a="A modern browser (Chrome, Firefox, Edge, Safari), stable internet, and a camera/microphone if proctoring is enabled." />
@@ -296,7 +320,7 @@ export default function Welcome() {
                     </section>
 
                     {/* Support */}
-                    <section id="contact" className="mt-16 rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                    <section id="contact" className="mx-auto mt-16 w-full max-w-screen-2xl rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                         <h2 className="text-xl font-semibold">Get Support</h2>
                         <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
                             Need help? Reach out to our team — we’re here to assist teachers and students.
