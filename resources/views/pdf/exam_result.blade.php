@@ -25,7 +25,9 @@
     .brand .platform{font-size:12px; color:var(--muted)}
     .title{margin:0; font-size:20px; font-weight:800;}
 
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  /* Use table layout for Dompdf compatibility (CSS Grid not supported) */
+  .two-col{width:100%; border-collapse:separate; border-spacing:14px 0;}
+  .two-col .col{width:50%; vertical-align:top;}
     .section{background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;}
   .section, .header, .footer { page-break-inside: avoid; }
     .section h3{margin:0 0 10px; font-size:13px; letter-spacing:.2px; color:#0f172a; text-transform:uppercase}
@@ -79,34 +81,40 @@
       </div>
     </div>
 
-    <div class="grid">
-      <div class="section">
-        <h3>Student identification</h3>
-        <div class="kv">
-          <div class="k">Student Name</div>
-          <div class="v">{{ $student->name }}</div>
-          <div class="k">Username</div>
-          <div class="v">{{ $student->username }}</div>
-          <div class="k">Course Name</div>
-          <div class="v">{{ $course->name ?? '—' }}</div>
-          <div class="k">Unit Name</div>
-          <div class="v">{{ $unit->title ?? '—' }}</div>
-        </div>
-      </div>
-      <div class="section">
-        <h3>Exam identification</h3>
-        <div class="kv">
-          <div class="k">Exam Title</div>
-          <div class="v">{{ $exam->title }}</div>
-          <div class="k">Exam Date</div>
-          <div class="v">{{ optional($session->submitted_at ?? $session->started_at)->format('Y-m-d') }}</div>
-          <div class="k">Exam Duration</div>
-          <div class="v">{{ (int)($exam->duration_minutes ?? 0) }} Minutes</div>
-          <div class="k">Teacher Name</div>
-          <div class="v">{{ $teacher->name ?? '—' }}</div>
-        </div>
-      </div>
-    </div>
+    <table class="two-col">
+      <tr>
+        <td class="col">
+          <div class="section">
+            <h3>Student identification</h3>
+            <div class="kv">
+              <div class="k">Student Name</div>
+              <div class="v">{{ $student->name }}</div>
+              <div class="k">Username</div>
+              <div class="v">{{ $student->username }}</div>
+              <div class="k">Course Name</div>
+              <div class="v">{{ $course->name ?? '—' }}</div>
+              <div class="k">Unit Name</div>
+              <div class="v">{{ $unit->title ?? '—' }}</div>
+            </div>
+          </div>
+        </td>
+        <td class="col">
+          <div class="section">
+            <h3>Exam identification</h3>
+            <div class="kv">
+              <div class="k">Exam Title</div>
+              <div class="v">{{ $exam->title }}</div>
+              <div class="k">Exam Date</div>
+              <div class="v">{{ optional($session->submitted_at ?? $session->started_at)->format('Y-m-d') }}</div>
+              <div class="k">Exam Duration</div>
+              <div class="v">{{ (int)($exam->duration_minutes ?? 0) }} Minutes</div>
+              <div class="k">Teacher Name</div>
+              <div class="v">{{ $teacher->name ?? '—' }}</div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
 
     <!-- Overall performance section removed as requested to keep a single-page compact layout -->
 
