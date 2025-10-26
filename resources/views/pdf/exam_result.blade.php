@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Exam Result</title>
   <style>
+    @page { margin: 24px; }
     :root {
       --brand:#0f172a; /* slate-900 */
       --muted:#64748b; /* slate-500 */
@@ -26,16 +27,13 @@
 
     .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
     .section{background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;}
+  .section, .header, .footer { page-break-inside: avoid; }
     .section h3{margin:0 0 10px; font-size:13px; letter-spacing:.2px; color:#0f172a; text-transform:uppercase}
     .kv{display:grid; grid-template-columns: 180px 1fr; row-gap:6px; column-gap:10px; font-size:12px}
     .kv .k{color:var(--muted)}
     .kv .v{font-weight:600}
 
-    .metrics{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
-    .metric{border:1px solid var(--border); border-radius:10px; padding:10px}
-    .metric .k{font-size:11px; color:var(--muted); text-transform:uppercase}
-    .metric .v{font-size:18px; font-weight:800}
-    .status{display:inline-block; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; color:#fff}
+  /* metrics removed per request */
 
     .table{width:100%; border-collapse:separate; border-spacing:0; font-size:12px;}
     .table th{background:#f8fafc; text-align:left; font-weight:700; padding:10px; border-top:1px solid var(--border); border-bottom:1px solid var(--border)}
@@ -110,36 +108,7 @@
       </div>
     </div>
 
-    <div class="section" style="margin-top:14px">
-      <h3>Overall performance</h3>
-      <div class="metrics">
-        <div class="metric">
-          <div class="k">Total Marks Possible</div>
-          <div class="v">{{ number_format($totalPossible, 2) }}</div>
-        </div>
-        <div class="metric">
-          <div class="k">Total Marks Obtained</div>
-          <div class="v">{{ number_format($totalObtained, 2) }}</div>
-        </div>
-        <div class="metric">
-          <div class="k">Percentage / Grade</div>
-          <div class="v">
-            @if ($percentage !== null)
-              {{ rtrim(rtrim(number_format($percentage,2),'0'),'.') }}% @if(!empty($letter)) ({{ $letter }}) @endif
-            @else
-              —
-            @endif
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:10px; display:flex; gap:12px; align-items:center">
-        <div class="k" style="font-size:12px; color:var(--muted)">Status</div>
-        @php($passFail = $isPass === null ? '—' : ($isPass ? 'PASS' : 'FAIL'))
-        <div class="status" style="background: {{ $isPass ? 'var(--pass)' : 'var(--fail)' }}">{{ $passFail }}</div>
-        <div class="k" style="font-size:12px; color:var(--muted); margin-left:18px">Time Taken</div>
-        <div class="v" style="font-size:12px; font-weight:700">{{ $timeTakenMinutes !== null ? ($timeTakenMinutes.' Minutes') : '—' }}</div>
-      </div>
-    </div>
+    <!-- Overall performance section removed as requested to keep a single-page compact layout -->
 
     <div class="section" style="margin-top:14px">
       <h3>Detailed performance & context</h3>
