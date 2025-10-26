@@ -18,9 +18,16 @@ export default function Welcome() {
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
             </Head>
 
-            <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col">
+            <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col scroll-smooth">
+                {/* Skip to content for accessibility */}
+                <a
+                    href="#content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[#1b1b18] focus:px-3 focus:py-2 focus:text-white focus:shadow dark:focus:bg-[#EDEDEC] dark:focus:text-[#0b0b0b]"
+                >
+                    Skip to content
+                </a>
                 {/* Top bar with logo, nav, language toggle, and CTAs */}
-                <header className="w-full px-6 py-5">
+                <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/80 px-6 py-4 backdrop-blur dark:border-white/10 dark:bg-[#0b0b0b]/80">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
@@ -66,13 +73,13 @@ export default function Welcome() {
                 </header>
 
                 {/* Hero section with gradient background and centered content */}
-                <main className="relative flex-1">
+                <main id="content" className="relative flex-1">
                     <div className="pointer-events-none absolute inset-0 select-none" aria-hidden>
                         <div className="h-[420px] w-full bg-gradient-to-b from-[#eaf0ff] to-transparent dark:from-[#0f1326]" />
                         <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#cfe0ff] opacity-40 blur-3xl dark:bg-[#1a2348]" />
                     </div>
                     <div className="relative w-full px-6 py-12 lg:py-16">
-                        <section id="home" className="text-center mx-auto max-w-4xl">
+                        <section id="home" className="text-center mx-auto max-w-4xl scroll-mt-24">
                             <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
                                 {isAuthed ? 'Welcome back' : 'Welcome to'}
                             </p>
@@ -132,7 +139,7 @@ export default function Welcome() {
 
                     {/* Role highlights */}
                     {/* Feature/role grid resembling modern landing card layout */}
-                    <section id="about" className="mt-20 w-full px-6">
+                    <section id="about" className="mt-20 w-full px-6 scroll-mt-24">
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                             <div className="mb-3 flex items-center gap-2">
@@ -263,7 +270,7 @@ export default function Welcome() {
                     </section>
 
                     {/* Call-to-action band */}
-                    <section className="mt-16 w-full px-6">
+                    <section className="mt-16 w-full px-6 scroll-mt-24">
                         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-[#eaf0ff] px-6 py-8 text-center shadow-sm dark:bg-[#12172a] md:flex-row md:text-left">
                             <div>
                                 <h3 className="text-lg font-semibold text-[#2a2a26] dark:text-[#EDEDEC]">Ready to get started?</h3>
@@ -277,7 +284,7 @@ export default function Welcome() {
                     </section>
 
                     {/* FAQ */}
-                    <section id="faq" className="mt-20 w-full px-6">
+                    <section id="faq" className="mt-20 w-full px-6 scroll-mt-24">
                         <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
                         <div className="mt-6 grid gap-4 md:grid-cols-2">
                             <FaqItem q="What are the system requirements?" a="A modern browser (Chrome, Firefox, Edge, Safari), stable internet, and a camera/microphone if proctoring is enabled." />
@@ -290,7 +297,7 @@ export default function Welcome() {
                     </section>
 
                     {/* Support */}
-                    <section id="contact" className="mt-16 w-full rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                    <section id="contact" className="mt-16 w-full rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414] scroll-mt-24">
                         <h2 className="text-xl font-semibold">Get Support</h2>
                         <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
                             Need help? Reach out to our team — we’re here to assist teachers and students.
