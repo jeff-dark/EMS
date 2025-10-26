@@ -20,7 +20,7 @@ export default function Welcome() {
 
             <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col">
                 {/* Top bar with logo, nav, language toggle, and CTAs */}
-                <header className="mx-auto w-full max-w-6xl px-6 py-5">
+                <header className="mx-auto w-full max-w-screen-2xl px-6 py-5">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
@@ -66,10 +66,10 @@ export default function Welcome() {
                 </header>
 
                 {/* Hero section */}
-                <main className="mx-auto w-full max-w-6xl px-6 py-12 lg:py-16 flex-1">
+                <main className="mx-auto w-full max-w-screen-2xl px-6 py-12 lg:py-16 flex-1">
                     <div className="grid items-center gap-10 lg:grid-cols-2">
                         {/* Left copy */}
-                        <section id="home">
+                        <section id="home" className="text-center">
                             <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
                                 {isAuthed ? 'Welcome back' : 'Welcome to'}
                             </p>
@@ -93,7 +93,7 @@ export default function Welcome() {
                                 The smarter way to create, take, and manage exams. Manage courses, units, and sessions
                                 in one place — secure, fast, and accessible.
                             </p>
-                            <div className="mt-8 flex flex-wrap items-center gap-3">
+                            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                                 {isAuthed ? (
                                     <Link
                                         href="/dashboard"
@@ -124,7 +124,7 @@ export default function Welcome() {
                         </section>
 
                         {/* Right illustration */}
-                        <section className="relative mx-auto w-full max-w-[560px]">
+                        <section className="relative mx-auto w-full max-w-[720px]">
                             <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                                 {/* Monitor */}
                                 <div className="mx-auto h-[260px] w-full max-w-[460px] rounded-md bg-gradient-to-b from-[#e7ecff] to-[#f4f6ff] p-5 dark:from-[#1a1f2e] dark:to-[#111525]">
