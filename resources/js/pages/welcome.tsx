@@ -20,7 +20,7 @@ export default function Welcome() {
 
             <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col">
                 {/* Top bar with logo, nav, language toggle, and CTAs */}
-                <header className="mx-auto w-full max-w-screen-2xl px-6 py-5">
+                <header className="w-full px-6 py-5">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
@@ -68,10 +68,10 @@ export default function Welcome() {
                 {/* Hero section with gradient background and centered content */}
                 <main className="relative flex-1">
                     <div className="pointer-events-none absolute inset-0 select-none" aria-hidden>
-                        <div className="mx-auto h-[420px] w-full max-w-screen-2xl bg-gradient-to-b from-[#eaf0ff] to-transparent dark:from-[#0f1326]" />
+                        <div className="h-[420px] w-full bg-gradient-to-b from-[#eaf0ff] to-transparent dark:from-[#0f1326]" />
                         <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#cfe0ff] opacity-40 blur-3xl dark:bg-[#1a2348]" />
                     </div>
-                    <div className="relative mx-auto w-full max-w-screen-2xl px-6 py-12 lg:py-16">
+                    <div className="relative w-full px-6 py-12 lg:py-16">
                         <section id="home" className="text-center mx-auto max-w-4xl">
                             <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
                                 {isAuthed ? 'Welcome back' : 'Welcome to'}
@@ -127,7 +127,7 @@ export default function Welcome() {
                         </section>
 
                         {/* Centered mockup card under hero */}
-                        <section className="relative mx-auto mt-10 w-full max-w-5xl">
+                        <section className="relative mt-10 w-full">
                             <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/80 p-6 shadow-lg backdrop-blur-sm dark:border-white/10 dark:bg-[#141414]/80">
                                 {/* Monitor mock */}
                                 <div className="mx-auto h-[280px] w-full max-w-3xl rounded-md bg-gradient-to-b from-[#e7ecff] to-[#f4f6ff] p-5 dark:from-[#1a1f2e] dark:to-[#111525]">
@@ -162,7 +162,7 @@ export default function Welcome() {
 
                     {/* Role highlights */}
                     {/* Feature/role grid resembling modern landing card layout */}
-                    <section id="about" className="mx-auto mt-20 w-full max-w-screen-2xl px-6">
+                    <section id="about" className="mt-20 w-full px-6">
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                             <div className="mb-3 flex items-center gap-2">
@@ -293,7 +293,7 @@ export default function Welcome() {
                     </section>
 
                     {/* Call-to-action band */}
-                    <section className="mx-auto mt-16 w-full max-w-screen-2xl px-6">
+                    <section className="mt-16 w-full px-6">
                         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-[#eaf0ff] px-6 py-8 text-center shadow-sm dark:bg-[#12172a] md:flex-row md:text-left">
                             <div>
                                 <h3 className="text-lg font-semibold text-[#2a2a26] dark:text-[#EDEDEC]">Ready to get started?</h3>
@@ -307,7 +307,7 @@ export default function Welcome() {
                     </section>
 
                     {/* FAQ */}
-                    <section id="faq" className="mx-auto mt-20 w-full max-w-screen-2xl px-6">
+                    <section id="faq" className="mt-20 w-full px-6">
                         <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
                         <div className="mt-6 grid gap-4 md:grid-cols-2">
                             <FaqItem q="What are the system requirements?" a="A modern browser (Chrome, Firefox, Edge, Safari), stable internet, and a camera/microphone if proctoring is enabled." />
@@ -320,7 +320,7 @@ export default function Welcome() {
                     </section>
 
                     {/* Support */}
-                    <section id="contact" className="mx-auto mt-16 w-full max-w-screen-2xl rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                    <section id="contact" className="mt-16 w-full rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
                         <h2 className="text-xl font-semibold">Get Support</h2>
                         <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
                             Need help? Reach out to our team — we’re here to assist teachers and students.
