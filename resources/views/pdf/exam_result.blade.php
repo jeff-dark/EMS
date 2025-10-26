@@ -46,6 +46,9 @@
   .footer .box{flex:1; border:1px solid var(--border); border-radius:8px; padding:10px}
     .muted{color:var(--muted)}
   .small{font-size:10px}
+  .status-badge{display:inline-block; padding:2px 6px; border-radius:999px; font-size:10px; font-weight:700; color:#fff}
+  .badge-pass{background: var(--pass)}
+  .badge-fail{background: var(--fail)}
   .sig{height:48px; border:1px dashed var(--border); border-radius:8px;}
   .qr{display:flex; align-items:center; gap:8px}
     .text-right{text-align:right}
@@ -159,7 +162,17 @@
           </tr>
         </tbody>
       </table>
-      <div class="small muted" style="margin-top:4px">Passing Mark Set: {{ $passing !== null ? number_format($passing,2) : 'Not specified' }}</div>
+      <div class="small muted" style="margin-top:4px">
+        Passing Mark Set:
+        @if ($passing !== null)
+          {{ number_format($passing,2) }}
+          <span style="margin:0 6px; color:#94a3b8">•</span>
+          <span>Status:</span>
+          <span class="status-badge {{ $isPass ? 'badge-pass' : 'badge-fail' }}">{{ $isPass ? 'PASS' : 'FAIL' }}</span>
+        @else
+          Not specified
+        @endif
+      </div>
     </div>
 
     <div class="footer">
