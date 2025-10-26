@@ -156,10 +156,10 @@ export default function Welcome() {
                                 Track performance across courses and units from one dashboard.
                             </p>
                             <div className="mt-4 flex flex-wrap gap-2">
-                                <FeaturePill icon="💡">Easy Exam Creation</FeaturePill>
-                                <FeaturePill icon="🔄">Automated Grading</FeaturePill>
-                                <FeaturePill icon="📊">Advanced Analytics</FeaturePill>
-                                <FeaturePill icon="🔒">Secure Environment</FeaturePill>
+                                <FeaturePill icon="">Easy Exam Creation</FeaturePill>
+                                <FeaturePill icon="">Automated Grading</FeaturePill>
+                                <FeaturePill icon="">Advanced Analytics</FeaturePill>
+                                <FeaturePill icon="">Secure Environment</FeaturePill>
                             </div>
                             {isAuthed && (isTeacher || !isStudent) && (
                                 <div className="mt-6 flex flex-wrap gap-3">
@@ -206,10 +206,10 @@ export default function Welcome() {
                                 and revision materials anytime.
                             </p>
                             <div className="mt-4 flex flex-wrap gap-2">
-                                <FeaturePill icon="🗓️">Clear Schedule</FeaturePill>
-                                <FeaturePill icon="📱">Mobile-Friendly</FeaturePill>
-                                <FeaturePill icon="⚡">Instant Results</FeaturePill>
-                                <FeaturePill icon="📚">Practice Resources</FeaturePill>
+                                <FeaturePill icon="">Clear Schedule</FeaturePill>
+                                <FeaturePill icon="">Mobile-Friendly</FeaturePill>
+                                <FeaturePill icon="">Instant Results</FeaturePill>
+                                <FeaturePill icon="">Practice Resources</FeaturePill>
                             </div>
                             {isAuthed && (isStudent || !isTeacher) && (
                                 <div className="mt-6 flex flex-wrap gap-3">
@@ -260,9 +260,9 @@ export default function Welcome() {
                                     exams fair and data protected.
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <FeaturePill icon="🛡️">Proctoring</FeaturePill>
-                                    <FeaturePill icon="🔐">Privacy</FeaturePill>
-                                    <FeaturePill icon="⚙️">Performance</FeaturePill>
+                                    <FeaturePill icon="">Proctoring</FeaturePill>
+                                    <FeaturePill icon="">Privacy</FeaturePill>
+                                    <FeaturePill icon="">Performance</FeaturePill>
                                 </div>
                             </div>
                         </div>
