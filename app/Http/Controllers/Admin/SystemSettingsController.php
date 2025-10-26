@@ -23,12 +23,15 @@ class SystemSettingsController extends Controller
     {
         $this->ensureAdmin();
         $settings = SystemSetting::query()->first();
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk('public');
+        $logoUrl = $settings?->institution_logo_path ? $publicDisk->url($settings->institution_logo_path) : null;
         return Inertia::render('Admins/SystemSettings', [
             'settings' => [
-                'institution_name' => $settings->institution_name ?? '',
-                'institution_logo_url' => $settings?->institution_logo_path ? (Storage::disk('public')->url($settings->institution_logo_path)) : null,
-                'signatory_name' => $settings->signatory_name ?? '',
-                'signatory_title' => $settings->signatory_title ?? '',
+                'institution_name' => $settings?->institution_name ?? '',
+                'institution_logo_url' => $logoUrl,
+                'signatory_name' => $settings?->signatory_name ?? '',
+                'signatory_title' => $settings?->signatory_title ?? '',
             ],
         ]);
     }
