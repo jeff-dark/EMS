@@ -46,9 +46,9 @@
   .footer .box{flex:1; border:1px solid var(--border); border-radius:8px; padding:10px}
     .muted{color:var(--muted)}
   .small{font-size:10px}
-  .status-badge{display:inline-block; padding:2px 6px; border-radius:999px; font-size:10px; font-weight:700; color:#fff}
-  .badge-pass{background: var(--pass)}
-  .badge-fail{background: var(--fail)}
+  .status-badge{display:inline-block; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700; border:1px solid currentColor; background: transparent}
+  .badge-pass{color: var(--pass)}
+  .badge-fail{color: var(--fail)}
   .sig{height:48px; border:1px dashed var(--border); border-radius:8px;}
   .qr{display:flex; align-items:center; gap:8px}
     .text-right{text-align:right}
