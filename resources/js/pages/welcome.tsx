@@ -44,7 +44,6 @@ export default function Welcome() {
                         </nav>
 
                         <div className="flex items-center gap-3">
-                            <LanguageToggle />
                             {isAuthed ? (
                                 <Link
                                     href="/dashboard"
