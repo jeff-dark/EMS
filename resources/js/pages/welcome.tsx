@@ -1,19 +1,21 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-// import { login } from '@/routes';
 import { type SharedData } from '@/types';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
     const isAuthed = Boolean(auth?.user);
+    const user = (auth?.user ?? null) as any;
+    const rolesArray: string[] = Array.isArray(user?.roles) ? (user.roles as string[]) : [];
+    const primaryRole: string | null = (typeof user?.role === 'string' ? user.role : null) ?? rolesArray[0] ?? null;
+    const isTeacher = primaryRole === 'teacher' || rolesArray.includes('teacher');
+    const isStudent = primaryRole === 'student' || rolesArray.includes('student');
+    const displayRole = isTeacher ? 'Teacher' : isStudent ? 'Student' : primaryRole ? capitalize(primaryRole) : null;
 
     return (
         <>
             <Head title="Welcome">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link
-                    href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
-                    rel="stylesheet"
-                />
+                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
             </Head>
 
             <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col">
@@ -48,21 +50,32 @@ export default function Welcome() {
                 </header>
 
                 {/* Hero section */}
-                <main className="mx-auto w-full max-w-6xl px-6 py-12 lg:py-20 flex-1 flex items-center">
+                <main className="mx-auto w-full max-w-6xl px-6 py-12 lg:py-16 flex-1">
                     <div className="grid items-center gap-10 lg:grid-cols-2">
                         {/* Left copy */}
                         <section>
                             <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
-                                Welcome to
+                                {isAuthed ? 'Welcome back' : 'Welcome to'}
                             </p>
                             <h1 className="text-5xl font-bold leading-tight tracking-tight lg:text-6xl">
-                                Online
-                                <br />
-                                <span className="text-[#68a1ff]">Exam</span>
+                                {isAuthed ? (
+                                    <>
+                                        {user?.name ?? 'User'}
+                                        {displayRole ? (
+                                            <span className="ml-2 align-top text-base font-medium text-[#7a7a75] dark:text-[#A1A09A]">({displayRole})</span>
+                                        ) : null}
+                                    </>
+                                ) : (
+                                    <>
+                                        Online
+                                        <br />
+                                        <span className="text-[#68a1ff]">Exams</span>
+                                    </>
+                                )}
                             </h1>
                             <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                                Manage courses, units, and exams in one place. Create questions, start sessions,
-                                and grade submissions with ease. Built with Laravel, Inertia, and React — fully
+                                Manage courses, units, and exams in one place. Create questions, start sessions, grade
+                                submissions, and view results with ease. Built with Laravel, Inertia, and React — fully
                                 responsive and theme-aware.
                             </p>
                             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -81,9 +94,9 @@ export default function Welcome() {
                                         Get started
                                     </Link>
                                 )}
-                                <span className="text-xs text-[#8a8984] dark:text-[#9E9D97]">
-                                    No account? Log in to get started.
-                                </span>
+                                {!isAuthed && (
+                                    <span className="text-xs text-[#8a8984] dark:text-[#9E9D97]">No account? Log in to get started.</span>
+                                )}
                             </div>
                         </section>
 
@@ -101,12 +114,7 @@ export default function Welcome() {
                                                     <li key={i} className="flex items-center gap-3">
                                                         <span className="grid h-5 w-5 place-items-center rounded border border-[#a0a8cc] bg-white text-emerald-600 dark:border-[#3a4368] dark:bg-[#0f1323]">
                                                             {i % 2 === 0 ? (
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    viewBox="0 0 20 20"
-                                                                    fill="currentColor"
-                                                                    className="h-3.5 w-3.5"
-                                                                >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
                                                                     <path
                                                                         fillRule="evenodd"
                                                                         d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3-3a1 1 0 111.42-1.42l2.29 2.29 6.79-6.79a1 1 0 011.42 0z"
@@ -133,12 +141,7 @@ export default function Welcome() {
                                 {/* Floating clock */}
                                 <div className="absolute -right-3 -top-3 hidden rounded-full bg-white p-2 shadow-sm ring-1 ring-black/10 dark:bg-[#141414] dark:ring-white/10 md:block">
                                     <div className="grid h-14 w-14 place-items-center rounded-full bg-[#e1e7ff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 24 24"
-                                            fill="currentColor"
-                                            className="h-7 w-7"
-                                        >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7">
                                             <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm.75 5a.75.75 0 00-1.5 0v5.19l4.12 2.38a.75.75 0 10.74-1.3L12.75 11V7z" />
                                         </svg>
                                     </div>
@@ -146,12 +149,98 @@ export default function Welcome() {
                             </div>
                         </section>
                     </div>
+
+                    {/* Role highlights */}
+                    <section className="mt-16 grid gap-6 md:grid-cols-2">
+                        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                            <div className="mb-3 flex items-center gap-2">
+                                <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
+                                    {/* teacher icon */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                                        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2.25 20.25A7.75 7.75 0 0110 12.5h4a7.75 7.75 0 017.75 7.75.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75z" />
+                                    </svg>
+                                </span>
+                                <h2 className="text-lg font-semibold">For Teachers</h2>
+                            </div>
+                            <p className="text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
+                                Design exams and questions, schedule sessions, proctor activity, and grade submissions.
+                                Track performance across courses and units from one dashboard.
+                            </p>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <Badge>Courses & Units</Badge>
+                                <Badge>Question Bank</Badge>
+                                <Badge>Proctoring</Badge>
+                                <Badge>Grading</Badge>
+                            </div>
+                            {isAuthed && (isTeacher || !isStudent) && (
+                                <div className="mt-6 flex flex-wrap gap-3">
+                                    <QuickLink href="/courses">Manage courses</QuickLink>
+                                    <QuickLink href="/exams">All exams</QuickLink>
+                                    <QuickLink href="/grading/exams/submitted">Grade submissions</QuickLink>
+                                    <QuickLink href="/revision">Revision docs</QuickLink>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
+                            <div className="mb-3 flex items-center gap-2">
+                                <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
+                                    {/* student icon */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                                        <path d="M12 3l9 5-9 5-9-5 9-5zm0 7.5l6.75-3.75V14a6.75 6.75 0 11-13.5 0V6.75L12 10.5z" />
+                                    </svg>
+                                </span>
+                                <h2 className="text-lg font-semibold">For Students</h2>
+                            </div>
+                            <p className="text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
+                                Join exam sessions, answer securely, submit with confidence, and access your results
+                                and revision materials anytime.
+                            </p>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <Badge>Secure Exams</Badge>
+                                <Badge>Results</Badge>
+                                <Badge>Revision</Badge>
+                                <Badge>Accessibility</Badge>
+                            </div>
+                            {isAuthed && (isStudent || !isTeacher) && (
+                                <div className="mt-6 flex flex-wrap gap-3">
+                                    <QuickLink href="/student/results">Your results</QuickLink>
+                                    <QuickLink href="/student/revision">Revision</QuickLink>
+                                    <QuickLink href="/dashboard">Go to dashboard</QuickLink>
+                                </div>
+                            )}
+                        </div>
+                    </section>
                 </main>
 
-                <footer className="pb-10 text-center text-xs text-[#8a8984] dark:text-[#9E9D97]">
-                    © {new Date().getFullYear()} Online Exam. All rights reserved.
-                </footer>
+                <footer className="pb-10 text-center text-xs text-[#8a8984] dark:text-[#9E9D97]">© {new Date().getFullYear()} Online Exam. All rights reserved.</footer>
             </div>
         </>
+    );
+}
+
+function capitalize(s: string) {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+    return (
+        <span className="inline-flex items-center rounded-full border border-black/10 px-2.5 py-1 text-[11px] font-medium text-[#3b3b35] dark:border-white/10 dark:text-[#D9D8D2]">
+            {children}
+        </span>
+    );
+}
+
+function QuickLink({ href, children }: { href: string; children: React.ReactNode }) {
+    return (
+        <Link
+            href={href}
+            className="inline-flex items-center gap-1 rounded-full bg-[#f0f4ff] px-3 py-1.5 text-xs font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
+        >
+            {children}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path d="M12.293 5.293a1 1 0 011.414 1.414L9.414 11h5.586a1 1 0 110 2H7a1 1 0 01-.707-1.707l6-6z" />
+            </svg>
+        </Link>
     );
 }
