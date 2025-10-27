@@ -42,16 +42,16 @@ class UserSeeder extends Seeder
         $create(['name' => 'Primary Admin', 'email' => 'jeffkamau8501@gmail.com', 'username' => 'Jeff_Admin001'], $adminRole);
         $create(['name' => 'Secondary Admin', 'email' => 'hontez@proton.me', 'username' => 'Jeff_Admin002'], $adminRole);
 
-        7 Teachers
+        // 7 Teachers
         for ($i = 1; $i <= 7; $i++) {
             $create([
                 'name' => 'Teacher ' . $i,
-                'email' => "teacher{$i}@gmail.com.com",
+                'email' => "teacher{$i}@gmail.com",
                 'username' => "teacher{$i}",
             ], $teacherRole);
         }
 
-        20 Students
+        // 20 Students
         for ($i = 1; $i <= 20; $i++) {
             $create([
                 'name' => 'Student ' . $i,
