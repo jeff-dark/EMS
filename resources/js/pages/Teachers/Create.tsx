@@ -9,7 +9,7 @@ import { OctagonAlert } from 'lucide-react';
 import React, { useMemo } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Register Teacher', href: '/teachers/create' },
+    { title: 'Register Instructor', href: '/teachers/create' },
 ];
 
 interface Unit { id:number; title:string; course_id:number; }
@@ -55,7 +55,7 @@ export default function Create(props: PageProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Register Teacher" />
+            <Head title="Register Instructor" />
             <div className='w-full max-w-5xl p-4 space-y-6'>
                 <form onSubmit={handleSubmit} className='space-y-6'>
                     {Object.keys(errors).length > 0 && (
@@ -140,7 +140,7 @@ export default function Create(props: PageProps) {
                         </div>
                     </div>
 
-                    <Button type="submit" disabled={processing}>{processing ? 'Saving...' : 'Save Teacher & Assign Units'}</Button>
+                    <Button type="submit" disabled={processing}>{processing ? 'Saving...' : 'Save Instructor & Assign Units'}</Button>
                 </form>
             </div>
         </AppLayout>

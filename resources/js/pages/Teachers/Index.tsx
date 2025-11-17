@@ -19,7 +19,7 @@ import {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Teachers',
+        title: 'Instructors',
         href: '/teachers',
     },
 ];
@@ -68,7 +68,7 @@ export default function Index() {
     }, [teachers, q, courseQ, minUnits]);
 
     const handleDelete = (id: number, name: string) => {
-        if(confirm(`Are you sure you want to delete teacher ${id} - ${name}?`)) {
+        if(confirm(`Are you sure you want to delete instructor ${id} - ${name}?`)) {
             destroy(route('teachers.destroy', id));
         }
     };
@@ -90,9 +90,9 @@ export default function Index() {
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Teachers" />
-            <FilterBar
-                right={<Link href={route('teachers.create')}><Button>Create Teacher</Button></Link>}
+            <Head title="Instructors" />
+                <FilterBar
+                right={<Link href={route('teachers.create')}><Button>Create Instructor</Button></Link>}
                 onReset={() => { setQ(""); setCourseQ(""); setMinUnits(""); }}
             >
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search name or email" />
@@ -117,7 +117,7 @@ export default function Index() {
             {filtered.length > 0 && (
                 <div className="m-4">
                     <Table>
-                        <TableCaption>A list of your recent teachers.</TableCaption>
+                        <TableCaption>A list of your recent instructors.</TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>

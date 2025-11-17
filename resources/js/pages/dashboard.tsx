@@ -296,7 +296,7 @@ export default function Dashboard() {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3 xl:grid-cols-4">
                     <Card><CardHeader><CardTitle>Admins</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.admins}</span></CardContent></Card>
-                    <Card><CardHeader><CardTitle>Teachers</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
+                    <Card><CardHeader><CardTitle>Instructors</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
@@ -335,7 +335,7 @@ export default function Dashboard() {
                             {(() => {
                                 const data = [
                                     { name: 'Admins', value: counts.admins, key: 'admins', color: 'var(--color-chart-1)' },
-                                    { name: 'Teachers', value: counts.teachers, key: 'teachers', color: 'var(--color-chart-2)' },
+                                    { name: 'Instructors', value: counts.teachers, key: 'teachers', color: 'var(--color-chart-2)' },
                                     { name: 'Students', value: counts.students, key: 'students', color: 'var(--color-chart-3)' },
                                 ];
                                 const total = data.reduce((acc, d) => acc + d.value, 0) || 1;

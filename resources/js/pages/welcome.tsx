@@ -9,7 +9,7 @@ export default function Welcome() {
     const primaryRole: string | null = (typeof user?.role === 'string' ? user.role : null) ?? rolesArray[0] ?? null;
     const isTeacher = primaryRole === 'teacher' || rolesArray.includes('teacher');
     const isStudent = primaryRole === 'student' || rolesArray.includes('student');
-    const displayRole = isTeacher ? 'Teacher' : isStudent ? 'Student' : primaryRole ? capitalize(primaryRole) : null;
+    const displayRole = isTeacher ? 'Instructor' : isStudent ? 'Student' : primaryRole ? capitalize(primaryRole) : null;
 
     return (
         <>
@@ -59,12 +59,12 @@ export default function Welcome() {
                                     >
                                         Student Login
                                     </Link>
-                                    <Link
-                                        href="/login?as=teacher"
-                                        className="inline-flex items-center rounded-full bg-[#68a1ff] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                    >
-                                        Teacher Login
-                                    </Link>
+                                        <Link
+                                            href="/login?as=teacher"
+                                            className="inline-flex items-center rounded-full bg-[#68a1ff] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
+                                        >
+                                            Instructor Login
+                                        </Link>
                                 </div>
                             )}
                         </div>
@@ -122,7 +122,7 @@ export default function Welcome() {
                                             href="/login?as=teacher"
                                             className="inline-flex items-center rounded-full bg-[#68a1ff] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
                                         >
-                                            Teacher Login
+                                            Instructor Login
                                         </Link>
                                     </div>
                                 )}
@@ -148,7 +148,7 @@ export default function Welcome() {
                                         <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2.25 20.25A7.75 7.75 0 0110 12.5h4a7.75 7.75 0 017.75 7.75.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75z" />
                                     </svg>
                                 </span>
-                                <h2 className="text-lg font-semibold">For Teachers</h2>
+                                <h2 className="text-lg font-semibold">For Instructors</h2>
                             </div>
                             <h3 className="text-sm font-medium text-[#3b3b35] dark:text-[#D9D8D2]">Streamline Your Assessment Process</h3>
                             <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
@@ -175,7 +175,7 @@ export default function Welcome() {
                                         href="/exams"
                                         className="inline-flex items-center rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
                                     >
-                                        Explore Teacher Features
+                                        Explore Instructor Features
                                     </Link>
                                     <a
                                         href="#contact"
@@ -273,11 +273,11 @@ export default function Welcome() {
                         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-[#eaf0ff] px-6 py-8 text-center shadow-sm dark:bg-[#12172a] md:flex-row md:text-left">
                             <div>
                                 <h3 className="text-lg font-semibold text-[#2a2a26] dark:text-[#EDEDEC]">Ready to get started?</h3>
-                                <p className="text-sm text-[#6f6f6b] dark:text-[#B9B8B3]">Log in as a student or teacher and start your next exam journey.</p>
+                                <p className="text-sm text-[#6f6f6b] dark:text-[#B9B8B3]">Log in as a student or instructor and start your next exam journey.</p>
                             </div>
                             <div className="flex flex-wrap items-center justify-center gap-3">
                                 <Link href="/login?as=student" className="inline-flex items-center rounded-full bg-[#3b4aa1] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2f3c85]">Student Login</Link>
-                                <Link href="/login?as=teacher" className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6]">Teacher Login</Link>
+                                <Link href="/login?as=teacher" className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6]">Instructor Login</Link>
                             </div>
                         </div>
                     </section>
@@ -288,7 +288,7 @@ export default function Welcome() {
                         <div className="mt-6 grid gap-4 md:grid-cols-2">
                             <FaqItem q="What are the system requirements?" a="A modern browser (Chrome, Firefox, Edge, Safari), stable internet, and a camera/microphone if proctoring is enabled." />
                             <FaqItem q="How do I reset my password?" a="Use the 'Forgot password' link on the login page and follow the instructions sent to your email." />
-                            <FaqItem q="How do I upload questions in bulk?" a="Teachers can access the Question Bank and use the import/upload option to add multiple questions." />
+                            <FaqItem q="How do I upload questions in bulk?" a="Instructors can access the Question Bank and use the import/upload option to add multiple questions." />
                             <FaqItem q="Can I schedule an exam for a specific time?" a="Yes. When creating an exam, set the open/close times and duration to control availability." />
                             <FaqItem q="What happens if my internet disconnects?" a="Your answers are saved continuously. Reconnect and resume if the exam window is still open." />
                             <FaqItem q="Is the system compatible with screen readers?" a="Yes. We follow accessibility best practices and support keyboard navigation and ARIA labels." />
@@ -299,7 +299,7 @@ export default function Welcome() {
                     <section id="contact" className="mt-16 w-full rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414] scroll-mt-24">
                         <h2 className="text-xl font-semibold">Get Support</h2>
                         <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                            Need help? Reach out to our team — we’re here to assist teachers and students.
+                            Need help? Reach out to our team — we’re here to assist instructors and students.
                         </p>
                         <div className="mt-4 flex flex-wrap gap-3 text-sm">
                             <a
