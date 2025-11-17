@@ -43,21 +43,21 @@ class UserSeeder extends Seeder
         $create(['name' => 'Secondary Admin', 'email' => 'hontez@proton.me', 'username' => 'Jeff_Admin002'], $adminRole);
 
         // 7 Teachers
-        // for ($i = 1; $i <= 7; $i++) {
-        //     $create([
-        //         'name' => 'Teacher ' . $i,
-        //         'email' => "teacher{$i}@gmail.com.com",
-        //         'username' => "teacher{$i}",
-        //     ], $teacherRole);
-        // }
+        for ($i = 1; $i <= 6; $i++) {
+            $create([
+                'name' => 'Teacher ' . $i,
+                'email' => "teacher{$i}@gmail.com.com",
+                'username' => "teacher{$i}",
+            ], $teacherRole);
+        }
 
         // 30 Students
-        // for ($i = 1; $i <= 30; $i++) {
-        //     $create([
-        //         'name' => 'Student ' . $i,
-        //         'email' => "student{$i}@gmail.com",
-        //         'username' => "student{$i}",
-        //     ], $studentRole);
-        // }
+        for ($i = 1; $i <= 20; $i++) {
+            $create([
+                'name' => 'Student ' . $i,
+                'email' => "student{$i}@gmail.com",
+                'username' => "student{$i}",
+            ], $studentRole);
+        }
     }
 }
