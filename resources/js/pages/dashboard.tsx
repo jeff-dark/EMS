@@ -5,9 +5,11 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import ActionMenu from '@/components/ui/action-menu';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
@@ -421,6 +423,7 @@ export default function Dashboard() {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Role</TableHead>
+                                <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -429,6 +432,22 @@ export default function Dashboard() {
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.role}</TableCell>
+                                    <TableCell className="text-center">
+                                        {/* Actions can be added here in the future */}
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: `/users/${user.id}/edit` },
+                                                { label: 'Reset Password', onClick: () => {
+                                                    if (!confirm('Reset password for "' + user.name + '"?')) return;
+                                                    Inertia.post(`/users/${user.id}/reset-password`, {}, { preserveScroll: true });
+                                                } },
+                                                { label: 'Delete', onClick: () => {
+                                                    if (!confirm('Delete user "' + user.name + '"? This cannot be undone.')) return;
+                                                    Inertia.delete(`/users/${user.id}`, { preserveScroll: true });
+                                                }, variant: 'destructive' },
+                                            ]}
+                                        />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
