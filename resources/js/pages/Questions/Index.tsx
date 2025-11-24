@@ -109,19 +109,7 @@ export default function Index() {
         <Input value={minPoints} onChange={(e)=>setMinPoints(e.target.value)} placeholder="Min points" type="number" />
         <Input value={maxPoints} onChange={(e)=>setMaxPoints(e.target.value)} placeholder="Max points" type="number" />
       </FilterBar>
-      <div className="mb-4">
-        <div>
-          {flash?.message && (
-          <Alert>
-            <Bell />
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>
-              {flash.message}
-              </AlertDescription>
-          </Alert>
-        )}
-        </div>
-      </div>
+      {/* Flash is shown globally in the layout (AppSidebarLayout) */}
       {filtered.length > 0 ? (
         <div className="m-4">
           <Table>

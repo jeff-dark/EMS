@@ -94,20 +94,7 @@ export default function Index() {
                     placeholder="Search name, email, username"
                 />
             </FilterBar>
-            <div className="m-4">
-                <div>
-                    {flash.message && (
-                        <Alert>
-                            <Bell />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>
-                                {flash.message}
-                            </AlertDescription>
-                        </Alert>
-                    )
-                    }
-                </div>
-            </div>
+            {/* Flash is shown globally in the layout (AppSidebarLayout) */}
 
             {filtered.length > 0 && (
                 <div className="m-4">
@@ -132,7 +119,7 @@ export default function Index() {
                                             items={[ 
                                                 { label: 'Edit', href: route('admins.edit', admin.id) },
                                                 { label: 'Reset Password', onClick: () => handleResetPassword(admin.id, admin.name), variant: 'default' },
-                                                { label: 'Delete', onClick: () => handleDelete(admin.id, admin.name), variant: 'destructive', disabled: processing },
+                                                // { label: 'Delete', onClick: () => handleDelete(admin.id, admin.name), variant: 'destructive', disabled: processing },
                                             ]}
                                         />
                                     </TableCell>

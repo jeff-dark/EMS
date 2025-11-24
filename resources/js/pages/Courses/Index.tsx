@@ -92,19 +92,7 @@ export default function Index() {
                     placeholder="Search name or description"
                 />
             </FilterBar>
-            <div className="m-4">
-                <div>
-                    {flash.message && (
-                        <Alert>
-                            <Bell />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>
-                                {flash.message}
-                            </AlertDescription>
-                        </Alert>
-                    )}
-                </div>
-            </div>
+            {/* Flash is shown globally in the layout (AppSidebarLayout) */}
 
             {filtered.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-4">

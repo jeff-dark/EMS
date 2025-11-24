@@ -441,10 +441,12 @@ export default function Dashboard() {
                                                     if (!confirm('Reset password for "' + user.name + '"?')) return;
                                                     Inertia.post(`/users/${user.id}/reset-password`, {}, { preserveScroll: true });
                                                 } },
-                                                { label: 'Delete', onClick: () => {
-                                                    if (!confirm('Delete user "' + user.name + '"? This cannot be undone.')) return;
-                                                    Inertia.delete(`/users/${user.id}`, { preserveScroll: true });
-                                                }, variant: 'destructive' },
+                                                ...(user.role !== 'admin' ? [
+                                                    { label: 'Delete', onClick: () => {
+                                                        if (!confirm('Delete user "' + user.name + '"? This cannot be undone.')) return;
+                                                        Inertia.delete(`/users/${user.id}`, { preserveScroll: true });
+                                                    }, variant: 'destructive' as const },
+                                                ] : []),
                                             ]}
                                         />
                                     </TableCell>
