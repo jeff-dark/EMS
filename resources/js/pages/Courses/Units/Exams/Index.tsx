@@ -152,19 +152,7 @@ export default function Index() {
                     </Select>
                 )}
             </FilterBar>
-            <div className="m-4">
-                <div>
-                    {flash && flash.message && (
-                        <Alert>
-                            <Bell />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>
-                                {flash.message}
-                            </AlertDescription>
-                        </Alert>
-                    )}
-                </div>
-            </div>
+            {/* Flash is shown globally in the layout (AppSidebarLayout) */}
             {filtered.length > 0 ? (
                 <div className="m-4">
                     <Table>

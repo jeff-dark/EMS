@@ -99,20 +99,7 @@ export default function Index() {
                 <Input value={courseQ} onChange={(e)=>setCourseQ(e.target.value)} placeholder="Filter by course name" />
                 <Input value={minUnits} onChange={(e)=>setMinUnits(e.target.value)} placeholder="Min units" type="number" />
             </FilterBar>
-            <div className="m-4">
-                <div>
-                    {flash.message && (
-                        <div className="alert">
-                            <Bell />
-                            <strong>Notification!</strong>
-                            <span>
-                                {flash.message}
-                            </span>
-                        </div>
-                    )
-                    }
-                </div>
-            </div>
+            {/* Flash is shown globally in the layout (AppSidebarLayout) */}
 
             {filtered.length > 0 && (
                 <div className="m-4">

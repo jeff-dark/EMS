@@ -124,17 +124,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Exams" />
 
-            <div className="m-4">
-                <div>
-                    {flash?.message && (
-                        <Alert>
-                            <Bell />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>{flash.message}</AlertDescription>
-                        </Alert>
-                    )}
-                </div>
-            </div>
+            {/* Flash is shown globally in the layout (AppSidebarLayout) */}
 
             <FilterBar onReset={() => { setQ(""); setStatus('all'); setSubmission('all'); }}>
                 <Input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Search title, course, unit" />
