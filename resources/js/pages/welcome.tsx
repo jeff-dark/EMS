@@ -30,9 +30,7 @@ export default function Welcome() {
                 <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/80 px-6 py-4 backdrop-blur dark:border-white/10 dark:bg-[#0b0b0b]/80">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#68a1ff] text-white shadow-sm dark:bg-[#68a1ff]">
-                                <span className="text-sm font-bold">EMS</span>
-                            </div>
+                            <img src="/images/alison_icon.jpeg" alt="Exam Management System Logo" className="h-9 w-9" />
                             <span className="text-base font-semibold tracking-tight">Exam Management System</span>
                         </div>
 
