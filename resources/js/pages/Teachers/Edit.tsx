@@ -55,10 +55,10 @@ export default function Edit({ teacher, courses }: PageProps) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Edit Teacher', href: `/teachers/${teacher.id}/edit` }]}>            
-            <Head title={`Edit Teacher - ${teacher.user.name}`} />
+        <AppLayout breadcrumbs={[{ title: 'Edit Instructor', href: `/teachers/${teacher.id}/edit` }]}>            
+            <Head title={`Edit Instructor - ${teacher.user.name}`} />
             <div className='w-full max-w-5xl p-4 space-y-6'>
-                <h1 className='text-2xl font-semibold'>Edit Teacher Details - {teacher.user.name}</h1>
+                <h1 className='text-2xl font-semibold'>Edit Instructor Details - {teacher.user.name}</h1>
                 <form onSubmit={handleUpdate} className='space-y-6'>
                     {Object.keys(errors).length > 0 && (
                         <Alert variant='destructive'>

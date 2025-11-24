@@ -131,7 +131,7 @@ export default function Profile({
 
                                     {isStudent && (
                                         <p className="text-sm text-muted-foreground">
-                                            Students are not allowed to update profile information. If you need changes, please contact an admin or your teacher.
+                                            Students are not allowed to update profile information. If you need changes, please contact an admin or your instructor.
                                         </p>
                                     )}
 

@@ -32,7 +32,7 @@ function buildMainNavItems(role?: string): NavItem[] {
         items.push({ title: 'Revision Bank', href: '/revision', icon: FileText });
     }
     if (role === 'admin') {
-        items.push({ title: 'Teachers', href: '/teachers', icon: ContactRound });
+        items.push({ title: 'Instructors', href: '/teachers', icon: ContactRound });
         items.push({ title: 'Admins', href: '/admins', icon: NotepadText });
         items.push({ title: 'Courses', href: '/courses', icon: ShieldBan });
         items.push({ title: 'System Settings', href: '/admin/system-settings', icon: NotepadText });

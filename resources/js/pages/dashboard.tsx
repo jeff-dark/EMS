@@ -5,9 +5,11 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import ActionMenu from '@/components/ui/action-menu';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
@@ -296,7 +298,7 @@ export default function Dashboard() {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-hidden rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3 xl:grid-cols-4">
                     <Card><CardHeader><CardTitle>Admins</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.admins}</span></CardContent></Card>
-                    <Card><CardHeader><CardTitle>Teachers</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
+                    <Card><CardHeader><CardTitle>Instructors</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.teachers}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Students</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.students}</span></CardContent></Card>
                     <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent><span className="text-3xl font-bold">{counts.courses}</span></CardContent></Card>
                 </div>
@@ -335,7 +337,7 @@ export default function Dashboard() {
                             {(() => {
                                 const data = [
                                     { name: 'Admins', value: counts.admins, key: 'admins', color: 'var(--color-chart-1)' },
-                                    { name: 'Teachers', value: counts.teachers, key: 'teachers', color: 'var(--color-chart-2)' },
+                                    { name: 'Instructors', value: counts.teachers, key: 'teachers', color: 'var(--color-chart-2)' },
                                     { name: 'Students', value: counts.students, key: 'students', color: 'var(--color-chart-3)' },
                                 ];
                                 const total = data.reduce((acc, d) => acc + d.value, 0) || 1;
@@ -421,6 +423,7 @@ export default function Dashboard() {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Role</TableHead>
+                                <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -429,6 +432,22 @@ export default function Dashboard() {
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.role}</TableCell>
+                                    <TableCell className="text-center">
+                                        {/* Actions can be added here in the future */}
+                                        <ActionMenu
+                                            items={[
+                                                { label: 'Edit', href: `/users/${user.id}/edit` },
+                                                { label: 'Reset Password', onClick: () => {
+                                                    if (!confirm('Reset password for "' + user.name + '"?')) return;
+                                                    Inertia.post(`/users/${user.id}/reset-password`, {}, { preserveScroll: true });
+                                                } },
+                                                { label: 'Delete', onClick: () => {
+                                                    if (!confirm('Delete user "' + user.name + '"? This cannot be undone.')) return;
+                                                    Inertia.delete(`/users/${user.id}`, { preserveScroll: true });
+                                                }, variant: 'destructive' },
+                                            ]}
+                                        />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

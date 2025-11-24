@@ -13,7 +13,7 @@
     <strong>Status:</strong> {{ $session->score !== null && isset($exam->passing_score) ? ($session->score >= $exam->passing_score ? 'Passed' : 'Failed') : 'Graded' }}
   </p>
   @if(!empty($session->teacher_comment))
-    <p><strong>Teacher comments:</strong> {{ $session->teacher_comment }}</p>
+    <p><strong>Instructor comments:</strong> {{ $session->teacher_comment }}</p>
   @endif
   <p>You can log in to view full details.</p>
   <p>Regards,<br>{{ config('app.name') }}</p>

@@ -111,7 +111,7 @@
               <div class="v">{{ optional($session->submitted_at ?? $session->started_at)->format('Y-m-d') }}</div>
               <div class="k">Exam Duration</div>
               <div class="v">{{ (int)($exam->duration_minutes ?? 0) }} Minutes</div>
-              <div class="k">Teacher Name</div>
+              <div class="k">Instructor Name</div>
               <div class="v">{{ $teacher->name ?? '—' }}</div>
             </div>
           </div>
