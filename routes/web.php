@@ -150,20 +150,20 @@ Route::get('/results/verify', [App\Http\Controllers\StudentExamController::class
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
-    Route::get('/test-email', function (Request $request) {
-        $to = $request->user()->email;
-        try {
-            if (config('queue.default') === 'sync') {
-                Mail::raw('This is a test email from '.config('app.name').'.', function ($m) use ($to) {
-                    $m->to($to)->subject('Test Email');
-                });
-            } else {
-                Mail::to($to)->queue(new class extends \Illuminate\Mail\Mailable implements \Illuminate\Contracts\Queue\ShouldQueue {
-                    public function build(): self { return $this->subject('Test Email')->text('emails.plain_test'); }
-                });
-            }
-            return response()->json(['status' => 'ok', 'to' => $to, 'mailer' => config('mail.default')]);
-        } catch (\Throwable $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    })->name('test-email');
+    // Route::get('/test-email', function (Request $request) {
+    //     $to = $request->user()->email;
+    //     try {
+    //         if (config('queue.default') === 'sync') {
+    //             Mail::raw('This is a test email from '.config('app.name').'.', function ($m) use ($to) {
+    //                 $m->to($to)->subject('Test Email');
+    //             });
+    //         } else {
+    //             Mail::to($to)->queue(new class extends \Illuminate\Mail\Mailable implements \Illuminate\Contracts\Queue\ShouldQueue {
+    //                 public function build(): self { return $this->subject('Test Email')->text('emails.plain_test'); }
+    //             });
+    //         }
+    //         return response()->json(['status' => 'ok', 'to' => $to, 'mailer' => config('mail.default')]);
+    //     } catch (\Throwable $e) {
+    //         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    //     }
+    // })->name('test-email');

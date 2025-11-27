@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { usePage } from '@inertiajs/react';
 
 interface SettingsProps {
   settings: {
@@ -13,8 +14,19 @@ interface SettingsProps {
     signatory_title?: string;
   };
 }
+type PageProps = {
+  auth?: { user?: { email?: string } };
+};
+
+const breadcrumbs = [{ title: 'System Settings', href: '/admin/system-settings' }];
 
 export default function SystemSettingsPage({ settings }: SettingsProps) {
+   // 1. Get the authenticated user from global Inertia props (typed as optional)
+    const { auth } = usePage<{ auth?: { user?: { email?: string } } } & PageProps>().props;
+  
+    // 2. Define the allowed email
+    const ALLOWED_EMAIL = 'jeffkamau8501@gmail.com';
+  
   const { data, setData, post, processing } = useForm({
     institution_name: settings?.institution_name ?? '',
     signatory_name: settings?.signatory_name ?? '',
@@ -26,6 +38,18 @@ export default function SystemSettingsPage({ settings }: SettingsProps) {
     e.preventDefault();
     post('/admin/system-settings', { forceFormData: true });
   };
+
+  if (!(auth?.user?.email && auth.user.email === ALLOWED_EMAIL)) {
+  
+    return (
+      <AppLayout breadcrumbs={breadcrumbs}>
+        <Head title="Audit Logs" />
+        <div className="m-4">
+          <h1 className="text-xl font-semibold">Unauthorized</h1>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout breadcrumbs={[{ title: 'System Settings', href: '/admin/system-settings' }]}> 

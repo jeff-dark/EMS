@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Course, Unit};
+use App\Models\{Course, Unit, User};
 use Carbon\Traits\Units;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class UnitController extends Controller
 {
@@ -18,7 +20,8 @@ class UnitController extends Controller
 
     public function index(Course $course)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$teacher) {
@@ -55,7 +58,8 @@ class UnitController extends Controller
     public function create(Course $course)
     {
         // Teachers can only create units under courses they teach
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             $isAssignedToCourse = Unit::where('course_id', $course->id)
@@ -71,7 +75,8 @@ class UnitController extends Controller
     public function store(Request $request, Course $course)
     {
         // Teachers can only create units under courses they teach
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             $isAssignedToCourse = Unit::where('course_id', $course->id)
@@ -84,7 +89,12 @@ class UnitController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'nullable|string',
-            'order' => 'required|integer|min:1',
+            'order' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('units')->where(fn($query) => $query->where('course_id', $course->id)),
+            ],
         ]);
 
         Unit::create([
@@ -99,7 +109,8 @@ class UnitController extends Controller
 
     public function edit(Course $course, Unit $unit)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
@@ -111,7 +122,8 @@ class UnitController extends Controller
 
     public function update(Request $request, Course $course, Unit $unit)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {
@@ -121,7 +133,12 @@ class UnitController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'nullable|string',
-            'order' => 'required|integer|min:1',
+            'order' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('units')->ignore($unit->id)->where(fn($query) => $query->where('course_id', $course->id)),
+            ],
         ]);
 
         $unit->update([
@@ -135,7 +152,8 @@ class UnitController extends Controller
 
     public function destroy(Course $course, Unit $unit)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = $user->teacher;
             if (!$unit->teachers()->where('teachers.id', $teacher->id)->exists()) {

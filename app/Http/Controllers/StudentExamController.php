@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Exam, ExamSession, Question, StudentAnswer};
+use App\Models\{Exam, ExamSession, Question, StudentAnswer, User};
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +23,7 @@ class StudentExamController extends Controller
 {
     public function start(Exam $exam)
     {
+        /** @var User|null $user */
         $user = Auth::user();
 
         // Students must be registered to the exam's unit to access it
@@ -35,7 +36,7 @@ class StudentExamController extends Controller
             \abort(403);
         }
 
-        // Ensure the exam is published and only accessible at the exact scheduled start time (to the minute)
+        // Ensure the exam is published and only accessible during the scheduled window
         $now = Carbon::now();
         if (!$exam->is_published) {
             return redirect()->route('exams.index')->with('message', 'This exam is not available yet.');
@@ -43,15 +44,16 @@ class StudentExamController extends Controller
 
         if (!is_null($exam->start_time)) {
             $start = $exam->start_time instanceof Carbon ? $exam->start_time : Carbon::parse($exam->start_time);
-            $sameMinute = $now->isSameDay($start)
-                && $now->format('H:i') === $start->format('H:i');
+            // Prefer an explicit end_time, otherwise compute from duration
+            $end = $exam->end_time instanceof Carbon ? $exam->end_time : $start->copy()->addMinutes((int) $exam->duration_minutes);
 
-            if (!$sameMinute) {
-                // Before start time
-                if ($now->lt($start)) {
-                    return redirect()->route('exams.index')->with('message', "The exam time hasn't reached yet.");
-                }
-                // After start time
+            // Before the scheduled window
+            if ($now->lt($start)) {
+                return redirect()->route('exams.index')->with('message', "The exam time hasn't reached yet.");
+            }
+
+            // After the scheduled window
+            if ($now->gt($end)) {
                 $alreadySubmitted = ExamSession::where('exam_id', $exam->id)
                     ->where('user_id', $user->id)
                     ->whereNotNull('submitted_at')
@@ -124,6 +126,14 @@ class StudentExamController extends Controller
             ['answer_text' => $data['answer_text'] ?? null]
         );
 
+        // For Inertia visits, return an Inertia-compatible redirect so the
+        // Inertia client doesn't treat the plain JSON as an invalid response
+        // (which causes the white overlay). For non-Inertia (API/fetch)
+        // requests, return JSON as before.
+        if ($request->headers->get('X-Inertia')) {
+            return redirect()->back(303)->with('message', 'Answers saved');
+        }
+
         return response()->json(['status' => 'saved']);
     }
 
@@ -156,6 +166,10 @@ class StudentExamController extends Controller
                 ['exam_session_id' => $session->id, 'question_id' => $ans['question_id']],
                 ['answer_text' => $ans['answer_text'] ?? null]
             );
+        }
+
+        if ($request->headers->get('X-Inertia')) {
+            return redirect()->back(303)->with('message', 'Answers saved');
         }
 
         return response()->json(['status' => 'saved']);
