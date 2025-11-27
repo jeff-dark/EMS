@@ -39,6 +39,7 @@ interface BackendExam {
     is_published: boolean;
     is_submitted?: boolean; // computed per-student
     start_time?: string | null;
+    end_time?: string | null;
     unit?: BackendExamRelationUnit;
 }
 
@@ -69,13 +70,10 @@ export default function Index() {
     function checkExamTiming(exam: BackendExam): 'ok' | 'future' | 'past' {
         if (!exam.start_time) return 'ok';
         const start = new Date(exam.start_time);
+        // If an explicit end_time is available on the backend, prefer it. Otherwise fall back to duration.
+        const end = (exam as any).end_time ? new Date((exam as any).end_time) : new Date(start.getTime() + (Number(exam.duration_minutes ?? 0) * 60000));
         const now = new Date();
-        const sameMinute = now.getFullYear() === start.getFullYear()
-            && now.getMonth() === start.getMonth()
-            && now.getDate() === start.getDate()
-            && now.getHours() === start.getHours()
-            && now.getMinutes() === start.getMinutes();
-        if (sameMinute) return 'ok';
+        if (now >= start && now <= end) return 'ok';
         return now < start ? 'future' : 'past';
     }
 

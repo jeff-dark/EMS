@@ -30,6 +30,7 @@ interface Exam {
     is_published: boolean;
     is_submitted?: boolean; // computed per-student
     start_time?: string | null;
+    end_time?: string | null;
 }
 
 interface Unit {
@@ -81,15 +82,13 @@ export default function Index() {
     const [timingDescription, setTimingDescription] = useState<string>('');
 
     function checkExamTiming(exam: Exam): 'ok' | 'future' | 'past' {
+        // If no start_time is set, consider the exam always available.
         if (!exam.start_time) return 'ok';
         const start = new Date(exam.start_time);
+        // Prefer an explicit end_time, otherwise fall back to start + duration
+        const end = exam.end_time ? new Date(exam.end_time) : new Date(start.getTime() + (Number(exam.duration_minutes ?? 0) * 60000));
         const now = new Date();
-        const sameMinute = now.getFullYear() === start.getFullYear()
-            && now.getMonth() === start.getMonth()
-            && now.getDate() === start.getDate()
-            && now.getHours() === start.getHours()
-            && now.getMinutes() === start.getMinutes();
-        if (sameMinute) return 'ok';
+        if (now >= start && now <= end) return 'ok';
         return now < start ? 'future' : 'past';
     }
 
