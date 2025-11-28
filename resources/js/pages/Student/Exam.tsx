@@ -11,6 +11,8 @@ interface Exam {
   id: number;
   title: string;
   duration_minutes: number;
+  start_time?: string | null;
+  end_time?: string | null;
 }
 
 interface Question {
@@ -135,8 +137,19 @@ export default function StudentExam() {
     });
   };
 
-  // Countdown clock based on server-provided end time
-  const endAtMs = React.useMemo(() => (sessionEndAt ? new Date(sessionEndAt).getTime() : null), [sessionEndAt]);
+  // Countdown clock: prefer explicit exam end_time (exam.start_time + duration),
+  // fall back to sessionEndAt if exam times are not available.
+  const endAtMs = React.useMemo(() => {
+    // If the exam object provides an explicit `end_time`, use it.
+    if (exam.end_time) return new Date(exam.end_time).getTime();
+    // If the exam has a scheduled start_time, compute end = start_time + duration
+    if (exam.start_time) {
+      const start = new Date(exam.start_time).getTime();
+      return start + (Number(exam.duration_minutes ?? 0) * 60000);
+    }
+    // Finally fall back to the session-based end time the server sent.
+    return sessionEndAt ? new Date(sessionEndAt).getTime() : null;
+  }, [exam.end_time, exam.start_time, exam.duration_minutes, sessionEndAt]);
   const remainingMs = endAtMs ? Math.max(0, endAtMs - nowMs) : null;
   const remainingSec = remainingMs !== null ? Math.ceil(remainingMs / 1000) : null;
   const fmt = (sec: number) => {

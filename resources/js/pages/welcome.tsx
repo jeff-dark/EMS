@@ -5,414 +5,329 @@ export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
     const isAuthed = Boolean(auth?.user);
     const user = (auth?.user ?? null) as any;
+    
+    // Role Logic
     const rolesArray: string[] = Array.isArray(user?.roles) ? (user.roles as string[]) : [];
     const primaryRole: string | null = (typeof user?.role === 'string' ? user.role : null) ?? rolesArray[0] ?? null;
-    const isTeacher = primaryRole === 'teacher' || rolesArray.includes('teacher');
-    const isStudent = primaryRole === 'student' || rolesArray.includes('student');
-    const displayRole = isTeacher ? 'Instructor' : isStudent ? 'Student' : primaryRole ? capitalize(primaryRole) : null;
 
     return (
         <>
             <Head title="Welcome">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+                <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
             </Head>
 
-            <div className="min-h-screen bg-[#F7F8FB] text-[#1b1b18] antialiased transition-colors dark:bg-[#0b0b0b] dark:text-[#EDEDEC] flex flex-col scroll-smooth">
-                {/* Skip to content for accessibility */}
-                <a
-                    href="#content"
-                    className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[#1b1b18] focus:px-3 focus:py-2 focus:text-white focus:shadow dark:focus:bg-[#EDEDEC] dark:focus:text-[#0b0b0b]"
-                >
+            <div className="relative min-h-screen bg-white text-slate-900 selection:bg-blue-500 selection:text-white dark:bg-[#030712] dark:text-[#EDEDEC] font-sans overflow-x-hidden">
+                
+                {/* AMBIENT BACKGROUND GLOWS */}
+                <div className="fixed inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-blue-500/20 blur-[120px] mix-blend-multiply dark:bg-blue-500/10 dark:mix-blend-screen" />
+                    <div className="absolute bottom-[-10%] right-[-10%] h-[600px] w-[600px] rounded-full bg-purple-500/20 blur-[120px] mix-blend-multiply dark:bg-indigo-500/10 dark:mix-blend-screen" />
+                    <div className="absolute top-[20%] right-[15%] h-[300px] w-[300px] rounded-full bg-cyan-400/20 blur-[100px] opacity-50 dark:opacity-20" />
+                </div>
+
+                <a href="#content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white">
                     Skip to content
                 </a>
-                {/* Top bar with logo, nav, language toggle, and CTAs */}
-                <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/80 px-6 py-4 backdrop-blur dark:border-white/10 dark:bg-[#0b0b0b]/80">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-2">
+                
+                {/* FLOATING NAVBAR */}
+                <header className="fixed top-0 z-50 w-full px-6 py-4">
+                    <div className="mx-auto max-w-7xl rounded-2xl border border-black/5 bg-white/70 px-6 py-3 shadow-sm backdrop-blur-md transition-all dark:border-white/10 dark:bg-[#0B1121]/70">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
                             <img src="/images/alison_icon.jpeg" alt="Exam Management System Logo" className="h-9 w-9" />
                             <span className="text-base font-semibold tracking-tight">Exam Management System</span>
                         </div>
 
-                        <nav className="flex items-center gap-5 text-sm">
-                            <a href="#home" className="opacity-90 hover:opacity-100">Home</a>
-                            <a href="#about" className="opacity-90 hover:opacity-100">About Us</a>
-                            <a href="#faq" className="opacity-90 hover:opacity-100">FAQ</a>
-                            <a href="#contact" className="opacity-90 hover:opacity-100">Contact</a>
-                        </nav>
+                            <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+                                <NavLink href="#home">Home</NavLink>
+                                <NavLink href="#student-guidelines">Students</NavLink>
+                                <NavLink href="#instructor-guidelines">Instructors</NavLink>
+                                <NavLink href="#faq">Support</NavLink>
+                            </nav>
 
-                        <div className="flex items-center gap-3">
-                            {isAuthed ? (
-                                <Link
-                                    href="/dashboard"
-                                    className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <Link
-                                        href="/login?as=student"
-                                        className="inline-flex items-center rounded-full bg-[#3b4aa1] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2f3c85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                    >
-                                        Student Login
+                            <div className="flex items-center gap-3">
+                                {isAuthed ? (
+                                    <Link href="/dashboard" className="cta-button-primary">
+                                        Dashboard
                                     </Link>
-                                        <Link
-                                            href="/login?as=teacher"
-                                            className="inline-flex items-center rounded-full bg-[#68a1ff] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                        >
-                                            Instructor Login
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Link href="/login?as=student" className="cta-button-secondary">
+                                            Student
                                         </Link>
-                                </div>
-                            )}
+                                        <Link href="/login?as=teacher" className="cta-button-primary">
+                                            Instructor
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </header>
 
-                {/* Hero section with gradient background and centered content */}
-                <main id="content" className="relative flex-1">
-                    <div className="pointer-events-none absolute inset-0 select-none" aria-hidden>
-                        <div className="h-[420px] w-full bg-gradient-to-b from-[#eaf0ff] to-transparent dark:from-[#0f1326]" />
-                        <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#cfe0ff] opacity-40 blur-3xl dark:bg-[#1a2348]" />
-                    </div>
-                    <div className="relative w-full px-6 py-12 lg:py-16">
-                        <section id="home" className="text-center mx-auto max-w-4xl scroll-mt-24">
-                            <p className="mb-2 text-sm uppercase tracking-wider text-[#7a7a75] dark:text-[#A1A09A]">
-                                {isAuthed ? 'Welcome back' : 'Welcome to'}
-                            </p>
-                            <h1 className="text-5xl font-bold leading-tight tracking-tight lg:text-6xl">
-                                {isAuthed ? (
-                                    <>
-                                        {user?.name ?? 'User'}
-                                        {displayRole ? (
-                                            <span className="ml-2 align-top text-base font-medium text-[#7a7a75] dark:text-[#A1A09A]">({displayRole})</span>
-                                        ) : null}
-                                    </>
-                                ) : (
-                                    <>
-                                        Online
-                                        <br />
-                                        <span className="text-[#68a1ff]">Exams</span>
-                                    </>
-                                )}
+                <main id="content" className="relative z-10 flex-1 pt-32">
+                    
+                    {/* HERO SECTION */}
+                    <div className="relative w-full px-6 pb-20 lg:pb-32">
+                        <section id="home" className="mx-auto max-w-5xl text-center">
+                            <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-300 mb-6">
+                                <span className="flex h-2 w-2 rounded-full bg-blue-600 mr-2 animate-pulse"></span>
+                                {isAuthed ? 'Welcome back, ' + (user?.name ?? 'User') : 'Official Portal for Students & Instructors'}
+                            </div>
+                            
+                            <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-slate-900 dark:text-white md:text-6xl lg:text-7xl">
+                                {/* [School Name]*/} Digital <br /> Examination Portal
                             </h1>
-                            <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                                The smarter way to create, take, and manage exams. Manage courses, units, and sessions
-                                in one place — secure, fast, and accessible.
+                            
+                            <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+                                A centralized platform for academic assessment, course management, and student progress tracking.
                             </p>
-                            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                                {isAuthed ? (
-                                    <Link
-                                        href="/dashboard"
-                                        className="inline-flex items-center rounded-full bg-[#68a1ff] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                    >
-                                        Go to dashboard
+                            
+                            {!isAuthed && (
+                                <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                                    <Link href="/login?as=student" className="h-12 px-8 rounded-full bg-slate-900 text-white font-medium hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 transition-colors flex items-center justify-center">
+                                        Student Login
                                     </Link>
-                                ) : (
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Link
-                                            href="/login?as=student"
-                                            className="inline-flex items-center rounded-full bg-[#3b4aa1] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#2f3c85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                        >
-                                            Student Login
-                                        </Link>
-                                        <Link
-                                            href="/login?as=teacher"
-                                            className="inline-flex items-center rounded-full bg-[#68a1ff] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9c7ff] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0b0b0b]"
-                                        >
-                                            Instructor Login
-                                        </Link>
-                                    </div>
-                                )}
-                                {!isAuthed && (
-                                    <span className="text-xs text-[#8a8984] dark:text-[#9E9D97]">Choose your role to continue.</span>
-                                )}
-                            </div>
-                        </section>
+                                    <Link href="/login?as=teacher" className="h-12 px-8 rounded-full border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-center">
+                                        Instructor Login
+                                    </Link>
+                                </div>
+                            )}
 
-                        {/* Centered mockup card under hero */}
-                        
+                            {/* Introduction Block */}
+                            <div className="mt-16 text-left mx-auto max-w-4xl rounded-2xl bg-slate-50/80 p-8 border border-slate-200 dark:bg-[#111827]/50 dark:border-white/5 backdrop-blur-sm">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">About This System</h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                                     Welcome to the {/*[School Name]*/} Examination System. This platform allows for a seamless, paperless assessment process. Whether you are an instructor preparing a rigorous assessment or a student demonstrating your knowledge, this system ensures a secure, timed, and fair testing environment.
+                                </p>
+                                <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 dark:bg-blue-900/20 dark:border-blue-900/30">
+                                    <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">
+                                        <strong>Please Note:</strong> Access to this system is restricted to current faculty and enrolled students. You must have an active account with the school administration to log in.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </section>
                     </div>
 
-                    {/* Role highlights */}
-                    {/* Feature/role grid resembling modern landing card layout */}
-                    <section id="about" className="mt-20 w-full px-6 scroll-mt-24">
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
-                            <div className="mb-3 flex items-center gap-2">
-                                <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
-                                    {/* teacher icon */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                                        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2.25 20.25A7.75 7.75 0 0110 12.5h4a7.75 7.75 0 017.75 7.75.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75z" />
-                                    </svg>
-                                </span>
-                                <h2 className="text-lg font-semibold">For Instructors</h2>
+                    {/* OVERVIEW CARDS */}
+                    <section className="relative w-full px-6 py-12">
+                         <div className="mx-auto max-w-7xl">
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <InfoCard title="Strict Scheduling" icon="clock">
+                                    Exams start at the exact scheduled minute. Late entries are blocked.
+                                </InfoCard>
+                                <InfoCard title="Live Auto-Save" icon="cloud">
+                                    Responses are saved instantly. Background sync preventing data loss.
+                                </InfoCard>
+                                <InfoCard title="Proctored Security" icon="shield">
+                                    Fullscreen enforcement and clipboard blocking via ProctorAPI.
+                                </InfoCard>
+                                <InfoCard title="Verified Results" icon="check">
+                                    Downloadable PDF certificates with cryptographic QR codes.
+                                </InfoCard>
                             </div>
-                            <h3 className="text-sm font-medium text-[#3b3b35] dark:text-[#D9D8D2]">Streamline Your Assessment Process</h3>
-                            <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                                Design exams and questions, schedule sessions, proctor activity, and grade submissions.
-                                Track performance across courses and units from one dashboard.
-                            </p>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                                <FeaturePill icon="">Easy Exam Creation</FeaturePill>
-                                <FeaturePill icon="">Automated Grading</FeaturePill>
-                                <FeaturePill icon="">Advanced Analytics</FeaturePill>
-                                <FeaturePill icon="">Secure Environment</FeaturePill>
-                            </div>
-                            {isAuthed && (isTeacher || !isStudent) && (
-                                <div className="mt-6 flex flex-wrap gap-3">
-                                    <QuickLink href="/courses">Manage courses</QuickLink>
-                                    <QuickLink href="/exams">All exams</QuickLink>
-                                    <QuickLink href="/grading/exams/submitted">Grade submissions</QuickLink>
-                                    <QuickLink href="/revision">Revision docs</QuickLink>
-                                </div>
-                            )}
-                            {!isAuthed && (
-                                <div className="mt-6 flex flex-wrap gap-3">
-                                    <Link
-                                        href="/exams"
-                                        className="inline-flex items-center rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
-                                    >
-                                        Explore Instructor Features
-                                    </Link>
-                                    <a
-                                        href="#contact"
-                                        className="inline-flex items-center rounded-full bg-transparent px-4 py-2 text-sm font-medium text-[#3b4aa1] underline-offset-2 hover:underline dark:text-[#8ea3ff]"
-                                    >
-                                        Request a Demo
-                                    </a>
-                                </div>
-                            )}
-                            <blockquote className="mt-6 rounded-lg border border-black/10 bg-[#f8faff] p-4 text-sm italic text-[#3b3b35] dark:border-white/10 dark:bg-[#131725] dark:text-[#D9D8D2]">
-                                “This platform cut our grading time in half and gave us real insights into student
-                                performance.” — A. Mensah, Senior Lecturer
-                            </blockquote>
-                            </div>
-                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
-                            <div className="mb-3 flex items-center gap-2">
-                                <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
-                                    {/* student icon */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                                        <path d="M12 3l9 5-9 5-9-5 9-5zm0 7.5l6.75-3.75V14a6.75 6.75 0 11-13.5 0V6.75L12 10.5z" />
-                                    </svg>
-                                </span>
-                                <h2 className="text-lg font-semibold">For Students</h2>
-                            </div>
-                            <h3 className="text-sm font-medium text-[#3b3b35] dark:text-[#D9D8D2]">Your Exams, Organized and Accessible</h3>
-                            <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                                Join exam sessions, answer securely, submit with confidence, and access your results
-                                and revision materials anytime.
-                            </p>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                                <FeaturePill icon="">Clear Schedule</FeaturePill>
-                                <FeaturePill icon="">Mobile-Friendly</FeaturePill>
-                                <FeaturePill icon="">Instant Results</FeaturePill>
-                                <FeaturePill icon="">Practice Resources</FeaturePill>
-                            </div>
-                            {isAuthed && (isStudent || !isTeacher) && (
-                                <div className="mt-6 flex flex-wrap gap-3">
-                                    <QuickLink href="/student/results">Your results</QuickLink>
-                                    <QuickLink href="/student/revision">Revision</QuickLink>
-                                    <QuickLink href="/dashboard">Go to dashboard</QuickLink>
-                                </div>
-                            )}
-                            {!isAuthed && (
-                                <div className="mt-6 flex flex-wrap gap-3">
-                                    <a
-                                        href="#faq"
-                                        className="inline-flex items-center rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
-                                    >
-                                        View System Requirements
-                                    </a>
-                                    <a
-                                        href="#faq"
-                                        className="inline-flex items-center rounded-full bg-transparent px-4 py-2 text-sm font-medium text-[#3b4aa1] underline-offset-2 hover:underline dark:text-[#8ea3ff]"
-                                    >
-                                        Take a Practice Test
-                                    </a>
-                                </div>
-                            )}
+                         </div>
+                    </section>
 
-                            {/* How it works */}
-                            <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
-                                <HowStep index={1} label="Log In" />
-                                <Arrow />
-                                <HowStep index={2} label="Select Exam" />
-                                <Arrow className="hidden sm:block" />
-                                <HowStep index={3} label="Start Test" />
+                    {/* STUDENT JOURNEY (Timeline) */}
+                    <section id="student-guidelines" className="relative w-full px-6 py-24 bg-slate-50 dark:bg-[#0B1121]/50 border-y border-slate-200 dark:border-white/5">
+                        <div className="mx-auto max-w-5xl">
+                             <div className="text-center mb-16">
+                                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">For Students: Your Exam Guidelines</h2>
+                                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">The system provides a distraction-free environment for you to take your exams. Please read the following instructions carefully.</p>
                             </div>
-                            </div>
-                            {/* Third card for layout balance */}
-                            <div className="rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414]">
-                                <div className="mb-3 flex items-center gap-2">
-                                    <span className="grid h-8 w-8 place-items-center rounded-md bg-[#e6efff] text-[#3b4aa1] dark:bg-[#1b2137] dark:text-[#8ea3ff]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 6a4 4 0 110 8 4 4 0 010-8z" />
-                                        </svg>
-                                    </span>
-                                    <h2 className="text-lg font-semibold">Secure & Reliable</h2>
-                                </div>
-                                <h3 className="text-sm font-medium text-[#3b3b35] dark:text-[#D9D8D2]">Built for Trust</h3>
-                                <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                                    Robust proctoring options, session integrity checks, and modern infrastructure keep
-                                    exams fair and data protected.
-                                </p>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <FeaturePill icon="">Proctoring</FeaturePill>
-                                    <FeaturePill icon="">Privacy</FeaturePill>
-                                    <FeaturePill icon="">Performance</FeaturePill>
-                                </div>
+
+                            <div className="relative space-y-12">
+                                <div className="absolute left-[27px] top-2 h-full w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-transparent md:left-[27px]"></div>
+                                
+                                <TimelineItem number="1" title="Dashboard & Notification">
+                                    <p className="mb-2">Your dashboard is your academic calendar.</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li><strong>Upcoming Exams:</strong> Any exam scheduled for your registered units will appear here with a countdown timer.</li>
+                                        <li><strong>Active Exams:</strong> When the start time arrives, the "Start Exam" button will turn green.</li>
+                                        <li><strong>Past Papers:</strong> Access previous exams and revision materials (PDFs) uploaded by your teachers for study purposes.</li>
+                                    </ul>
+                                </TimelineItem>
+
+                                <TimelineItem number="2" title="The Examination Environment">
+                                    <p className="mb-2">To maintain exam integrity, the system monitors your session:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li><strong>Timer:</strong> A countdown timer is always visible at the top of your screen.</li>
+                                        <li><strong>Auto-Submit:</strong> If the timer reaches 00:00, the system will automatically save and submit whatever answers you have written.</li>
+                                        <li><strong>Browser Security:</strong> Ensure you are in a quiet place. Do not open new tabs or minimize the browser, as the system logs activity and may flag your session.</li>
+                                    </ul>
+                                </TimelineItem>
+
+                                <TimelineItem number="3" title="Revision & Feedback">
+                                    <p className="mb-2">Once your teachers have graded the exams:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li>Login to view your score and detailed performance breakdown.</li>
+                                        <li>Download answer keys or revision notes (if provided by the instructor) to help prepare for future assessments.</li>
+                                    </ul>
+                                </TimelineItem>
                             </div>
                         </div>
                     </section>
 
-                    {/* Call-to-action band */}
-                    <section className="mt-16 w-full px-6 scroll-mt-24">
-                        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-[#eaf0ff] px-6 py-8 text-center shadow-sm dark:bg-[#12172a] md:flex-row md:text-left">
-                            <div>
-                                <h3 className="text-lg font-semibold text-[#2a2a26] dark:text-[#EDEDEC]">Ready to get started?</h3>
-                                <p className="text-sm text-[#6f6f6b] dark:text-[#B9B8B3]">Log in as a student or instructor and start your next exam journey.</p>
+                    {/* TEACHER JOURNEY (Timeline) */}
+                    <section id="instructor-guidelines" className="relative w-full px-6 py-24 bg-white dark:bg-[#030712] border-b border-slate-200 dark:border-white/5">
+                        <div className="mx-auto max-w-5xl">
+                             <div className="text-center mb-16">
+                                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">For Instructors: Managing Your Assessments</h2>
+                                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">This system is designed to give you full control over your assigned units and the examination lifecycle.</p>
                             </div>
-                            <div className="flex flex-wrap items-center justify-center gap-3">
-                                <Link href="/login?as=student" className="inline-flex items-center rounded-full bg-[#3b4aa1] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2f3c85]">Student Login</Link>
-                                <Link href="/login?as=teacher" className="inline-flex items-center rounded-full bg-[#68a1ff] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#5b90e6]">Instructor Login</Link>
+
+                            <div className="relative space-y-12">
+                                {/* Vertical Line (Reversed gradient for visual distinction from student line) */}
+                                <div className="absolute left-[27px] top-2 h-full w-0.5 bg-gradient-to-b from-purple-500 via-blue-500 to-transparent md:left-[27px]"></div>
+                                
+                                <TimelineItem number="1" title="Your Teaching Profile & Unit Assignments">
+                                    <p className="mb-2">Upon logging in, the system filters content based on your specific workload.</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li><strong>Verification:</strong> You will only see the specific Units and Courses assigned to you by the Administrator.</li>
+                                        <li><strong>Unit Management:</strong> Click on a specific unit to view the student list and past assessment history.</li>
+                                        <li><strong>Correction:</strong> If a unit is missing, contact the Admin to update your Teacher Unit Assignment record.</li>
+                                    </ul>
+                                </TimelineItem>
+
+                                <TimelineItem number="2" title="Creating & Scheduling Exams">
+                                    <p className="mb-2">The "Exam Manager" allows you to set precise parameters for every test:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li><strong>Content Upload:</strong> Input questions directly or upload necessary resources (diagrams, text passages).</li>
+                                        <li><strong>Time Windows:</strong> Define the Start/End Date & Time. The exam link remains hidden until the start time.</li>
+                                        <li><strong>Duration Control:</strong> Set a strict timer (e.g., 60 minutes). The system tracks time for each student individually.</li>
+                                    </ul>
+                                </TimelineItem>
+
+                                <TimelineItem number="3" title="Grading & Results">
+                                    <p className="mb-2">Efficient grading workflows:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li><strong>Automated Grading:</strong> Objective questions (Multiple Choice) are graded immediately upon submission.</li>
+                                        <li><strong>Manual Review:</strong> Access digital scripts for essay or theory questions via the "Pending Reviews" tab.</li>
+                                        <li><strong>Publishing:</strong> Results are not visible to students until you verify and click "Publish".</li>
+                                    </ul>
+                                </TimelineItem>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ACADEMIC INTEGRITY */}
+                    <section id="integrity" className="w-full px-6 py-20 bg-red-50/50 dark:bg-red-900/10 border-y border-red-100 dark:border-red-900/20">
+                        <div className="mx-auto max-w-4xl text-center">
+                            <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-red-600 dark:bg-red-900/40 dark:text-red-300">
+                                Zero Tolerance Policy
+                            </span>
+                            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Academic Integrity & Proctoring</h2>
+                            <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
+                                Active monitoring ensures a fair environment. <span className="font-semibold text-red-600 dark:text-red-400">Warning:</span> Attempts to bypass measures result in logged incidents.
+                            </p>
+
+                            <div className="mt-12 grid gap-6 md:grid-cols-3 text-left">
+                                <IntegrityCard number="01" title="Environment Lock">
+                                    Fullscreen is mandatory. Context menus (Right-Click) and Keyboard Shortcuts (Alt+Tab, Ctrl+C) are disabled via JS interceptors.
+                                </IntegrityCard>
+                                <IntegrityCard number="02" title="Violation Tracking">
+                                    The server records "Proctor Events". Exceeding the `violation_threshold` triggers an automatic submission.
+                                </IntegrityCard>
+                                <IntegrityCard number="03" title="Cryptographic Verify">
+                                    Every PDF contains a Verification Code. Use the <code>/results/verify</code> endpoint to validate certificates.
+                                </IntegrityCard>
                             </div>
                         </div>
                     </section>
 
                     {/* FAQ */}
-                    <section id="faq" className="mt-20 w-full px-6 scroll-mt-24">
-                        <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
-                        <div className="mt-6 grid gap-4 md:grid-cols-2">
-                            <FaqItem q="What are the system requirements?" a="A modern browser (Chrome, Firefox, Edge, Safari), stable internet, and a camera/microphone if proctoring is enabled." />
-                            <FaqItem q="How do I reset my password?" a="Use the 'Forgot password' link on the login page and follow the instructions sent to your email." />
-                            <FaqItem q="How do I upload questions in bulk?" a="Instructors can access the Question Bank and use the import/upload option to add multiple questions." />
-                            <FaqItem q="Can I schedule an exam for a specific time?" a="Yes. When creating an exam, set the open/close times and duration to control availability." />
-                            <FaqItem q="What happens if my internet disconnects?" a="Your answers are saved continuously. Reconnect and resume if the exam window is still open." />
-                            <FaqItem q="Is the system compatible with screen readers?" a="Yes. We follow accessibility best practices and support keyboard navigation and ARIA labels." />
+                    <section id="faq" className="w-full px-6 py-24 max-w-3xl mx-auto">
+                        <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Technical Support</h2>
+                        <div className="space-y-4">
+                            <FaqItem q="I cannot log in." a="Ensure you are using your correct School Admission Number (Students) or Staff Email (Teachers). If you forgot your password, contact the ICT office." />
+                            <FaqItem q="Can I restart the exam?" a="No. A session is 'Single Attempt'. If you close the browser, you can log back in and resume ONLY if time remains. You cannot start over." />
+                            <FaqItem q="Why did my exam submit automatically?" a="1) Time expired. 2) You exceeded the Proctoring Violation Threshold (e.g. switched tabs too many times)." />
+                            <FaqItem q="How do I verify a result?" a="Scan the QR code on the PDF or enter the code into the Public Verification Portal." />
                         </div>
                     </section>
 
-                    {/* Support */}
-                    <section id="contact" className="mt-16 w-full rounded-xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#141414] scroll-mt-24">
-                        <h2 className="text-xl font-semibold">Get Support</h2>
-                        <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">
-                            Need help? Reach out to our team — we’re here to assist instructors and students.
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                            <a
-                                className="inline-flex items-center rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
-                                href="mailto:support@ems.app"
-                            >
-                                Support Email
-                            </a>
-                            <a
-                                className="inline-flex items-center rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
-                                href="#faq"
-                            >
-                                Technical Help Desk
-                            </a>
-                            <a
-                                className="inline-flex items-center rounded-full bg-transparent px-4 py-2 text-sm font-medium text-[#3b4aa1] underline-offset-2 hover:underline dark:text-[#8ea3ff]"
-                                href="#"
-                            >
-                                Live Chat
-                            </a>
-                        </div>
-                    </section>
                 </main>
 
-                <footer className="mt-10 pb-10 text-center text-xs text-[#8a8984] dark:text-[#9E9D97]">
-                    <div className="mb-2 flex items-center justify-center gap-4">
-                        <a className="hover:underline" href="#">Privacy Policy</a>
-                        <span aria-hidden>•</span>
-                        <a className="hover:underline" href="#">Terms & Conditions</a>
-                    </div>
-                    © {new Date().getFullYear()} Online Exam. All rights reserved.
+                <footer className="w-full border-t border-slate-200 bg-white py-12 text-center text-sm text-slate-500 dark:border-white/5 dark:bg-[#030712] dark:text-slate-400">
+                    <p>© {new Date().getFullYear()} Jeff Kamau | Exam System.</p>
                 </footer>
             </div>
         </>
     );
 }
 
+// --- Helper Components ---
+// (These remain unchanged)
 function capitalize(s: string) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
-function QuickLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, children }: { href: string, children: React.ReactNode }) {
     return (
-        <Link
-            href={href}
-            className="inline-flex items-center gap-1 rounded-full bg-[#f0f4ff] px-3 py-1.5 text-xs font-medium text-[#3b4aa1] shadow-sm transition hover:bg-[#e4ecff] dark:bg-[#1b2137] dark:text-[#8ea3ff]"
-        >
+        <a href={href} className="text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 transition-colors">
             {children}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                <path d="M12.293 5.293a1 1 0 011.414 1.414L9.414 11h5.586a1 1 0 110 2H7a1 1 0 01-.707-1.707l6-6z" />
-            </svg>
-        </Link>
-    );
+        </a>
+    )
 }
 
-function FeaturePill({ icon, children }: { icon: string; children: React.ReactNode }) {
-    return (
-        <span className="inline-flex items-center gap-1 rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-medium text-[#3b3b35] shadow-sm dark:border-white/10 dark:bg-[#141414] dark:text-[#D9D8D2]">
-            <span aria-hidden>{icon}</span>
-            {children}
-        </span>
-    );
-}
+function InfoCard({ title, icon, children }: { title: string, icon: string, children: React.ReactNode }) {
+    const icons: any = {
+        clock: <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        cloud: <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />,
+        shield: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />,
+        check: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
+    };
 
-function HowStep({ index, label }: { index: number; label: string }) {
     return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#141414]">
-            <span className="mb-1 grid h-6 w-6 place-items-center rounded-full bg-[#68a1ff] text-xs font-bold text-white">{index}</span>
-            <span className="text-[#3b3b35] dark:text-[#D9D8D2]">{label}</span>
+        <div className="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-500/50 backdrop-blur-sm">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-900 group-hover:bg-blue-600 group-hover:text-white transition-colors dark:bg-white/10 dark:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    {icons[icon]}
+                </svg>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                {children}
+            </p>
         </div>
     );
 }
 
-function Arrow({ className = '' }: { className?: string }) {
+function TimelineItem({ number, title, children }: { number: string, title: string, children: React.ReactNode }) {
     return (
-        <div className={`hidden items-center justify-center sm:flex ${className}`} aria-hidden>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 opacity-70">
-                <path d="M13.293 5.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 11-1.414-1.414L17.586 13H4a1 1 0 110-2h13.586l-4.293-4.293a1 1 0 010-1.414z" />
-            </svg>
+        <div className="relative pl-12">
+            <span className="absolute left-0 top-0 flex h-14 w-14 items-center justify-center rounded-full bg-white border border-slate-200 text-lg font-bold text-slate-900 shadow-sm dark:bg-[#0B1121] dark:border-white/10 dark:text-white">
+                {number}
+            </span>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h3>
+            <div className="mt-2 text-slate-600 dark:text-slate-400 leading-relaxed">
+                {children}
+            </div>
         </div>
     );
+}
+
+function IntegrityCard({ number, title, children }: { number: string, title: string, children: React.ReactNode }) {
+    return (
+         <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 dark:bg-white/5 dark:border-white/5">
+            <span className="text-xs font-bold text-red-500 dark:text-red-400 block mb-2">{number}</span>
+            <h4 className="font-bold text-slate-900 dark:text-white mb-2">{title}</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{children}</p>
+        </div>
+    )
 }
 
 function FaqItem({ q, a }: { q: string; a: string }) {
     return (
-        <details className="rounded-lg border border-black/10 bg-white p-4 open:shadow-sm dark:border-white/10 dark:bg-[#141414]">
-            <summary className="cursor-pointer list-none text-sm font-medium text-[#1b1b18] outline-none marker:hidden dark:text-[#EDEDEC]">
+        <details className="group rounded-xl border border-slate-200 bg-white p-4 open:shadow-md dark:border-white/5 dark:bg-white/5">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-slate-900 dark:text-white">
                 {q}
+                <span className="ml-2 text-slate-400 group-open:rotate-45 group-open:text-blue-500 transition-transform dark:text-slate-500">+</span>
             </summary>
-            <p className="mt-2 text-sm leading-relaxed text-[#6f6f6b] dark:text-[#B9B8B3]">{a}</p>
+            <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-relaxed text-slate-600 dark:border-white/5 dark:text-slate-400">{a}</p>
         </details>
     );
 }
-
-function LanguageToggle() {
-    const changeLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('lang', val);
-        window.location.href = url.toString();
-    };
-    return (
-        <label className="inline-flex items-center gap-2 text-xs opacity-90">
-            <span className="sr-only">Language</span>
-            <select
-                aria-label="Language"
-                defaultValue={new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('lang') ?? 'en'}
-                onChange={changeLang}
-                className="rounded-md border border-black/10 bg-white px-2 py-1 text-xs dark:border-white/10 dark:bg-[#141414]"
-            >
-                <option value="en">EN</option>
-                <option value="fr">FR</option>
-            </select>
-        </label>
-    );
-}
-
-// (No external button utility classes; CTAs use inline Tailwind classes to avoid extra CSS.)
