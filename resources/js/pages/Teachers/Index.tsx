@@ -125,7 +125,7 @@ export default function Index() {
                                         <ActionMenu
                                             items={[ 
                                                 { label: 'Edit', href: route('teachers.edit', teacher.id) },
-                                                { label: 'Load', href: route('teachers.load', teacher.id) },
+                                                // { label: 'Load', href: route('teachers.load', teacher.id) },
                                                 { label: 'Reset Password', onClick: () => handleResetPassword(teacher.id, teacher.name), variant: 'default' },
                                                 { label: 'Delete', onClick: () => handleDelete(teacher.id, teacher.name), variant: 'destructive', disabled: processing },
                                             ]}

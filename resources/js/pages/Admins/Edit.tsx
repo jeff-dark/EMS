@@ -4,8 +4,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Edit Admin',
+        href: '/admins/edit',
+    },
+];
+
+type PageProps = {
+    flash: {
+        message?: string;
+    };
+    // We intersect this in the usePage hook, but defining it here helps too
+    auth?: { user?: { email?: string } };
+    [key: string]: any;
+};
 
 
 interface Admin {
@@ -19,6 +35,27 @@ interface Props {
 }
 
 export default function Edit({ admin }: Props) {
+
+    const { props } = usePage<{ auth?: { user?: { email?: string } } } & PageProps>();
+        const { auth, admins = [] } = props;
+
+        // 2. Define the allowed email
+        const ALLOWED_EMAIL = 'jeffkamau8501@gmail.com';
+
+        // 3. Security Check
+        if (!(auth?.user?.email && auth.user.email === ALLOWED_EMAIL)) {
+            return (
+                <AppLayout breadcrumbs={breadcrumbs}>
+                    <Head title="Edit Admin" />
+                    <div className="m-4">
+                        <h1 className="text-xl font-semibold">Unauthorized</h1>
+                    </div>
+                </AppLayout>
+            );
+        }
+
+
+    
     function route(name: string, id?: number): string {
         // Simple implementation for demonstration purposes
         // In a real app, you might use a route helper or config
